@@ -101,6 +101,9 @@ public class Controller {
     private ComboBox<tables> tablesComboBox;
 
     @FXML
+    private ComboBox<String> fileComboBox;
+
+    @FXML
     private ComboBox<String> sourceDB;
 
     private ObservableList<Encounter> allEncounters;
@@ -242,6 +245,7 @@ public class Controller {
 
     @FXML
     public void getDirectory(){
+        fileComboBox.setItems(null);
         if(fromFile.isSelected()) {
             showDirectory.setText("Select Data File Location");
 
@@ -249,7 +253,25 @@ public class Controller {
             File file = chooser.showDialog(mainLayer.getScene().getWindow());
 
             if (file != null) {
+
                 FilePath.xsdDir = file.getPath();
+
+                File folder = new File(file.getPath());
+                File[] listOfFiles = folder.listFiles();
+
+
+                ObservableList<String> fileNames = FXCollections.observableArrayList();
+
+                for (int i = 0; i < listOfFiles.length; i++) {
+
+                    if (listOfFiles[i].isFile()) {
+                        fileNames.add(listOfFiles[i].getName());
+                        System.out.println("File " + listOfFiles[i].getName());
+                    } else if (listOfFiles[i].isDirectory()) {
+                        System.out.println("Directory " + listOfFiles[i].getName());
+                    }
+                }
+                fileComboBox.setItems(FXCollections.observableArrayList(fileNames));
                 showDirectory.setText("Source Directory: " + FilePath.xsdDir);
             } else {
                 showDirectory.setText("Chooser was Cancelled");
@@ -257,6 +279,7 @@ public class Controller {
             }
         }
     }
+
 
     public void logToConsole(String text){
         Platform.runLater(()-> {
@@ -1635,10 +1658,11 @@ public class Controller {
                                 Person person = new Person();
                                 person.setPerson_id(rs.getInt("person_id"));
                                 person.setGender(rs.getString("gender"));
-                                person.setBirthdate(rs.getDate("birthdate"));
+                                if(rs.getDate("birthdate") != null)
+                                    person.setBirthdate(rs.getDate("birthdate"));
                                 person.setBirthdate_estimated(rs.getBoolean("birthdate_estimated"));
                                 person.setDead(rs.getBoolean("dead"));
-                                person.setDeath_date(rs.getDate("death_date"));
+                                //person.setDeath_date(rs.getDate("death_date"));
                                 //if(rs.findColumn("deathdate_estimated") <= 0)
                                     //person.setDeathdate_estimated(rs.getBoolean("deathdate_estimated"));
                                 //if(rs.findColumn("birthtime") <= 0)
@@ -2787,15 +2811,10 @@ public class Controller {
     }
 
     private void setFile(){
-        String ext = "";
-        if(tablesComboBox.getSelectionModel().getSelectedIndex() == 3)
-            ext = ".xml";
-        else
-            ext = ".sql";
-        String tableName = getTableName();
-        logToConsole("Fetching file......\n");
+
+        logToConsole("Fetching file "+xsdDir + fileComboBox.getSelectionModel().getSelectedItem()+"......\n");
         try {
-            file = new File(xsdDir + "/"+tableName+ext);
+            file = new File(xsdDir + "/"+fileComboBox.getSelectionModel().getSelectedItem());
             logToConsole("File fetched......\n");
         }catch (Exception ex){
             logToConsole("Error fetched File...... "+ex.getMessage()+"\n");
