@@ -1,0 +1,6 @@
+/Users/mac/Desktop/IQCare_Extraction_Tools/2 Populate IQCare
+10.211.55.6
+3316
+shared
+openmrs
+openmrs
