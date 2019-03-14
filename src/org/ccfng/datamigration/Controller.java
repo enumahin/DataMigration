@@ -104,6 +104,12 @@ public class Controller {
     private ComboBox<String> fileComboBox;
 
     @FXML
+    private ComboBox<String> targetComboBox;
+
+    @FXML
+    private ComboBox<String> actionComboBox;
+
+    @FXML
     private ComboBox<String> sourceDB;
 
     private ObservableList<Encounter> allEncounters;
@@ -173,8 +179,17 @@ public class Controller {
     public Controller(){}
 
     public void initialize(){
-//        fromDB.setToggleGroup(sourceType);
-//        fromSQL.setToggleGroup(sourceType);
+        ObservableList<String> targets = FXCollections.observableArrayList();
+        targets.add("Source");
+        targets.add("Destination");
+        targetComboBox.setItems(FXCollections.observableList(targets));
+
+        ObservableList<String> action = FXCollections.observableArrayList();
+        action.add("Create");
+        action.add("Insert");
+        action.add("Update");
+        action.add("Delete");
+        actionComboBox.setItems(FXCollections.observableList(action));
         try {
             File textFile = new File("db-config.txt");
             if(!textFile.exists()) {
@@ -2877,5 +2892,81 @@ public class Controller {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @FXML
+    private void executeQuery(){
+        appConsole.clear();
+        logToConsole("#################### RUN QUERY! \n");
+
+        String sql = getSQL();
+
+        suffix = tableSuffix.getText();
+        source_username = username.getText();
+        source_password = password.getText();
+
+
+        if (targetComboBox.getSelectionModel().getSelectedItem() == "Destination") {
+            source_username = username.getText();
+            source_password = password.getText();
+            dbTYPE = "MYSQL DB";
+            try {
+                driver = "com.mysql.jdbc.Driver";
+                source_jdbcUrl = "jdbc:mysql://" + host.getText() + ":" + port.getText() + "/" + db.getText() +
+                        "?useServerPrepStmts=false&rewriteBatchedStatements=true";
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        } else{
+            source_username = sourceUsername.getText();
+            source_password = sourcePassword.getText();
+            dbTYPE = "SQLSERVER";
+            try {
+                driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+                source_jdbcUrl = "jdbc:sqlserver://" + sourceHost.getText() + ";databaseName=" + sourceDb.getText();
+                //Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            } catch (Exception ex) {
+                logToConsole("Error: "+ex.getMessage()+"\n");
+                ex.printStackTrace();
+            }
+        }
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName(driver);
+        }catch (Exception exc){
+            logToConsole("\n Error Registering DB Driver "+exc.getMessage()+"..");
+        }
+        try (Connection conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);) {
+//            if(actionComboBox.getSelectionModel().getSelectedItem() == "Create" ||
+//                    actionComboBox.getSelectionModel().getSelectedItem() == "Delete" ||
+//                    actionComboBox.getSelectionModel().getSelectedItem() == "Update"){
+                conn.setAutoCommit(false);
+                try (Statement smt = conn.createStatement();) {
+                    //execute batch
+
+                    smt.execute(sql);
+                    conn.commit();
+                    logToConsole("Query Executed Successfully!\n");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    rollbackTransaction(conn, e);
+                }
+            //}
+//            else {
+//                conn.setAutoCommit(false);
+//                try (Statement stmt = conn.createStatement();) {
+//                    //execute batch
+//                    stmt.executeBatch();
+//                    conn.commit();
+//                    logToConsole("Query Executed Successfully!\n");
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                    rollbackTransaction(conn, e);
+//                }
+//            }
+        } catch (SQLException e) {
+            logToConsole("Error: SQL STATE: " +e.getSQLState()+"... MESSAGE: "+e.getMessage()+"\n");
+            e.printStackTrace();
+        }
     }
 }
