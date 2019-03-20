@@ -24,8 +24,8 @@ import java.util.UUID;
 public class Obs
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "obs_id_seq_gen")
-    @SequenceGenerator(name = "obs_id_seq_gen", sequenceName = "obs_id_seq", allocationSize = 800)
+//    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "obs_id_seq_gen")
+//    @SequenceGenerator(name = "obs_id_seq_gen", sequenceName = "obs_id_seq", allocationSize = 800)
     @XmlElement(name = "Obs_id")
     private Integer Obs_id;
 
