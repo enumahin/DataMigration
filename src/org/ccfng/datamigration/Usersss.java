@@ -10,87 +10,87 @@ import javax.persistence.Id;
 @Entity
 public class Usersss {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID")
-	private int id;
-	
-	@Column(name = "FirstName")
-	private String firstName;
-	
-	@Column(name = "LastName")
-	private String lastName;
-	
-	@Column(name = "Email")
-	private String email;
-	
-	@Column(name = "DOB")
-	private String date;	
-	
-	@Column(name = "MobileNo")
-	private String mobileNo;
-	
-	public Usersss() {
-		// TODO Auto-generated constructor stub
-	}
-	
-	public Usersss(int id, String firstName, String lastName, String email, String date, String mobile) {
-		super();
-		this.id = id;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.email = email;
-		this.date = date;
-		this.mobileNo = mobile;
-	}
-	
-	public int getId() {
-		return id;
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    private int id;
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    @Column(name = "FirstName")
+    private String firstName;
 
-	public String getFirstName() {
-		return firstName;
-	}
+    @Column(name = "LastName")
+    private String lastName;
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    @Column(name = "Email")
+    private String email;
 
-	public String getLastName() {
-		return lastName;
-	}
+    @Column(name = "DOB")
+    private String date;
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-	
-	public String getEmail() {
-		return email;
-	}
+    @Column(name = "MobileNo")
+    private String mobileNo;
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public Usersss() {
+        // TODO Auto-generated constructor stub
+    }
 
-	public String getDate() {
-		return date;
-	}
+    public Usersss(int id, String firstName, String lastName, String email, String date, String mobile) {
+        super();
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.date = date;
+        this.mobileNo = mobile;
+    }
 
-	public void setDate(String date) {
-		this.date = date;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public String getMobileNo() {
-		return mobileNo;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	public void setMobileNo(String mobileNo) {
-		this.mobileNo = mobileNo;
-	}	
-	
-	
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getMobileNo() {
+        return mobileNo;
+    }
+
+    public void setMobileNo(String mobileNo) {
+        this.mobileNo = mobileNo;
+    }
+
+
 }

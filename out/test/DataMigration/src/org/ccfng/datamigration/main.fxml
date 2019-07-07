@@ -19,210 +19,249 @@
 <?import javafx.scene.text.Font?>
 
 <AnchorPane fx:id="mainLayer" maxHeight="800.0" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="641.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ccfng.datamigration.Controller">
-   <children>
-      <HBox prefHeight="38.0" prefWidth="800.0" style="-fx-background-color: #336699;">
-         <children>
-            <MenuBar prefHeight="26.0" prefWidth="800.0">
-              <menus>
-                <Menu mnemonicParsing="false" text="File">
-                  <items>
-                    <MenuItem mnemonicParsing="false" onAction="#closeApp" text="Close" />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Maintenance">
-                  <items>
-                    <MenuItem mnemonicParsing="false" onAction="#disableForeignKeyChecks" style="-fx-border-bottom-color: #336699; -fx-border-bottom-width: 2; -fx-border-bottom-style: solid;" text="Disable FKC" />
+    <children>
+        <HBox prefHeight="38.0" prefWidth="800.0" style="-fx-background-color: #336699;">
+            <children>
+                <MenuBar prefHeight="26.0" prefWidth="800.0">
+                    <menus>
+                        <Menu mnemonicParsing="false" text="File">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#closeApp" text="Close" />
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Maintenance">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#disableForeignKeyChecks" style="-fx-border-bottom-color: #336699; -fx-border-bottom-width: 2; -fx-border-bottom-style: solid;" text="Disable FKC" />
+                                <SeparatorMenuItem mnemonicParsing="false" />
+                                <MenuItem mnemonicParsing="false" onAction="#enableForeignKeyChecks" style="-fx-border-bottom-color: #336699;" text="Enable FKC" />
+                                <SeparatorMenuItem mnemonicParsing="false" />
+                                <MenuItem mnemonicParsing="false" onAction="#cleanUp" style="-fx-border-bottom-color: #336699;" text="Truncate Selected Table" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" onAction="#enableForeignKeyChecks" style="-fx-border-bottom-color: #336699;" text="Enable FKC" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" onAction="#cleanUp" style="-fx-border-bottom-color: #336699;" text="Truncate Selected Table" />
-                  </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                  <items>
-                    <MenuItem mnemonicParsing="false" text="About" />
-                  </items>
-                </Menu>
-              </menus>
-            </MenuBar>
-         </children>
-      </HBox>
-      <HBox layoutY="431.0" prefHeight="210.0" prefWidth="800.0">
-         <children>
-            <TextArea fx:id="appConsole" editable="false" prefHeight="203.0" prefWidth="800.0" />
-         </children>
-      </HBox>
-      <HBox layoutX="-1.0" layoutY="35.0" prefHeight="395.0" prefWidth="808.0">
-         <children>
-            <VBox prefHeight="363.0" prefWidth="246.0">
-               <children>
-                  <Label prefHeight="28.0" prefWidth="295.0" text="Source DB Settings" textFill="#336699">
+                        <MenuItem mnemonicParsing="false" onAction="#openOpenMRSCleanup" text="OpenMRS Data Clean-Up" />
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Help">
+                            <items>
+                                <MenuItem mnemonicParsing="false" text="About" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+            </children>
+        </HBox>
+        <HBox layoutY="431.0" prefHeight="210.0" prefWidth="800.0">
+            <children>
+                <TextArea fx:id="appConsole" editable="false" prefHeight="203.0" prefWidth="800.0" />
+            </children>
+        </HBox>
+        <HBox layoutX="-1.0" layoutY="35.0" prefHeight="395.0" prefWidth="808.0">
+            <children>
+                <VBox prefHeight="363.0" prefWidth="246.0">
+                    <children>
+                        <Label prefHeight="28.0" prefWidth="295.0" text="Source DB Settings" textFill="#336699">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets left="10.0" />
+                            </VBox.margin>
+                        </Label>
+                        <ComboBox fx:id="sourceDB" onAction="#toggleLocation" onInputMethodTextChanged="#toggleLocation" prefHeight="27.0" prefWidth="246.0" promptText="Select Source">
+                            <VBox.margin>
+                                <Insets left="10.0" right="10.0" />
+                            </VBox.margin>
+                        </ComboBox>
+                        <TextField fx:id="sourceHost" promptText="Host Address">
+                            <VBox.margin>
+                                <Insets left="10.0" right="10.0" top="10.0" />
+                            </VBox.margin>
+                        </TextField>
+                        <TextField fx:id="sourcePort" layoutX="20.0" layoutY="85.0" promptText="Port">
+                            <VBox.margin>
+                                <Insets left="10.0" right="10.0" top="10.0" />
+                            </VBox.margin>
+                        </TextField>
+                        <TextField fx:id="sourceUsername" promptText="Username">
+                            <VBox.margin>
+                                <Insets left="10.0" right="10.0" top="10.0" />
+                            </VBox.margin>
+                        </TextField>
+                        <TextField fx:id="sourcePassword" promptText="Password">
+                            <VBox.margin>
+                                <Insets left="10.0" right="10.0" top="10.0" />
+                            </VBox.margin>
+                        </TextField>
+                        <TextField fx:id="sourceDb" promptText="DB Name">
+                            <VBox.margin>
+                                <Insets left="10.0" right="10.0" top="10.0" />
+                            </VBox.margin>
+                        </TextField>
+                        <Button mnemonicParsing="false" onAction="#testSourceConnection" prefHeight="27.0" prefWidth="293.0" style="-fx-background-color: #336699;" text="Test Connection" textFill="#f8f7f7">
+                            <VBox.margin>
+                                <Insets left="10.0" right="10.0" top="10.0" />
+                            </VBox.margin>
+                        </Button>
+                  <Label fx:id="totalObs" layoutX="20.0" layoutY="297.0" prefHeight="17.0" prefWidth="226.0">
                      <font>
-                        <Font name="System Bold" size="14.0" />
+                        <Font size="14.0" />
                      </font>
                      <VBox.margin>
-                        <Insets left="10.0" />
+                        <Insets left="10.0" top="10.0" />
                      </VBox.margin>
                   </Label>
-                  <ComboBox fx:id="sourceDB" onAction="#toggleLocation" onInputMethodTextChanged="#toggleLocation" prefHeight="27.0" prefWidth="246.0" promptText="Select Source">
-                     <VBox.margin>
-                        <Insets left="10.0" right="10.0" />
-                     </VBox.margin>
-                  </ComboBox>
-                  <TextField fx:id="sourceHost" promptText="Host Address">
+                  <TextField fx:id="firstID" promptText="Where ID GT or EQ">
                      <VBox.margin>
                         <Insets left="10.0" right="10.0" top="10.0" />
                      </VBox.margin>
                   </TextField>
-                  <TextField fx:id="sourcePort" layoutX="20.0" layoutY="85.0" promptText="Port">
+                  <TextField fx:id="lastID" layoutX="10.0" layoutY="315.0" promptText="Where ID LT">
                      <VBox.margin>
                         <Insets left="10.0" right="10.0" top="10.0" />
                      </VBox.margin>
                   </TextField>
-                  <TextField fx:id="sourceUsername" promptText="Username">
-                     <VBox.margin>
-                        <Insets left="10.0" right="10.0" top="10.0" />
-                     </VBox.margin>
-                  </TextField>
-                  <TextField fx:id="sourcePassword" promptText="Password">
-                     <VBox.margin>
-                        <Insets left="10.0" right="10.0" top="10.0" />
-                     </VBox.margin>
-                  </TextField>
-                  <TextField fx:id="sourceDb" promptText="DB Name">
-                     <VBox.margin>
-                        <Insets left="10.0" right="10.0" top="10.0" />
-                     </VBox.margin>
-                  </TextField>
-                  <Button mnemonicParsing="false" onAction="#testSourceConnection" prefHeight="27.0" prefWidth="293.0" style="-fx-background-color: #336699;" text="Test Connection" textFill="#f8f7f7">
-                     <VBox.margin>
-                        <Insets left="10.0" right="10.0" top="10.0" />
-                     </VBox.margin>
-                  </Button>
-               </children>
-            </VBox>
-            <HBox prefHeight="363.0" prefWidth="280.0">
-               <children>
-                  <VBox prefHeight="363.0" prefWidth="326.0">
-                     <children>
-                        <Label fx:id="showDirectory" prefHeight="30.0" prefWidth="507.0">
-                           <padding>
-                              <Insets left="20.0" />
-                           </padding>
+                    </children>
+                </VBox>
+                <HBox prefHeight="363.0" prefWidth="280.0">
+                    <children>
+                        <VBox prefHeight="363.0" prefWidth="326.0">
+                            <children>
+                                <Label fx:id="showDirectory" prefHeight="30.0" prefWidth="507.0">
+                                    <padding>
+                                        <Insets left="20.0" />
+                                    </padding>
+                                </Label>
+                                <ProgressBar fx:id="progressBar" prefHeight="20.0" prefWidth="267.0">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </ProgressBar>
+                                <ProgressIndicator fx:id="progressIndicator" prefHeight="45.0" prefWidth="270.0" progress="0.0">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" />
+                                    </VBox.margin>
+                                </ProgressIndicator>
+                                <TextField fx:id="tableSuffix" promptText="Source Table Suffix">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </TextField>
+                                <CheckBox fx:id="fromFile" mnemonicParsing="false" onAction="#getDirectory" text="Load Data From File">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </CheckBox>
+                                <ComboBox fx:id="fileComboBox" prefHeight="27.0" prefWidth="294.0" promptText="Select File">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </ComboBox>
+                                <ComboBox fx:id="tablesComboBox" onAction="#checkLastObs" onInputMethodTextChanged="#checkLastObs" prefHeight="27.0" prefWidth="294.0" promptText="Select Table">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </ComboBox>
+                                <Button mnemonicParsing="false" onAction="#handleUpload" prefHeight="22.0" prefWidth="260.0" style="-fx-background-color: darkgreen;" text="Migrate" textFill="WHITE">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </Button>
+                                <Label prefHeight="28.0" prefWidth="295.0" text="Run Selected File" textFill="#336699">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" />
+                                    </VBox.margin>
+                                </Label>
+                                <ComboBox fx:id="targetComboBox" prefHeight="27.0" prefWidth="294.0" promptText="Select Target">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" />
+                                    </VBox.margin>
+                                </ComboBox>
+                                <ComboBox fx:id="actionComboBox" prefHeight="27.0" prefWidth="294.0" promptText="Select Action">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="5.0" />
+                                    </VBox.margin>
+                                </ComboBox>
+                                <Button mnemonicParsing="false" onAction="#executeQuery" prefHeight="27.0" prefWidth="260.0" style="-fx-background-color: #336699;" text="Execute" textFill="#fcfafa">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="5.0" />
+                                    </VBox.margin>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+                <HBox layoutX="188.0" layoutY="10.0" prefHeight="363.0" prefWidth="275.0">
+                    <children>
+                        <VBox prefHeight="395.0" prefWidth="274.0">
+                            <children>
+                                <Label prefHeight="28.0" prefWidth="295.0" text="Destination DB Settings" textFill="#336699">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets left="10.0" />
+                                    </VBox.margin>
+                                </Label>
+                                <TextField fx:id="host" promptText="Host Address">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" />
+                                    </VBox.margin>
+                                </TextField>
+                                <TextField fx:id="port" layoutX="20.0" layoutY="85.0" promptText="Port">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </TextField>
+                                <TextField fx:id="username" promptText="Username">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </TextField>
+                                <TextField fx:id="password" promptText="Password">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </TextField>
+                                <TextField fx:id="db" promptText="DB Name">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </TextField>
+                                <Button mnemonicParsing="false" onAction="#testDestinationConnection" prefHeight="27.0" prefWidth="253.0" style="-fx-background-color: #336699;" text="Test Connection" textFill="#fcfafa">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </Button>
+                                <Button mnemonicParsing="false" onAction="#cleanUp" prefHeight="27.0" prefWidth="252.0" style="-fx-background-color: brown;" text="Clean Up" textFill="WHITE">
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" top="10.0" />
+                                    </VBox.margin>
+                                </Button>
+                        <Label text="Migrating Obs by Form" textFill="#336699">
+                           <VBox.margin>
+                              <Insets left="10.0" right="10.0" top="10.0" />
+                           </VBox.margin>
+                           <font>
+                              <Font size="14.0" />
+                           </font>
                         </Label>
-                        <ProgressBar fx:id="progressBar" prefHeight="20.0" prefWidth="267.0">
+                        <CheckBox fx:id="loadByEnc" mnemonicParsing="false" text="Load Data By Form">
                            <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </ProgressBar>
-                        <ProgressIndicator fx:id="progressIndicator" prefHeight="45.0" prefWidth="270.0" progress="0.0">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" />
-                           </VBox.margin></ProgressIndicator>
-                        <TextField fx:id="tableSuffix" promptText="Source Table Suffix">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </TextField>
-                        <CheckBox fx:id="fromFile" mnemonicParsing="false" onAction="#getDirectory" text="Load Data From File">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
+                              <Insets left="10.0" top="10.0" />
                            </VBox.margin>
                         </CheckBox>
-                        <ComboBox fx:id="fileComboBox" prefHeight="27.0" prefWidth="294.0" promptText="Select File">
+                        <ComboBox fx:id="encounterTypes" prefHeight="27.0" prefWidth="205.0" promptText="Select Form">
                            <VBox.margin>
                               <Insets left="10.0" right="10.0" top="10.0" />
                            </VBox.margin>
                         </ComboBox>
-                        <ComboBox fx:id="tablesComboBox" prefHeight="27.0" prefWidth="294.0" promptText="Select Table">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </ComboBox>
-                        <Button mnemonicParsing="false" onAction="#handleUpload" prefHeight="22.0" prefWidth="260.0" style="-fx-background-color: darkgreen;" text="Migrate" textFill="WHITE">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </Button>
-                        <Label prefHeight="28.0" prefWidth="295.0" text="Run Selected File" textFill="#336699">
-                           <font>
-                              <Font name="System Bold" size="14.0" />
-                           </font>
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" />
-                           </VBox.margin>
-                        </Label>
-                        <ComboBox fx:id="targetComboBox" prefHeight="27.0" prefWidth="294.0" promptText="Select Target">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" />
-                           </VBox.margin>
-                        </ComboBox>
-                        <ComboBox fx:id="actionComboBox" prefHeight="27.0" prefWidth="294.0" promptText="Select Action">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="5.0" />
-                           </VBox.margin>
-                        </ComboBox>
-                        <Button mnemonicParsing="false" onAction="#executeQuery" prefHeight="27.0" prefWidth="260.0" style="-fx-background-color: #336699;" text="Execute" textFill="#fcfafa">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="5.0" />
-                           </VBox.margin>
-                        </Button>
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
-            <HBox layoutX="188.0" layoutY="10.0" prefHeight="363.0" prefWidth="275.0">
-               <children>
-                  <VBox prefHeight="395.0" prefWidth="274.0">
-                     <children>
-                        <Label prefHeight="28.0" prefWidth="295.0" text="Destination DB Settings" textFill="#336699">
-                           <font>
-                              <Font name="System Bold" size="14.0" />
-                           </font>
-                           <VBox.margin>
-                              <Insets left="10.0" />
-                           </VBox.margin>
-                        </Label>
-                        <TextField fx:id="host" promptText="Host Address">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" />
-                           </VBox.margin>
-                        </TextField>
-                        <TextField fx:id="port" layoutX="20.0" layoutY="85.0" promptText="Port">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </TextField>
-                        <TextField fx:id="username" promptText="Username">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </TextField>
-                        <TextField fx:id="password" promptText="Password">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </TextField>
-                        <TextField fx:id="db" promptText="DB Name">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </TextField>
-                        <Button mnemonicParsing="false" onAction="#testDestinationConnection" prefHeight="27.0" prefWidth="253.0" style="-fx-background-color: #336699;" text="Test Connection" textFill="#fcfafa">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </Button>
-                        <Button mnemonicParsing="false" onAction="#cleanUp" prefHeight="27.0" prefWidth="252.0" style="-fx-background-color: brown;" text="Clean Up" textFill="WHITE">
-                           <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </Button>
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
-         </children>
-      </HBox>
-   </children>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
+    </children>
 </AnchorPane>

@@ -10,18 +10,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/encounterprovider/EncounterProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/encounterprovider/EncounterProviders.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/provider/Provider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/provider/Providers.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/users/User.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/users/Users.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/conceptMapping_b.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/conceptMapping_c.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pharmacy_form.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/ObsDetailController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/OpenmrsCleanupController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/encountertype/EncounterType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/filepaths/ConceptMap.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/obs_detail.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/openmrs_cleanup.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/openmrscleanup/PharmacyEncounter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/openmrscleanup/Regimen.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db-config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/db-config.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/DataMigration/JavaFXApp.html" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/DataMigration/JavaFXApp.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/DataMigration/JavaFXApp.jnlp" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/DataMigration/JavaFXApp.jnlp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/artifacts/DataMigration_jar/DataMigration.jar" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/DataMigration_jar/DataMigration.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/DataMigration/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/hibernate.cfg.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$10.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$10.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$11.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$11.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$12.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$12.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$13.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$13.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$14.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$14.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$2.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$3.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$4.class" afterDir="false" />
@@ -31,16 +42,17 @@
       <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$8.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$8.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$9.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller$9.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Controller.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/JavafxView.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/JavafxView.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/User.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/filepaths/tables.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/filepaths/tables.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/obs/Obs.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/obs/Obs.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/patient/Patient.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/patient/Patient.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/visit/Visit.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/visit/Visit.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/main.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/session/SessionManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/DataMigration/org/ccfng/datamigration/session/SessionManager.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/db-config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/db-config.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$10.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$10.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$11.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$11.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$12.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$12.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$13.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$13.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$14.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$14.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$2.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$3.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$4.class" afterDir="false" />
@@ -50,23 +62,17 @@
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$8.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$8.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$9.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller$9.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Controller.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/JavafxView.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/JavafxView.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/User.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/filepaths/tables.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/filepaths/tables.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/obs/Obs.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/obs/Obs.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/patient/Patient.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/patient/Patient.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/visit/Visit.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/visit/Visit.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/source-db-config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/source-db-config.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/session/SessionManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/org/ccfng/datamigration/session/SessionManager.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/test/DataMigration/src/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/src/hibernate.cfg.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/source-db-config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/source-db-config.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/test/DataMigration/src/org/ccfng/datamigration/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/out/test/DataMigration/src/org/ccfng/datamigration/main.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/hibernate.cfg.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/Controller.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/JavafxView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/JavafxView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/Usersss.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/filepaths/tables.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/filepaths/tables.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/obs/Obs.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/obs/Obs.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/patient/Patient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/patient/Patient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/visit/Visit.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/visit/Visit.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/Usersss.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/Usersss.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/main.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/org/ccfng/datamigration/session/SessionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/datamigration/session/SessionManager.java" afterDir="false" />
     </list>
     <ignored path="JavaFxApplication.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -123,210 +129,127 @@
     <favorites_list name="JavaFxApplication" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Controller.java" pinned="false" current-in-tab="true">
+    <leaf>
+      <file leaf-file-name="Controller.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/Controller.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4195">
-              <caret line="2511" selection-start-line="2511" selection-end-line="2511" />
+            <state relative-caret-position="256">
+              <caret line="3710" column="56" selection-start-line="3710" selection-start-column="56" selection-end-line="3710" selection-end-column="74" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OpenmrsCleanupController.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/OpenmrsCleanupController.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="224">
+              <caret line="171" column="28" selection-start-line="171" selection-start-column="28" selection-end-line="171" selection-end-column="28" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#8795#11619#0" />
-                <element signature="e#8084#9378#0" />
-                <element signature="e#10137#10301#0" />
-                <element signature="e#10785#20441#0" />
-                <element signature="e#20341#21793#0" />
-                <element signature="e#18157#19573#0" />
-                <element signature="e#19777#20050#0" />
-                <element signature="e#19378#19781#0" />
-                <element signature="e#23648#23980#0" />
-                <element signature="e#20925#34879#0" />
-                <element signature="e#24495#38360#0" expanded="true" />
-                <element signature="e#38359#38360#0" expanded="true" />
-                <element signature="e#38008#38381#0" />
-                <element signature="e#38985#52842#0" />
-                <element signature="e#39027#52835#0" expanded="true" />
-                <element signature="e#52834#52835#0" expanded="true" />
-                <element signature="e#53310#53702#0" />
-                <element signature="e#49743#58752#0" />
-                <element signature="e#53311#62264#0" expanded="true" />
-                <element signature="e#62263#62264#0" expanded="true" />
-                <element signature="e#63858#64303#0" />
-                <element signature="e#59385#69754#0" />
-                <element signature="e#62974#73323#0" expanded="true" />
-                <element signature="e#73322#73323#0" expanded="true" />
-                <element signature="e#76118#76548#0" />
-                <element signature="e#71605#83357#0" />
-                <element signature="e#74021#85025#0" expanded="true" />
-                <element signature="e#85024#85025#0" expanded="true" />
-                <element signature="e#88954#89343#0" />
-                <element signature="e#80979#91892#0" />
-                <element signature="e#85654#96527#0" expanded="true" />
-                <element signature="e#96526#96527#0" expanded="true" />
-                <element signature="e#103000#103428#0" />
-                <element signature="e#93493#107661#0" />
-                <element signature="e#97206#111305#0" expanded="true" />
-                <element signature="e#111304#111305#0" expanded="true" />
-                <element signature="e#118747#119182#0" />
-                <element signature="e#108290#117845#0" />
-                <element signature="e#112007#121490#0" expanded="true" />
-                <element signature="e#121489#121490#0" expanded="true" />
-                <element signature="e#129909#130319#0" />
-                <element signature="e#118445#129652#0" />
-                <element signature="e#122153#133298#0" expanded="true" />
-                <element signature="e#133297#133298#0" expanded="true" />
-                <element signature="e#142673#143056#0" />
-                <element signature="e#130214#142408#0" />
-                <element signature="e#133913#146140#0" expanded="true" />
-                <element signature="e#146139#146140#0" expanded="true" />
-                <element signature="e#146178#155187#0" />
-                <element signature="e#146284#156931#0" expanded="true" />
-                <element signature="e#156930#156931#0" expanded="true" />
-                <element signature="e#156819#167439#0" />
-                <element signature="e#156998#167327#0" expanded="true" />
-                <element signature="e#167326#167327#0" expanded="true" />
-                <element signature="e#167349#177747#0" />
-                <element signature="e#167411#177740#0" expanded="true" />
-                <element signature="e#177739#177740#0" expanded="true" />
-                <element signature="e#155567#158889#0" />
-                <element signature="e#137448#138629#0" />
-                <element signature="e#160073#160297#0" />
-                <element signature="e#180896#180897#0" expanded="true" />
-                <element signature="e#180937#180938#0" expanded="true" />
-                <element signature="e#180992#180993#0" expanded="true" />
-                <element signature="e#181033#181034#0" expanded="true" />
-                <element signature="e#138939#140220#0" />
-                <element signature="e#146754#147575#0" />
-                <element signature="e#147581#148134#0" />
-                <element signature="e#148140#149757#0" />
-                <element signature="e#149763#150322#0" />
-                <element signature="e#151731#154953#0" />
+                <element signature="e#2049#2050#0" expanded="true" />
+                <element signature="e#2110#2111#0" expanded="true" />
+                <element signature="method#createDTG#0;class#OpenmrsCleanupController#0" />
+                <element signature="method#getRegimens#0;class#OpenmrsCleanupController#0" />
+                <element signature="method#getDispensed#0;class#OpenmrsCleanupController#0" />
+                <element signature="method#updateRegimens#0;class#OpenmrsCleanupController#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Visit.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/visit/Visit.java">
+      <file leaf-file-name="pharmacy_form.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pharmacy_form.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="27" column="5" selection-start-line="27" selection-start-column="5" selection-end-line="29" selection-end-column="36" />
+            <state relative-caret-position="423">
+              <caret line="257" column="84" selection-start-line="257" selection-start-column="74" selection-end-line="257" selection-end-column="84" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Obs.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/obs/Obs.java">
+      <file leaf-file-name="ObsDetailController.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/ObsDetailController.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2596">
-              <caret line="26" column="6" selection-start-line="26" selection-start-column="6" selection-end-line="27" selection-end-column="100" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EncounterProvider.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/encounterprovider/EncounterProvider.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="606">
-              <caret line="56" column="26" selection-start-line="56" selection-start-column="26" selection-end-line="56" selection-end-column="26" />
+            <state relative-caret-position="751">
+              <caret line="163" column="52" selection-start-line="163" selection-start-column="42" selection-end-line="163" selection-end-column="52" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1578#1579#0" expanded="true" />
-                <element signature="e#1622#1623#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SessionManager.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/session/SessionManager.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="270">
+              <caret line="23" column="70" selection-start-line="23" selection-start-column="70" selection-end-line="23" selection-end-column="70" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Regimen.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/openmrscleanup/Regimen.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="510">
+              <caret line="34" column="15" selection-start-line="34" selection-start-column="15" selection-end-line="34" selection-end-column="15" />
+              <folding>
+                <element signature="e#313#314#0" expanded="true" />
+                <element signature="e#336#337#0" expanded="true" />
+                <element signature="e#384#385#0" expanded="true" />
+                <element signature="e#417#418#0" expanded="true" />
+                <element signature="e#452#453#0" expanded="true" />
+                <element signature="e#477#478#0" expanded="true" />
+                <element signature="e#528#529#0" expanded="true" />
+                <element signature="e#565#566#0" expanded="true" />
+                <element signature="e#604#605#0" expanded="true" />
+                <element signature="e#629#630#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PharmacyEncounter.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/openmrscleanup/PharmacyEncounter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="12" column="30" selection-start-line="12" selection-start-column="20" selection-end-line="12" selection-end-column="30" />
+              <folding>
+                <element signature="e#875#876#0" expanded="true" />
+                <element signature="e#898#899#0" expanded="true" />
+                <element signature="e#946#947#0" expanded="true" />
+                <element signature="e#979#980#0" expanded="true" />
+                <element signature="e#1015#1016#0" expanded="true" />
+                <element signature="e#1040#1041#0" expanded="true" />
+                <element signature="e#1092#1093#0" expanded="true" />
+                <element signature="e#1124#1125#0" expanded="true" />
+                <element signature="e#1154#1155#0" expanded="true" />
+                <element signature="e#1173#1174#0" expanded="true" />
+                <element signature="e#1213#1214#0" expanded="true" />
+                <element signature="e#1233#1234#0" expanded="true" />
+                <element signature="e#1265#1266#0" expanded="true" />
+                <element signature="e#1287#1288#0" expanded="true" />
+                <element signature="e#1332#1333#0" expanded="true" />
+                <element signature="e#1358#1359#0" expanded="true" />
+                <element signature="e#1393#1394#0" expanded="true" />
+                <element signature="e#1418#1419#0" expanded="true" />
+                <element signature="e#1469#1470#0" expanded="true" />
+                <element signature="e#1501#1502#0" expanded="true" />
+                <element signature="e#1545#1546#0" expanded="true" />
+                <element signature="e#1576#1577#0" expanded="true" />
+                <element signature="e#1642#1643#0" expanded="true" />
+                <element signature="e#1686#1687#0" expanded="true" />
+                <element signature="e#1721#1722#0" expanded="true" />
+                <element signature="e#1746#1747#0" expanded="true" />
                 <element signature="e#1797#1798#0" expanded="true" />
-                <element signature="e#1831#1832#0" expanded="true" />
-                <element signature="e#1886#1887#0" expanded="true" />
-                <element signature="e#1927#1928#0" expanded="true" />
-                <element signature="e#1967#1968#0" expanded="true" />
-                <element signature="e#2002#2003#0" expanded="true" />
-                <element signature="e#2059#2060#0" expanded="true" />
-                <element signature="e#2102#2103#0" expanded="true" />
-                <element signature="e#2147#2148#0" expanded="true" />
-                <element signature="e#2187#2188#0" expanded="true" />
-                <element signature="e#2254#2255#0" expanded="true" />
-                <element signature="e#2307#2308#0" expanded="true" />
-                <element signature="e#2340#2341#0" expanded="true" />
-                <element signature="e#2369#2370#0" expanded="true" />
-                <element signature="e#2414#2415#0" expanded="true" />
-                <element signature="e#2445#2446#0" expanded="true" />
-                <element signature="e#2482#2483#0" expanded="true" />
-                <element signature="e#2514#2515#0" expanded="true" />
-                <element signature="e#2565#2566#0" expanded="true" />
-                <element signature="e#2602#2603#0" expanded="true" />
-                <element signature="e#2640#2641#0" expanded="true" />
-                <element signature="e#2673#2674#0" expanded="true" />
-                <element signature="e#2726#2727#0" expanded="true" />
-                <element signature="e#2765#2766#0" expanded="true" />
-                <element signature="e#2802#2803#0" expanded="true" />
-                <element signature="e#2837#2838#0" expanded="true" />
-                <element signature="e#2891#2892#0" expanded="true" />
-                <element signature="e#2934#2935#0" expanded="true" />
-                <element signature="e#2971#2972#0" expanded="true" />
-                <element signature="e#3006#3007#0" expanded="true" />
-                <element signature="e#3060#3061#0" expanded="true" />
-                <element signature="e#3103#3104#0" expanded="true" />
-                <element signature="e#3139#3140#0" expanded="true" />
-                <element signature="e#3173#3174#0" expanded="true" />
-                <element signature="e#3225#3226#0" expanded="true" />
-                <element signature="e#3266#3267#0" expanded="true" />
-                <element signature="e#3304#3305#0" expanded="true" />
-                <element signature="e#3338#3339#0" expanded="true" />
-                <element signature="e#3392#3393#0" expanded="true" />
-                <element signature="e#3433#3434#0" expanded="true" />
-                <element signature="e#3468#3469#0" expanded="true" />
-                <element signature="e#3498#3499#0" expanded="true" />
-                <element signature="e#3545#3546#0" expanded="true" />
-                <element signature="e#3578#3579#0" expanded="true" />
-                <element signature="e#3607#3608#0" expanded="true" />
-                <element signature="e#3634#3635#0" expanded="true" />
-                <element signature="e#3672#3673#0" expanded="true" />
-                <element signature="e#3699#3700#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="User.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/users/User.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-323">
-              <caret line="52" column="24" selection-start-line="52" selection-start-column="24" selection-end-line="52" selection-end-column="24" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Providers.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/provider/Providers.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="13" column="25" selection-start-line="13" selection-start-column="25" selection-end-line="13" selection-end-column="25" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#522#523#0" expanded="true" />
-                <element signature="e#559#560#0" expanded="true" />
-                <element signature="e#618#619#0" expanded="true" />
-                <element signature="e#660#661#0" expanded="true" />
-                <element signature="e#1470#1471#0" expanded="true" />
-                <element signature="e#1519#1520#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Provider.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/provider/Provider.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="156">
-              <caret line="43" column="27" selection-start-line="43" selection-start-column="27" selection-end-line="43" selection-end-column="27" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#3427#3428#0" expanded="true" />
-                <element signature="e#3460#3461#0" expanded="true" />
-                <element signature="e#3513#3514#0" expanded="true" />
-                <element signature="e#3552#3553#0" expanded="true" />
+                <element signature="e#1829#1830#0" expanded="true" />
+                <element signature="e#1860#1861#0" expanded="true" />
+                <element signature="e#1881#1882#0" expanded="true" />
+                <element signature="e#1924#1925#0" expanded="true" />
+                <element signature="e#1948#1949#0" expanded="true" />
+                <element signature="e#1899#1900#0" expanded="true" />
+                <element signature="e#1923#1924#0" expanded="true" />
+                <element signature="e#1973#1974#0" expanded="true" />
+                <element signature="e#2003#2004#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -339,46 +262,44 @@
       <list>
         <option value="Enum" />
         <option value="Class" />
+        <option value="FxmlFile" />
       </list>
     </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>//appConsole .appendText</find>
-      <find>Session session</find>
-      <find>update</find>
-      <find>updatePercent(pDone);</find>
-      <find>Voided</find>
-      <find>Done 1</find>
-      <find>xsdDir</find>
-      <find>Date_created</find>
-      <find>checkConnection</find>
-      <find>loadPatie</find>
-      <find>Selsct</find>
-      <find>encounter</find>
+      <find>hivEnrollment</find>
+      <find>165057</find>
+      <find>loadProv</find>
+      <find>7778408</find>
       <find>loadEncounter</find>
-      <find>location</find>
-      <find>rs.getInt(&quot;creator&quot;)</find>
-      <find>Platform</find>
-      <find>/src/</find>
-      <find>./src/main/resources/META-INF/</find>
-      <find>${basedir}/../../../../Downloads</find>
-      <find>host</find>
-      <find>UUID.fromString(rs.getString(&quot;uuid&quot;))</find>
-      <find>xmlDirec</find>
-      <find>getTableName</find>
-      <find>Person_name</find>
-      <find>Patient</find>
-      <find>EncounterEncounterProviders</find>
-      <find>user</find>
-      <find>User</find>
-      <find>provider</find>
-      <find>Provider</find>
+      <find>loadProvi</find>
+      <find>loadVisit</find>
+      <find>loadEncoun</find>
+      <find>387</find>
+      <find>loadEn</find>
+      <find>loadVisi</find>
+      <find>loadEncou</find>
+      <find>loadVis</find>
+      <find>loadEnc</find>
+      <find>init</find>
+      <find>loadV</find>
+      <find>Fetching Obs</find>
+      <find>loadO</find>
+      <find>loadE</find>
+      <find>writer</find>
+      <find>loadOb</find>
+      <find>1175</find>
+      <find>source</find>
+      <find>appCon</find>
+      <find>encounter</find>
+      <find>connection</find>
+      <find>source_username</find>
+      <find>so</find>
+      <find>DTG</find>
+      <find>source_jdbcUrl</find>
     </findStrings>
     <replaceStrings>
-      <replace>patientidentifier</replace>
-      <replace>patientidentifierDao</replace>
-      <replace>patientProgram</replace>
       <replace>patientprogramDao</replace>
       <replace>PatientProgram</replace>
       <replace>person</replace>
@@ -406,6 +327,9 @@
       <replace>Provider</replace>
       <replace>encounterProvider</replace>
       <replace>EncounterProvider</replace>
+      <replace>ConceptMap</replace>
+      <replace>permObs</replace>
+      <replace>rs3</replace>
     </replaceStrings>
   </component>
   <component name="FindManager">
@@ -419,20 +343,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/personname/PersonNames.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/encounter/Encounters.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/visit/Visits.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/patient/Patients.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/personname/PersonNameDAOInterface.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/patientidentifier/PatientIdentifier.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/patientidentifier/PatientIdentifierService.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/patientprogram/PatientProgram.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/patientprogram/PatientProgramService.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/personaddress/PersonAddress.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/personattribute/PersonAttribute.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/personattribute/PersonAttributeService.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/visit/VisitService.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/personname/PersonName.java" />
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/filepaths/FilePath.java" />
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/personname/PersonNameService.java" />
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/encounter/EncounterController.java" />
@@ -448,7 +358,6 @@
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/personname/PersonNameDao.java" />
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/visit/VisitDao.java" />
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/patient/PatientService.java" />
-        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/session/SessionManager.java" />
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/patient/PatientDao.java" />
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/person/Person.java" />
         <option value="$PROJECT_DIR$/src/hibernate.cfg.xml" />
@@ -469,7 +378,22 @@
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/provider/Providers.java" />
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/visit/Visit.java" />
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/obs/Obs.java" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/filepaths/ConceptMap.java" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/encountertype/EncounterType.java" />
+        <option value="$PROJECT_DIR$/enrollment_form_map.csv" />
+        <option value="$PROJECT_DIR$/initial_clinical_evaluation.csv" />
+        <option value="$PROJECT_DIR$/conceptMapping.csv" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/Main.java" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/PharmacyEncounter.java" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/openmrscleanup/Regimen.java" />
         <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/Controller.java" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/openmrs_cleanup.fxml" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/session/SessionManager.java" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/openmrscleanup/PharmacyEncounter.java" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/ObsDetailController.java" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/obs_detail.fxml" />
+        <option value="$PROJECT_DIR$/pharmacy_form.txt" />
+        <option value="$PROJECT_DIR$/src/org/ccfng/datamigration/OpenmrsCleanupController.java" />
       </list>
     </option>
   </component>
@@ -483,11 +407,10 @@
     <packageJsonPaths />
   </component>
   <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" />
-  <component name="ProjectFrameBounds" extendedState="1">
-    <option name="x" value="40" />
-    <option name="y" value="97" />
-    <option name="width" value="1312" />
-    <option name="height" value="772" />
+  <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="y" value="36" />
+    <option name="width" value="1440" />
+    <option name="height" value="831" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -500,6 +423,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
+      <pane id="AndroidView" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -510,11 +436,6 @@
             <path>
               <item name="DataMigration" type="b2602c69:ProjectViewProjectNode" />
               <item name="DataMigration" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="DataMigration" type="b2602c69:ProjectViewProjectNode" />
-              <item name="DataMigration" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -528,36 +449,12 @@
               <item name="DataMigration" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="datamigration" type="462c0819:PsiDirectoryNode" />
-              <item name="obs" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="DataMigration" type="b2602c69:ProjectViewProjectNode" />
-              <item name="DataMigration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="datamigration" type="462c0819:PsiDirectoryNode" />
-              <item name="provider" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="DataMigration" type="b2602c69:ProjectViewProjectNode" />
-              <item name="DataMigration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="datamigration" type="462c0819:PsiDirectoryNode" />
-              <item name="users" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="DataMigration" type="b2602c69:ProjectViewProjectNode" />
-              <item name="DataMigration" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="datamigration" type="462c0819:PsiDirectoryNode" />
-              <item name="visit" type="462c0819:PsiDirectoryNode" />
+              <item name="openmrscleanup" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="AndroidView" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -588,6 +485,9 @@
       <recent name="$PROJECT_DIR$/src" />
       <recent name="$PROJECT_DIR$/src/main/resources/META-INF/lib" />
       <recent name="$PROJECT_DIR$/src/main/resources/META-INF" />
+    </key>
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="org.ccfng.datamigration" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="org.ccfng.datamigration.visit" />
@@ -732,49 +632,55 @@
       <workItem from="1551022547538" duration="336000" />
       <workItem from="1551345379705" duration="804000" />
       <workItem from="1551993441971" duration="9799000" />
-      <workItem from="1552244138976" duration="87309000" />
+      <workItem from="1552244138976" duration="88033000" />
+      <workItem from="1558175705072" duration="26856000" />
+      <workItem from="1558872075296" duration="12000" />
+      <workItem from="1558879329201" duration="23000" />
+      <workItem from="1558879384656" duration="64980000" />
+      <workItem from="1559909773768" duration="41635000" />
+      <workItem from="1560786309259" duration="46740000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="295381000" />
+    <option name="totallyTimeSpent" value="476351000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="40" y="97" width="1312" height="772" extended-state="1" />
+    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Messages" order="7" weight="0.2971698" />
+      <window_info anchor="bottom" id="Messages" order="7" weight="0.2969697" />
       <window_info anchor="right" id="Palette&#9;" order="4" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="4" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.18060607" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3295129" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32900944" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.30424243" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6703755" visible="true" weight="0.25838414" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6703755" visible="true" weight="0.25608012" />
       <window_info anchor="right" id="Database" order="3" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32900944" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32833788" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="2" />
       <window_info anchor="right" id="Theme Preview" order="4" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info id="Persistence" order="2" side_tool="true" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" id="JetGradle" order="3" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info id="Persistence" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Changes" order="7" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Profiler" order="7" />
       <window_info anchor="bottom" id="Problems" order="7" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Java Enterprise" order="8" />
       <window_info anchor="bottom" id="Application Servers" order="7" />
@@ -783,6 +689,9 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.csv" />
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -793,7 +702,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="26" />
+      <option name="time" value="40" />
     </breakpoint-manager>
   </component>
   <component name="antWorkspaceConfiguration">
@@ -801,188 +710,25 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/encounter/EncounterService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="13" column="41" lean-forward="true" selection-start-line="13" selection-start-column="41" selection-end-line="13" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/obs/ObsService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="13" column="37" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="37" />
-          <folding>
-            <element signature="e#320#321#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/patientidentifier/PatientIdentifierDao.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="15" column="34" lean-forward="true" selection-start-line="15" selection-start-column="34" selection-end-line="15" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/patientprogram/PatientProgramService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="49" column="38" selection-start-line="49" selection-start-column="38" selection-end-line="49" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/patientprogram/PatientProgramDao.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="13" column="60" selection-start-line="13" selection-start-column="60" selection-end-line="13" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/personaddress/PersonAddressDao.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="13" column="60" selection-start-line="13" selection-start-column="60" selection-end-line="13" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/personattribute/PersonAttributeDao.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="151">
-          <caret line="13" column="12" selection-start-line="13" selection-start-column="12" selection-end-line="13" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/personname/PersonNameDao.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-576">
-          <caret line="15" column="60" selection-start-line="15" selection-start-column="60" selection-end-line="15" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/visit/VisitDao.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-21">
-          <caret line="40" column="12" selection-start-line="40" selection-start-column="12" selection-end-line="40" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/patient/PatientService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="21" column="18" selection-start-line="21" selection-start-column="8" selection-end-line="21" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/session/SessionManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="59" column="44" lean-forward="true" selection-start-line="59" selection-start-column="44" selection-end-line="59" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/person/PersonDao.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="33" column="71" selection-start-line="33" selection-start-column="68" selection-end-line="33" selection-end-column="71" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/patient/PatientDao.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="29" column="12" selection-start-line="29" selection-start-column="12" selection-end-line="30" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/person/Person.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-240">
-          <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/patientidentifier/PatientIdentifier.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1140">
-          <caret line="95" column="31" selection-start-line="95" selection-start-column="18" selection-end-line="95" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/person/PersonDAOInterface.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="5" column="40" selection-start-line="5" selection-start-column="40" selection-end-line="5" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/person/PersonService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="353">
-          <caret line="111" column="9" selection-start-line="59" selection-end-line="111" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/encounter/Encounter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="44" column="16" selection-start-line="44" selection-start-column="12" selection-end-line="44" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/main.fxml">
-      <provider editor-type-id="JavaFX-Scene-Builder" />
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
           <caret line="67" column="70" selection-start-line="67" selection-start-column="70" selection-end-line="67" selection-end-column="70" />
         </state>
       </provider>
+      <provider editor-type-id="JavaFX-Scene-Builder" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/source-db-config.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/db-config.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" selection-start-line="1" selection-end-line="5" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/datamigration_Mon_Dec_10_08-31-16_WAT_2018.properties">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/datamigration_Sat_Dec_08_16-32-00_WAT_2018.properties">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/datamigration_Sat_Dec_08_16-32-00_WAT_2018.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="112" column="9" lean-forward="true" selection-start-line="112" selection-start-column="9" selection-end-line="112" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/module_datamigration_Sat_Dec_08_16-32-00_WAT_2018.xml">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/datamigration.properties">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/module_datamigration_Mon_Dec_10_08-31-16_WAT_2018.xml">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/datamigration_Mon_Dec_10_08-31-16_WAT_2018.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="580">
-          <caret line="202" column="53" selection-start-line="202" selection-start-column="23" selection-end-line="202" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/source-db-config.txt" />
+    <entry file="file://$PROJECT_DIR$/src/db-config.txt" />
+    <entry file="file://$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF" />
+    <entry file="file://$PROJECT_DIR$/datamigration_Mon_Dec_10_08-31-16_WAT_2018.properties" />
+    <entry file="file://$PROJECT_DIR$/datamigration_Sat_Dec_08_16-32-00_WAT_2018.properties" />
+    <entry file="file://$PROJECT_DIR$/datamigration_Sat_Dec_08_16-32-00_WAT_2018.xml" />
+    <entry file="file://$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF" />
+    <entry file="file://$PROJECT_DIR$/module_datamigration_Sat_Dec_08_16-32-00_WAT_2018.xml" />
+    <entry file="file://$PROJECT_DIR$/datamigration.properties" />
+    <entry file="file://$PROJECT_DIR$/module_datamigration_Mon_Dec_10_08-31-16_WAT_2018.xml" />
+    <entry file="file://$PROJECT_DIR$/datamigration_Mon_Dec_10_08-31-16_WAT_2018.xml" />
     <entry file="file://$PROJECT_DIR$/src/hibernate.cfg.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="690">
@@ -990,13 +736,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/datamigration.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="7" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/datamigration.xml" />
     <entry file="file://$PROJECT_DIR$/DataMigration.iml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="390">
@@ -1018,16 +758,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="7" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/personname/PersonName.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
@@ -1046,15 +776,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
           <caret line="13" column="38" lean-forward="true" selection-start-line="13" selection-start-column="38" selection-end-line="13" selection-end-column="38" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#608#609#0" expanded="true" />
-            <element signature="e#654#655#0" expanded="true" />
-            <element signature="e#1737#1738#0" expanded="true" />
-            <element signature="e#1794#1795#0" expanded="true" />
-            <element signature="e#1826#1827#0" expanded="true" />
-            <element signature="e#1924#1925#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1062,13 +783,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
           <caret line="22" selection-start-line="22" selection-end-line="41" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/JavafxView.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1020">
-          <caret line="83" column="12" selection-start-line="83" selection-start-column="12" selection-end-line="83" selection-end-column="12" />
         </state>
       </provider>
     </entry>
@@ -1090,9 +804,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
           <caret line="23" column="34" selection-start-line="23" selection-start-column="34" selection-end-line="23" selection-end-column="34" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1100,15 +811,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
           <caret line="13" column="25" selection-start-line="13" selection-start-column="25" selection-end-line="13" selection-end-column="25" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#522#523#0" expanded="true" />
-            <element signature="e#559#560#0" expanded="true" />
-            <element signature="e#618#619#0" expanded="true" />
-            <element signature="e#660#661#0" expanded="true" />
-            <element signature="e#1470#1471#0" expanded="true" />
-            <element signature="e#1519#1520#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1116,9 +818,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-323">
           <caret line="52" column="24" selection-start-line="52" selection-start-column="24" selection-end-line="52" selection-end-column="24" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1126,59 +825,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="606">
           <caret line="56" column="26" selection-start-line="56" selection-start-column="26" selection-end-line="56" selection-end-column="26" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1578#1579#0" expanded="true" />
-            <element signature="e#1622#1623#0" expanded="true" />
-            <element signature="e#1797#1798#0" expanded="true" />
-            <element signature="e#1831#1832#0" expanded="true" />
-            <element signature="e#1886#1887#0" expanded="true" />
-            <element signature="e#1927#1928#0" expanded="true" />
-            <element signature="e#1967#1968#0" expanded="true" />
-            <element signature="e#2002#2003#0" expanded="true" />
-            <element signature="e#2059#2060#0" expanded="true" />
-            <element signature="e#2102#2103#0" expanded="true" />
-            <element signature="e#2147#2148#0" expanded="true" />
-            <element signature="e#2187#2188#0" expanded="true" />
-            <element signature="e#2254#2255#0" expanded="true" />
-            <element signature="e#2307#2308#0" expanded="true" />
-            <element signature="e#2340#2341#0" expanded="true" />
-            <element signature="e#2369#2370#0" expanded="true" />
-            <element signature="e#2414#2415#0" expanded="true" />
-            <element signature="e#2445#2446#0" expanded="true" />
-            <element signature="e#2482#2483#0" expanded="true" />
-            <element signature="e#2514#2515#0" expanded="true" />
-            <element signature="e#2565#2566#0" expanded="true" />
-            <element signature="e#2602#2603#0" expanded="true" />
-            <element signature="e#2640#2641#0" expanded="true" />
-            <element signature="e#2673#2674#0" expanded="true" />
-            <element signature="e#2726#2727#0" expanded="true" />
-            <element signature="e#2765#2766#0" expanded="true" />
-            <element signature="e#2802#2803#0" expanded="true" />
-            <element signature="e#2837#2838#0" expanded="true" />
-            <element signature="e#2891#2892#0" expanded="true" />
-            <element signature="e#2934#2935#0" expanded="true" />
-            <element signature="e#2971#2972#0" expanded="true" />
-            <element signature="e#3006#3007#0" expanded="true" />
-            <element signature="e#3060#3061#0" expanded="true" />
-            <element signature="e#3103#3104#0" expanded="true" />
-            <element signature="e#3139#3140#0" expanded="true" />
-            <element signature="e#3173#3174#0" expanded="true" />
-            <element signature="e#3225#3226#0" expanded="true" />
-            <element signature="e#3266#3267#0" expanded="true" />
-            <element signature="e#3304#3305#0" expanded="true" />
-            <element signature="e#3338#3339#0" expanded="true" />
-            <element signature="e#3392#3393#0" expanded="true" />
-            <element signature="e#3433#3434#0" expanded="true" />
-            <element signature="e#3468#3469#0" expanded="true" />
-            <element signature="e#3498#3499#0" expanded="true" />
-            <element signature="e#3545#3546#0" expanded="true" />
-            <element signature="e#3578#3579#0" expanded="true" />
-            <element signature="e#3607#3608#0" expanded="true" />
-            <element signature="e#3634#3635#0" expanded="true" />
-            <element signature="e#3672#3673#0" expanded="true" />
-            <element signature="e#3699#3700#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1186,13 +832,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="156">
           <caret line="43" column="27" selection-start-line="43" selection-start-column="27" selection-end-line="43" selection-end-column="27" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#3427#3428#0" expanded="true" />
-            <element signature="e#3460#3461#0" expanded="true" />
-            <element signature="e#3513#3514#0" expanded="true" />
-            <element signature="e#3552#3553#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1203,89 +842,210 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/encounter/Encounter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4">
+          <caret line="44" column="16" selection-start-line="44" selection-start-column="12" selection-end-line="44" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/conceptMapping_b.csv">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/care_art_card__follow_up___current_version_2011_.csv">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/adult_pharmacy_order_form__current_backlog_version_2011_2009_.csv">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/care_art_card__substitution_switches__version_2011_.csv">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/initial_clinical_evaluation.csv">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/enrollment_form_map.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="583">
+          <caret line="52" column="1" selection-start-line="52" selection-start-column="1" selection-end-line="52" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/conceptMapping.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="74" column="8" selection-start-line="74" selection-start-column="4" selection-end-line="74" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/encountertype/EncounterType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="34" column="20" selection-start-line="34" selection-start-column="20" selection-end-line="34" selection-end-column="20" />
+          <folding>
+            <element signature="e#481#482#0" expanded="true" />
+            <element signature="e#500#501#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/obs/Obs.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2596">
+        <state relative-caret-position="255">
           <caret line="26" column="6" selection-start-line="26" selection-start-column="6" selection-end-line="27" selection-end-column="100" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/filepaths/ConceptMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="35" column="18" selection-start-line="35" selection-start-column="18" selection-end-line="35" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/JavafxView.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="164">
+          <caret line="83" column="12" selection-start-line="83" selection-start-column="12" selection-end-line="83" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/openmrscleanup/Regimen.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="34" column="15" selection-start-line="34" selection-start-column="15" selection-end-line="34" selection-end-column="15" />
+          <folding>
+            <element signature="e#313#314#0" expanded="true" />
+            <element signature="e#336#337#0" expanded="true" />
+            <element signature="e#384#385#0" expanded="true" />
+            <element signature="e#417#418#0" expanded="true" />
+            <element signature="e#452#453#0" expanded="true" />
+            <element signature="e#477#478#0" expanded="true" />
+            <element signature="e#528#529#0" expanded="true" />
+            <element signature="e#565#566#0" expanded="true" />
+            <element signature="e#604#605#0" expanded="true" />
+            <element signature="e#629#630#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="39" selection-start-line="15" selection-start-column="39" selection-end-line="15" selection-end-column="39" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/openmrs_cleanup.fxml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="37" lean-forward="true" selection-start-line="19" selection-start-column="37" selection-end-line="19" selection-end-column="37" />
+          <folding>
+            <element signature="n#children#0;n#AnchorPane#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+      <provider editor-type-id="JavaFX-Scene-Builder" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/obs_detail.fxml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="388">
+          <caret line="112" column="114" selection-start-line="112" selection-start-column="114" selection-end-line="112" selection-end-column="114" />
+        </state>
+      </provider>
+      <provider editor-type-id="JavaFX-Scene-Builder" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/session/SessionManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="23" column="70" selection-start-line="23" selection-start-column="70" selection-end-line="23" selection-end-column="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/openmrscleanup/PharmacyEncounter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="30" selection-start-line="12" selection-start-column="20" selection-end-line="12" selection-end-column="30" />
+          <folding>
+            <element signature="e#875#876#0" expanded="true" />
+            <element signature="e#898#899#0" expanded="true" />
+            <element signature="e#946#947#0" expanded="true" />
+            <element signature="e#979#980#0" expanded="true" />
+            <element signature="e#1015#1016#0" expanded="true" />
+            <element signature="e#1040#1041#0" expanded="true" />
+            <element signature="e#1092#1093#0" expanded="true" />
+            <element signature="e#1124#1125#0" expanded="true" />
+            <element signature="e#1154#1155#0" expanded="true" />
+            <element signature="e#1173#1174#0" expanded="true" />
+            <element signature="e#1213#1214#0" expanded="true" />
+            <element signature="e#1233#1234#0" expanded="true" />
+            <element signature="e#1265#1266#0" expanded="true" />
+            <element signature="e#1287#1288#0" expanded="true" />
+            <element signature="e#1332#1333#0" expanded="true" />
+            <element signature="e#1358#1359#0" expanded="true" />
+            <element signature="e#1393#1394#0" expanded="true" />
+            <element signature="e#1418#1419#0" expanded="true" />
+            <element signature="e#1469#1470#0" expanded="true" />
+            <element signature="e#1501#1502#0" expanded="true" />
+            <element signature="e#1545#1546#0" expanded="true" />
+            <element signature="e#1576#1577#0" expanded="true" />
+            <element signature="e#1642#1643#0" expanded="true" />
+            <element signature="e#1686#1687#0" expanded="true" />
+            <element signature="e#1721#1722#0" expanded="true" />
+            <element signature="e#1746#1747#0" expanded="true" />
+            <element signature="e#1797#1798#0" expanded="true" />
+            <element signature="e#1829#1830#0" expanded="true" />
+            <element signature="e#1860#1861#0" expanded="true" />
+            <element signature="e#1881#1882#0" expanded="true" />
+            <element signature="e#1924#1925#0" expanded="true" />
+            <element signature="e#1948#1949#0" expanded="true" />
+            <element signature="e#1899#1900#0" expanded="true" />
+            <element signature="e#1923#1924#0" expanded="true" />
+            <element signature="e#1973#1974#0" expanded="true" />
+            <element signature="e#2003#2004#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/ObsDetailController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="751">
+          <caret line="163" column="52" selection-start-line="163" selection-start-column="42" selection-end-line="163" selection-end-column="52" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pharmacy_form.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="423">
+          <caret line="257" column="84" selection-start-line="257" selection-start-column="74" selection-end-line="257" selection-end-column="84" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/Controller.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4195">
-          <caret line="2511" selection-start-line="2511" selection-end-line="2511" />
+        <state relative-caret-position="256">
+          <caret line="3710" column="56" selection-start-line="3710" selection-start-column="56" selection-end-line="3710" selection-end-column="74" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/OpenmrsCleanupController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="171" column="28" selection-start-line="171" selection-start-column="28" selection-end-line="171" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#8795#11619#0" />
-            <element signature="e#8084#9378#0" />
-            <element signature="e#10137#10301#0" />
-            <element signature="e#10785#20441#0" />
-            <element signature="e#20341#21793#0" />
-            <element signature="e#18157#19573#0" />
-            <element signature="e#19777#20050#0" />
-            <element signature="e#19378#19781#0" />
-            <element signature="e#23648#23980#0" />
-            <element signature="e#20925#34879#0" />
-            <element signature="e#24495#38360#0" expanded="true" />
-            <element signature="e#38359#38360#0" expanded="true" />
-            <element signature="e#38008#38381#0" />
-            <element signature="e#38985#52842#0" />
-            <element signature="e#39027#52835#0" expanded="true" />
-            <element signature="e#52834#52835#0" expanded="true" />
-            <element signature="e#53310#53702#0" />
-            <element signature="e#49743#58752#0" />
-            <element signature="e#53311#62264#0" expanded="true" />
-            <element signature="e#62263#62264#0" expanded="true" />
-            <element signature="e#63858#64303#0" />
-            <element signature="e#59385#69754#0" />
-            <element signature="e#62974#73323#0" expanded="true" />
-            <element signature="e#73322#73323#0" expanded="true" />
-            <element signature="e#76118#76548#0" />
-            <element signature="e#71605#83357#0" />
-            <element signature="e#74021#85025#0" expanded="true" />
-            <element signature="e#85024#85025#0" expanded="true" />
-            <element signature="e#88954#89343#0" />
-            <element signature="e#80979#91892#0" />
-            <element signature="e#85654#96527#0" expanded="true" />
-            <element signature="e#96526#96527#0" expanded="true" />
-            <element signature="e#103000#103428#0" />
-            <element signature="e#93493#107661#0" />
-            <element signature="e#97206#111305#0" expanded="true" />
-            <element signature="e#111304#111305#0" expanded="true" />
-            <element signature="e#118747#119182#0" />
-            <element signature="e#108290#117845#0" />
-            <element signature="e#112007#121490#0" expanded="true" />
-            <element signature="e#121489#121490#0" expanded="true" />
-            <element signature="e#129909#130319#0" />
-            <element signature="e#118445#129652#0" />
-            <element signature="e#122153#133298#0" expanded="true" />
-            <element signature="e#133297#133298#0" expanded="true" />
-            <element signature="e#142673#143056#0" />
-            <element signature="e#130214#142408#0" />
-            <element signature="e#133913#146140#0" expanded="true" />
-            <element signature="e#146139#146140#0" expanded="true" />
-            <element signature="e#146178#155187#0" />
-            <element signature="e#146284#156931#0" expanded="true" />
-            <element signature="e#156930#156931#0" expanded="true" />
-            <element signature="e#156819#167439#0" />
-            <element signature="e#156998#167327#0" expanded="true" />
-            <element signature="e#167326#167327#0" expanded="true" />
-            <element signature="e#167349#177747#0" />
-            <element signature="e#167411#177740#0" expanded="true" />
-            <element signature="e#177739#177740#0" expanded="true" />
-            <element signature="e#155567#158889#0" />
-            <element signature="e#137448#138629#0" />
-            <element signature="e#160073#160297#0" />
-            <element signature="e#180896#180897#0" expanded="true" />
-            <element signature="e#180937#180938#0" expanded="true" />
-            <element signature="e#180992#180993#0" expanded="true" />
-            <element signature="e#181033#181034#0" expanded="true" />
-            <element signature="e#138939#140220#0" />
-            <element signature="e#146754#147575#0" />
-            <element signature="e#147581#148134#0" />
-            <element signature="e#148140#149757#0" />
-            <element signature="e#149763#150322#0" />
-            <element signature="e#151731#154953#0" />
+            <element signature="e#2049#2050#0" expanded="true" />
+            <element signature="e#2110#2111#0" expanded="true" />
+            <element signature="method#createDTG#0;class#OpenmrsCleanupController#0" />
+            <element signature="method#getRegimens#0;class#OpenmrsCleanupController#0" />
+            <element signature="method#getDispensed#0;class#OpenmrsCleanupController#0" />
+            <element signature="method#updateRegimens#0;class#OpenmrsCleanupController#0" />
           </folding>
         </state>
       </provider>
