@@ -1,0 +1,258 @@
+<htmlform>
+  <macros>
+    headerColor =#009d8e
+    fontOnHeaderColor = white
+  </macros>
+
+  <style>
+    .section {
+    border: 1px solid $headerColor;
+    padding: 2px;
+    text-align: left;
+    margin-bottom: 1em;
+    }
+    .sectionHeader {
+    background-color: $headerColor;
+    color: $fontOnHeaderColor;
+    display: block;
+    padding: 2px;
+    font-weight: bold;
+    }
+    table.baseline-aligned td {
+    vertical-align: baseline;
+    }
+  </style>
+
+  <h2>ART Commencement</h2>
+  <h4>Version: PMM 2011</h4>
+  <table align="center">
+     <tr><td>
+  <section headerLabel="Encounter Details">
+    <table class="baseline-aligned">
+      <tr>
+        <td>Date ART started:</td>
+        <td><encounterDate allowFutureDates="false"/></td>
+      </tr>
+      <tr>
+        <td>Facility Name:</td>
+        <td><encounterLocation default="GlobalProperty:default_location"/></td>
+      </tr>
+      <tr>
+        <td>Clinician's Name:</td>
+        <td><encounterProvider/></td>
+      </tr>
+    </table>
+  </section>
+    </td></tr>
+</table>
+<table align="center">
+    <tr><td>
+<section headerLabel="ART COMMENCEMENT">
+    <table cellpadding="3" cellspacing="3" style="width: 100%;">
+        <tr><th colspan="3"><font color="red">Source Document: ART Care Card (ART Commencement section/Clinical Evaluation Form) Fill only once for a patient at start of ART</font></th></tr>
+        <tr>
+            <td><b>14. Date Medically Eligible:</b><br/><obs conceptId="1703" labelText="" allowFutureDates="false"/></td>
+            <td>
+                      <table>
+                         <tr>
+                                <td><b>15. Why Eligible</b></td>
+                                 <td>
+                                       <obs conceptId="1731" answerConceptId="1730" answerLabel="Clinically Only" /><br/>
+                                       <obs conceptId="1731" answerConceptId="88" answerLabel="CD4" /><br/>
+                                       <obs conceptId="1731" answerConceptId="1153" answerLabel="CD4%" /><br/>
+                                       <obs conceptId="1731" answerConceptId="1717" answerLabel="TLC" />
+                                 </td>
+                         </tr>
+                     </table>
+            </td>
+            <td><b>16. Date Initial Adherence Counseling Completed</b><br/><obs conceptId="7777862"/></td>
+
+</tr>
+<tr>
+     <td>
+         <b>17. Date Transferred In</b><br/><obs conceptId="978" labelText="" allowFutureDates="false"/>
+    </td>
+     <td>
+             <b>18. Facility Transferred From</b><br/><obs conceptId="1732" labelText="" />
+    </td>
+     <td>
+             <table>
+                   <tr>
+                        <td>
+                               <b>19a. First ART Regimen Line</b><br/>
+                 <obs id="regimenline" conceptId="7778531" answerConceptIds="7778108,7778109,1596">
+                            <controls>
+                                 <when value="7778108" thenDisplay="#line2"/>
+                                 <when value="7778109" thenDisplay="#line3"/>
+                                 <when value="1596" thenDisplay="#line4"/>
+                            </controls>
+                   </obs>
+                        </td>
+                        <td>
+                                 <p id="line2">
+      <b>19b. First Line Regimen</b><br/>
+	 <obs conceptId="7778532" answerConceptIds="7777811,7777810,7777929,7777930,7777812,7777813,7777814,7777931,7777916,7777922,7778554,7778139,DTG1,DTG2,DTG3"/><br/>
+</p>
+
+<p id="line3">
+      <b>19b. 2nd Line Regimen</b><br/>
+	<obs conceptId="7778533" answerConceptIds="7777933,7777934,7777935,7777936,7777880,7777818,7777919,7777880,7777921,7777918,7777920,7778124,7778125,7778126,7778128,7778129,7778130,7778131,7778132,7778133,7778134,7778135,7778136,7778137"/><br/>
+	    </p>
+<p id="line4">
+<b>19b. Other drugs</b><br/>
+<obs id="otherdrugs" conceptId="7778534" answerConceptIds="7778140,1615,952,7778354,7778353,33">
+       <controls>
+                  <when value="33" thenDisplay="#otherdrugsspecify"/>
+       </controls>
+</obs><br/><span id="otherdrugsspecify">Other drugs specify<obs conceptId="1596"/></span>
+</p>
+                       </td>
+                    </tr>
+             </table>
+     </td>
+</tr>
+<tr>
+<td>
+<b> 20. Date ART Started</b><obs conceptId="863" labelText="" allowFutureDates="false" required="true"/><br/>
+ <font color="red">*This is very important</font>
+</td>
+<td colspan="2">
+<b> 21. Clinical Stage at Start of ART</b><obs conceptId="7778529" answerConceptIds="7777925,7777926,7777927,7777928" answerLabels="I,II,III,IV"  style="radio"/>
+</td>
+
+</tr>
+<tr>
+<td>
+<b>Status at Start of ART</b>
+</td>
+<td colspan="2">
+  <table style="width: 100%;">
+     <tr>
+<td><b>22. Weight</b><obs conceptId="1734" labelText=""/><b>Kg</b></td>
+<td>
+       <b>23. Height</b>
+        <obs conceptId="1735" labelText=""/><b>(cm)</b>
+</td>
+<td>
+    <b> 24. Functional Status</b><br/>
+     <obs conceptId="7778530" answerSeparator="&lt;br/&gt;" answerConceptIds="1009,1010,1012" style="radio" answerLabels="Working,Ambulatory,Bedridden"/>
+
+</td>
+<td>
+<b>25. CD4 Count at start of ART</b>
+<obs conceptId="1733" labelText=""/>
+</td>
+</tr>
+  </table>
+</td>
+</tr>
+<tr>
+<td colspan="3">
+    <b>ART Register Serial No</b>
+        <obs conceptId="7778291" labelText="" />
+        <font color="red">Serial Number in ART Register</font>
+    </td>
+</tr>
+<tr><td colspan="3"><submit/></td></tr>
+    </table>
+
+</section>
+ </td></tr>
+</table>
+
+<!--<section headerLabel="ART COMMENCEMENT">
+<table border="1">
+<tr><th colspan="5"><font color="red">Source Document: ART Care Card (ART Commencement section/Clinical Evaluation Form) Fill only once for a patient at start of ART</font></th></tr>
+<tr>
+<td>
+        <b>22. Weight at ART Start</b><br/>
+        <obs conceptId="85" labelText=""/><b>(Kg)</b><br/>
+</td>
+<td><b>23. Height at ART start</b><br/>
+        <obs conceptId="571" labelText=""/><b>(cm)</b><br/>
+        </td>
+
+        <td><b>25. CD4 Count at Start of ART </b><br/>
+        <obs conceptId="88" labelText=""/><br/>
+        </td><td><b>14. Date Medically Eligible:</b><br/>
+        <obs conceptId="1703" labelText="" allowFutureDates="false"/><br/>
+       </td>
+<td><b>15. Why Eligible</b><br/>
+  <obs conceptId="1731" answerConceptId="1730" answerLabel="Clinically Only" /><br/>
+ <obs conceptId="1731" answerConceptId="88" answerLabel="CD4" /><br/><obs conceptId="1731" answerConceptId="1153" answerLabel="CD4%" /><br/>  <obs conceptId="1731" answerConceptId="1717" answerLabel="TLC" /><br/>
+       </td>
+
+      </tr>
+
+     <tr>
+<td><b>17. Date Transferred In</b><br/>
+        <obs conceptId="978" labelText="" allowFutureDates="false"/><br/>
+       </td>
+
+<td><b>18. Facility Transferred From</b><br/>
+        <obs conceptId="1732" labelText="" /><br/>
+       </td>
+<td>
+<b>19. First ART Regimen Line</b>
+                 <obs id="regimenline" conceptId="7778111" answerConceptIds="7778108,7778109,1596">
+                 <controls>
+                <when value="7778108" thenDisplay="#line2"/>
+                <when value="7778109" thenDisplay="#line3"/>
+                <when value="1596" thenDisplay="#line4"/>
+                </controls>
+  </obs>
+
+</td>
+<td colspan="2">
+
+<p id="line2">
+      <b>19. First Line Regimen</b>
+	 <obs conceptId="7778108" answerConceptIds="7777811,7777810,7777929,7777930,7777812,7777813,7777814,7777931,7777916,7777922,1227,7778139"/><br/>
+</p>
+
+<p id="line3">
+      <b>19. 2nd Line Regimen</b>
+	<obs conceptId="7778109" answerConceptIds="7777933,7777934,7777935,7777936,7777880,7777818,7777919,7777880,7777921,7777918,7777920,7778124,7778125,7778126,7778128,7778129,7778130,7778131,7778132,7778133,7778134,7778135,7778136,7778137"/><br/>
+	    </p>
+<p id="line4">
+<b>19. Other drugs</b>
+<obs id="otherdrugs" conceptId="7778410" answerConceptIds="7778140,1615,952,7778354,7778353,33">
+       <controls>
+                  <when value="33" thenDisplay="#otherdrugsspecify"/>
+       </controls>
+</obs><br/><span id="otherdrugsspecify">Other drugs specify<obs conceptId="1596"/></span>
+</p>
+
+</td>
+
+</tr>
+<tr>
+<td colspan="3"><b>16. Date Initial Adherence Counselling Completed</b><obs conceptId="7777862"/></td>
+</tr>
+<tr>
+<td>
+<b>
+ 20. Date ART Started</b><obs conceptId="863" labelText="" allowFutureDates="false" required="true"/><br/>
+ <font color="red">*This is very important</font>
+</td>
+
+
+<td><br/><b> 15. Clinical Stage at Start of ART</b><br/><obs conceptId="7777798" answerConceptIds="7777925,7777926,7777927,7777928" answerLabels="I,II,III,IV"  style="radio"/>
+		</td>
+
+
+  <td><b>ART Register Serial No</b><br/>
+        <obs conceptId="7778291" labelText="" /><br/>
+        <font color="red">Serial Number in ART Register</font>
+        </td>
+<td colspan="2"><b> 24. Functional Status</b><br/>
+       <obs conceptId="1013" answerSeparator="&lt;br/&gt;" answerConceptIds="1009,1010,1012" style="radio" answerLabels="Working,Ambulatory,Bedridden"/>
+
+
+</td>
+</tr>
+
+   </table>
+  </section>-->
+
+</htmlform>

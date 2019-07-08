@@ -140,7 +140,45 @@
                 </Tab>
                 <Tab text="Last Drug Pick-Up Fix">
                   <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox layoutX="-2.0" prefHeight="472.0" prefWidth="246.0" />
+                              <VBox layoutX="244.0" prefHeight="473.0" prefWidth="1023.0" />
+                              <TableView fx:id="lastEncounterTable" layoutX="245.0" layoutY="1.0" prefHeight="472.0" prefWidth="1021.0">
+                                 <columns>
+                                    <TableColumn prefWidth="97.0" text="Patient ID">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PatientID" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="133.0" text="PepFar ID">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PepfarID" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="173.0" text="Patient Name">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PatientName" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Encounter Date">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="EncounterDateTime" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Question">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="Question" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Answer">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="Answer" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                 </columns>
+                              </TableView>
+                           </children></AnchorPane>
                   </content>
                 </Tab>
                   <Tab text="ART Start Date Fix">

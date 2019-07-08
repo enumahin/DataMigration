@@ -1,0 +1,1285 @@
+<htmlform>
+
+	<!-- Designed by IHVN's EMR team-->
+
+	<macros>
+
+		paperFormId = (Fill this in)
+
+		headerColor =#009d8e
+
+		fontOnHeaderColor = white
+
+	</macros>
+
+
+
+	<style>
+
+		.section {
+
+			border: 1px solid $headerColor;
+
+			padding: 2px;
+
+			text-align: left;
+
+			margin-bottom: 1em;
+
+		}
+
+		.sectionHeader {
+
+			background-color: $headerColor;
+
+			color: $fontOnHeaderColor;
+
+			display: block;
+
+			padding: 2px;
+
+			font-weight: bold;
+
+		}
+
+		table.baseline-aligned td {
+
+			vertical-align: baseline;
+
+		}
+
+                 table.special{
+
+                     	border-collapse: collapse;
+
+
+
+                }
+
+
+
+                table.special td{
+
+                        border-style: solid;
+
+                        border-width: 1px;
+
+
+
+                }
+
+
+
+	</style>
+
+
+
+	<span style="float:right"></span>
+
+	<h2>Care/ART Card Follow-up</h2>
+
+
+
+       <section headerLabel="Visit Details">
+
+		<table class="baseline-aligned">
+
+			<tr>
+
+				<td>Visit Date:</td>
+
+				<td><encounterDate allowFutureDates="false" /></td>
+
+			</tr>
+
+			<tr>
+
+				<td>Facility Name:</td>
+
+				<td><encounterLocation default="GlobalProperty:default_location"/></td>
+
+			</tr>
+
+			<tr>
+
+				<td>Provider Name:</td>
+
+				<td><encounterProvider /></td>
+
+			</tr>
+
+                        <tr>
+
+                                 <td>Visit Type:</td>
+
+                                 <td>
+
+                                           <obs id="visittype" conceptId="1537" answerLabels="Initial Visit,Follow Up Visit" answerConceptIds="1535,1536" required="true">
+
+                                                    <!--<controls>
+
+                                                              <when value="1535" thenDisplay="#initial"/>
+
+                                                    </controls>-->
+
+                                           </obs>
+
+                                </td>
+
+                        </tr>
+
+                         <tr><td>E1 Scheduled Visit</td><td><obs conceptId="7778232" answerConceptIds="80,81"/></td></tr>
+
+                        <tr>
+
+				<td>Name:<lookup class="value" expression="patient.personName"/></td>
+
+                                <td>Gender:<lookup class="value" expression="patient.gender"/></td>
+
+				<td>Age: <lookup class="value" expression="patient.age"/></td>
+
+			</tr>
+
+
+
+		</table>
+
+	</section>
+
+
+
+        <section headerLabel="Clinical Parameters">
+
+           <table class="special" style="width:70%; margin-left:15%;">
+
+                  <tr><td><font color='blue'>PARAMETER</font></td><td><font color='blue'>VALUE</font></td><td><font color='blue'>LAST DATE</font></td></tr>
+
+                  <tr><td>WHO</td><td><lookup expression="fn.latestObs(7777798).valueCoded.name"/></td><td><lookup expression="fn.latestObs(7777798).obsDatetime"/></td></tr>
+
+                  <tr><td>CD4 COUNT</td><td><lookup expression="fn.latestObs('88').valueNumeric"/>c/mm<sup>3</sup></td><td><lookup expression="fn.latestObs('88').obsDatetime"/></td></tr>
+
+                  <tr>
+
+                        <td>VIRAL LOAD</td><td><lookup expression="fn.latestObs('315').valueNumeric"/> copies/ml</td>
+
+
+
+                        <td><lookup expression="fn.latestObs('315').obsDatetime"/></td>
+
+                 </tr>
+
+                  <tr><td>WEIGHT</td><td><lookup expression="fn.latestObs('85').valueNumeric"/> kg</td><td><lookup expression="fn.latestObs('85').obsDatetime"/></td></tr>
+
+                  <tr><td>HEIGHT</td><td><lookup expression="fn.latestObs('571').valueNumeric"/> cm</td><td><lookup expression="fn.latestObs('571').obsDatetime"/></td></tr>
+
+            </table>
+
+        </section>
+
+      <section headerLabel="INITIAL VISIT" id="initial" style="width: 100%;">
+
+              <p><font color="red">FILL ONLY ONCE AT INITIAL VISIT</font><htmlformflowsheet formId="65"  addAnotherButtonLabel="CARE CARD INITIAL FORM"/></p>
+
+        </section>
+
+       <section headerLabel="Adult Personal" id="initial" style="width: 100%;">
+
+              <p><font color="red">FILL ONLY ONCE FOR ADULT</font><htmlformflowsheet formId="28"  addAnotherButtonLabel="ADULT PERSONAL HISTORY FORM"/></p>
+
+        </section>
+
+        <section headerLabel="Pediatric Personal" id="initial" style="width: 100%;">
+
+              <p><font color="red">FILL ONLY ONCE FOR PED</font><htmlformflowsheet formId="19"  addAnotherButtonLabel="PED PERSONAL HISTORY FORM"/></p>
+
+        </section>
+
+
+
+<section headerLabel="Vital Signs">
+
+    <table cellspacing="10" cellpadding="2">
+
+           <tr><td>E3</td><td>Weight(Kg)</td><td><obs conceptId="85"/></td></tr>
+
+           <tr><td>E4</td><td>Height(cm) For Children</td><td><obs conceptId="571"/><font color='blue'>Last Height:<lookup expression="fn.latestObs('571').valueNumeric"/>cm</font></td></tr>
+
+           <tr><td>E5</td><td>Blood Pressure (mm/Hg) Adults Only</td><td><obs conceptId="84" labelText=""/><b>/</b><obs conceptId="568" labelText=""/></td></tr>
+
+             <tr><td></td><td>Pulse</td><td><obs conceptId="569" labelText=""/></td></tr>
+
+           <tr><td></td><td>Surface Area (M<sup>2</sup>)</td><td><obs conceptId="1104" labelText=""/></td></tr>
+
+            <tr><td></td><td>Head circumference (cm)</td><td><obs conceptId="1105" labelText=""/></td></tr>
+
+             <tr><td></td><td>Mid upper arm circumference (cm)</td><td><obs conceptId="387" labelText=""/></td></tr>
+
+             <tr><td></td><td>Temperature(<sup>o</sup>C)</td><td><obs conceptId="570" labelText=""/></td></tr>
+
+    </table>
+
+</section>
+
+<section headerLabel="PMTCT">
+
+            <table cellspacing="10" cellpadding="2">
+
+                      <excludeIf logicTest="GENDER = M">
+
+                            <tr>
+
+                               <td>E6a.</td>
+
+                               <td>EDD and PMTCT Link</td>
+
+                               <td>
+
+                                   <obs conceptId="7777871"  answerConceptIds="47,1259,7777870,13" id="whatKind">
+
+                                        <controls>
+
+                                            <when value="47" thenDisplay="#admit-section1"/>
+
+                                            <when value="1259" thenDisplay="#admit-section2"/>
+
+                                       </controls>
+
+                                  </obs>
+
+                              </td>
+
+                          </tr>
+
+                     <tr id="admit-section1"><td>E6b.</td><td>EDD</td><td><obs conceptId="577" labelText="" allowFutureDates="true"/></td></tr>
+
+                     <tr id="admit-section2"><td>E6b.</td><td>EDD</td><td><obs conceptId="577" labelText="" allowFutureDates="true"/></td></tr>
+
+              </excludeIf>
+
+            </table>
+
+</section>
+
+<section headerLabel="Family Planning">
+
+            <table cellspacing="10" cellpadding="2">
+
+             <tr id="familyplanningstatus">
+
+                             <td>E7a.</td>
+
+                             <td>FP (Family Planning Status)</td>
+
+                             <td>
+
+                                <obs conceptId="1741"  answerConceptIds="1739,1740" id="fp">
+
+                                    <controls>
+
+                                       <when value="1739" thenDisplay="#fplanningmethod"/>
+
+                                   </controls>
+
+                               </obs>
+
+                           </td>
+
+            </tr>
+
+            <tr id="fplanningmethod">
+
+                   <td>E7b.</td>
+
+                   <td>Write Method (Family Planning Method)</td>
+
+                   <td><obs conceptId="1742" answerLabels="1 &#61; Condoms, 2 &#61; Oral contraceptive pills, 3 &#61; Injectable/implantable hormones, 4 &#61; Diaphragm/cervical cap, 5 &#61; Intrauterine device, 6 &#61; Vasectomy/tubal ligation/hysterectomy, 7 &#61; Others" answerConceptIds="280,311,405,408,407,7777863,33"/></td>
+
+            </tr>
+
+          </table>
+
+</section>
+
+<section headerLabel="Clinical Parameters">
+
+   <table cellspacing="10" cellpadding="2">
+
+            <tr>
+
+                     <td>E8</td>
+
+                     <td>Functional Status</td>
+
+                     <td><obs conceptId="1013"  answerConceptIds="1009,1010,1012" answerLabels="Working,Ambulatory,Bedridden" style="radio" /></td>
+
+           </tr>
+
+           <tr>
+
+                    <!-- <td>E10 (old care card)</td>
+
+                     <td>Developmental Status(for children)</td>
+
+                     <td><obs conceptId="1116"  answerConceptIds="1114,1115,1089" answerLabels="Developmentally appropriate,Delay of milestones,Loss or arrest of milestones" style="radio" /></td>-->
+
+           </tr>
+
+           <tr>
+
+                   <td>E9</td>
+
+                   <td>WHO Clinical Stage<font color="red">**very important**</font></td>
+
+                   <td><obs conceptId="7777798" answerLabels="I,II,III,IV" answerConceptIds="7777925,7777926,7777927,7777928" /></td>
+
+          </tr>
+
+  </table>
+
+</section>
+
+<section headerLabel="Tuberculosis">
+
+    <table cellspacing="10" cellpadding="2">
+
+          <tr>
+
+                 <td>E10a</td>
+
+                 <td>TB status (check on each visit)<font color="red">**very important**</font></td>
+
+                 <td>
+
+                      <obs id="tbstatus" conceptId="862" answerConceptIds="871,870,868,872,7777924"
+
+                            answerLabels="No signs or symptoms of TB,Suspected TB:  Referred for evaluation,Currently on INH prophylaxis (IPT),Currently on TB treatment,TB Positive and not on TB drugs">
+
+                          <controls>
+
+                               <when value="872" thenDisplay="#tbnumber"/>
+
+                          </controls>
+
+                      </obs>
+
+                </td>
+
+         </tr>
+
+         <tr id="tbnumber">
+
+                <td>E10b</td>
+
+                <td>Record TB card no</td>
+
+                <td><obs conceptId="7778105"/></td>
+
+         </tr>
+
+    </table>
+
+</section>
+
+<section headerLabel="Opportunistic Infections">
+
+<table cellspacing="3" cellpadding="2" style="width: 100%;">
+
+  <tr><td>E11</td><td>New OI or other problems</td><td><obs conceptId="528" answerConceptId="1019" answerLabel="1. Herpes Zoster (within the last 5 yrs)"/><br/>
+
+			<obs conceptId="528" answerConceptId="439" answerLabel="2. Pneumonia"/><br/>
+
+			<obs conceptId="528" answerConceptId="1046" answerLabel="3. Dementia/Encephalitis"/><br/>
+
+			<obs conceptId="528" answerConceptId="7777838" answerLabel="4. Thrush - oral/vaginal"/><br/>
+
+			<obs conceptId="528" answerConceptId="201" answerLabel="5. Fever"/><br/>
+
+<obs conceptId="528" answerConceptId="194" answerLabel="6. Cough"/><br/><b>Others specify:</b><obs conceptId="7778411"/></td>
+
+
+
+</tr>
+
+    </table>
+
+</section>
+
+<section headerLabel="Noted Side Effects">
+
+<table cellspacing="10" cellpadding="2">
+
+<tr>
+
+<td>E12</td><td>Noted Side Effects</td><td><obs conceptId="1607" answerConceptId="706" answerLabel="1. Nausea/vomiting"/><br/>
+
+			<obs conceptId="1607" answerConceptId="196" answerLabel="2. Headache"/><br/>
+
+			<obs conceptId="1607" answerConceptId="1714" answerLabel="3. Isomnia/bad dreams"/><br/>
+
+			<obs conceptId="1607" answerConceptId="573" answerLabel="4. Fatigue/weakness"/><br/>
+
+			<obs conceptId="1607" answerConceptId="557" answerLabel="5. PV bleeding/discharge"/><br/>
+
+                        <obs conceptId="1607" answerConceptId="181" answerLabel="6. Rash"/><br/>
+
+                        <obs conceptId="1607" answerConceptId="7777791" answerLabel="7. Fat changes"/><br/>
+
+                         <obs conceptId="1607" answerConceptId="671" answerLabel="8. Anemia"/><br/>
+
+                       <obs conceptId="1607" answerConceptId="7777872" answerLabel="9. Drainage of Liquor"/><br/>
+
+                      <obs conceptId="1607" answerConceptId="1715" answerLabel="10. Stephen Johnson syndrome"/><br/>
+
+                       <obs conceptId="1607" answerConceptId="7777787" answerLabel="11. Hyperglycemia"/><br/><b>Others specify:</b><obs conceptId="7778145"/>
+
+
+
+
+
+</td>
+
+</tr>
+
+</table>
+
+</section>
+
+<section headerLabel="ARV DRUGS" id="arvdrugs1">
+
+    <table cellspacing="10" cellpadding="2">
+
+            <tr>
+
+                   <td>E13a</td>
+
+                   <td>Regimen Line</td>
+
+                   <td>
+
+                        <obs id="regimenline" conceptId="7778111" answerLabels="1st Line, 2nd Line,Others" answerConceptIds="7778108,7778109,7778410">
+
+                                <controls>
+
+                                         <when value="7778108" thenDisplay="#firstlinedrugs"/>
+
+                                         <when value="7778109" thenDisplay="#secondlinedrugs"/>
+
+                                         <when value="7778410" thenDisplay="#otherdrugs"/>
+
+                                </controls>
+
+                        </obs>
+
+                  </td>
+
+            </tr>
+
+            <tr id="firstlinedrugs"><td>E13b</td><td>1st Line (specify)</td><td><obs conceptId="7778108" answerConceptIds="7777811,7777810,7777929,7777930,7777812,7777813,7777814,7777931,7777916,7777922,7778554,7778139"/></td></tr>
+
+
+
+            <tr id="secondlinedrugs"><td>E13c</td><td>2nd Line (specify)</td><td><obs conceptId="7778109" answerConceptIds="7777933,7777934,7777935,7777936,7777880,7777818,7777919,7777880,7777921,7777918,7777920,7778124,7778125,7778126,7778128,7778129,7778130,7778131,7778132,7778133,7778134,7778135,7778136,7778137,7778555,7778556,7778557,7778133"/></td></tr>
+
+             <tr id="otherdrugs">
+
+                                        <td>E13d</td>
+
+                                        <td>Other Regimes</td>
+
+                                        <td>
+
+                                        <obs id="otherdrugs" conceptId="7778410" answerConceptIds="7778140,1615,952,7778354,33">
+
+                                               <controls>
+
+                                                     <when value="33" thenDisplay="#otherdrugsspecify"/>
+
+                                               </controls>
+
+                                        </obs>
+
+                                        </td>
+
+             </tr>
+
+             <tr id="otherdrugsspecify"><td>E13e</td><td>Others specific</td><td><obs conceptId="1596"/></td></tr>
+
+             <tr><td>E14a</td><td>ARV Drugs Adherence</td>
+
+                   <td>
+
+                          <obs id="arvadh" conceptId="7777874" answerConceptIds="1398,1485,1397"
+
+                          answerLabels="G (Good) &gt; 95% &lt;&#61;3 doses, F (Fair) 85-95% 4-8 doses,P (Poor) &lt; 85% &gt;&#61; 9 doses"/>
+
+                   </td>
+
+           </tr>
+
+           <tr>
+
+                   <td>E14b</td>
+
+                   <td>Why Poor/Fair ARV adherence</td>
+
+                   <td>
+
+                             <table>
+
+                                 <tr>
+
+                                      <td>
+
+                                              <obs conceptId="7778453" answerConceptId="899" answerLabel="Forgot"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="1414" answerLabel="Fell asleep/slept through dose"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="1415" answerLabel="Change in routine/away from home"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="1416" answerLabel="Busy/working/at school"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="1417" answerLabel="Got pregnant"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="983" answerLabel="Patient moved"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="7777775" answerLabel="Ran out of medication"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="44" answerLabel="Drug stock-out"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="48" answerLabel="Not able to pay"/><br/>
+
+
+
+                                      </td>
+
+                                      <td>
+
+                                              <obs conceptId="7778453" answerConceptId="900" answerLabel="Felt well"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1419" answerLabel="Felt sick/bad"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1421" answerLabel="Felt overwhelmed/depressed"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1422" answerLabel="Did not understand how to take medication"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1423" answerLabel="Did not want others to know"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1425" answerLabel="Too many pills"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1424" answerLabel="Did not want to take meds, Afraid of /affected by drug side effects"/><br/>
+
+
+
+                                               <b>Others specify:</b> <obs conceptId="7778456"/>
+
+                                     </td>
+
+                                 </tr>
+
+                             </table>
+
+                          </td>
+
+                    </tr>
+
+                </table>
+
+
+
+
+
+</section>
+
+<section id="sustitutionandswitch"  headerLabel="SUBSTITUTION/SWITCH">
+
+      <p><font color="red">FILL THIS SECTION WHEN THERE IS A CHANGE IN REGIMEN (SUBSTITUTION/SWITCH)</font></p>
+
+     <!--<p><htmlformflowsheet formId="72"  addAnotherButtonLabel="SUBSTITUTION/SWITCH"/></p>-->
+
+    <table cellspacing="10" cellpadding="2">
+
+
+
+
+
+           <tr>
+
+                  <td>E26a</td>
+
+                  <td>Change treatment type</td>
+
+                  <td>
+
+                         <obs conceptId="7778305" id="changetreatmenttype">
+
+                         </obs>
+
+
+
+                 </td>
+
+                 <td>
+
+                         <b>Substitution:</b> Change from one regimen to another regimen of the same line<br/>
+
+                         <b>Switch:</b> Change from one regimen to another regimen of different line (first to second)
+
+                </td>
+
+           </tr>
+
+           <tr>
+
+                   <td>E27,E33,E36</td>
+
+                   <td>Why (Reason for substitution/switch)</td>
+
+                   <td>
+
+                        <obs conceptId="1725" answerConceptIds="46,47,650,1722,7778306,44,1427,1724,1723,7778469,33"
+
+                           answerLabels="Toxicity/Side effects,Pregnancy,Risk of pregnancy, Due to new TB, New drug available, Drug out of stock, Clinical treatment failure, Immunologic failure, Virologic failure,Not Documented ,Others"/>
+
+                  </td>
+
+           </tr>
+
+     </table>
+
+</section>
+
+<!--<section headerLabel="Restart ART" id="restartsection">
+
+    <table cellspacing="10" cellpadding="2">
+
+        <tr>
+
+                <td>E38d</td>
+
+                <td>Date of restart if placed back on medication</td>
+
+                <td><obs conceptId="1726"/></td>
+
+        </tr>
+
+    </table>
+
+</section>-->
+
+
+
+<section headerLabel="ART COMMENCEMENT" id="startnewtreatment" style="width: 100%;">
+
+
+
+      <p><font color="red">(DON'T FILL MORE THAN ONCE ) FILL AT START OF ART</font><htmlformflowsheet formId="1"  addAnotherButtonLabel="ART COMMENCEMENT FORM"/></p>
+
+
+
+</section>
+
+<!--<section headerLabel="ARV DRUGS" id="arvdrugs1">
+
+    <table cellspacing="10" cellpadding="2">
+
+            <tr>
+
+                   <td>E13a</td>
+
+                   <td>Regimen Line</td>
+
+                   <td>
+
+                        <obs id="regimenline" conceptId="7778111" answerLabels="1st Line, 2nd Line,Others" answerConceptIds="7778108,7778109,7778410">
+
+                                <controls>
+
+                                         <when value="7778108" thenDisplay="#firstlinedrugs"/>
+
+                                         <when value="7778109" thenDisplay="#secondlinedrugs"/>
+
+                                         <when value="7778410" thenDisplay="#otherdrugs"/>
+
+                                </controls>
+
+                        </obs>
+
+                  </td>
+
+            </tr>
+
+            <tr id="firstlinedrugs"><td>E13b</td><td>1st Line (specify)</td><td><obs conceptId="7778108" answerConceptIds="7777811,7777810,7777929,7777930,7777812,7777813,7777814,7777931,7777916,7777922,1227,7778139"/></td></tr>
+
+
+
+            <tr id="secondlinedrugs"><td>E13c</td><td>2nd Line (specify)</td><td><obs conceptId="7778109" answerConceptIds="7777933,7777934,7777935,7777936,7777880,7777818,7777919,7777880,7777921,7777918,7777920,7778124,7778125,7778126,7778128,7778129,7778130,7778131,7778132,7778133,7778134,7778135,7778136,7778137"/></td></tr>
+
+             <tr id="otherdrugs">
+
+                                        <td>E13d</td>
+
+                                        <td>Other Regimes</td>
+
+                                        <td>
+
+                                        <obs id="otherdrugs" conceptId="7778410" answerConceptIds="7778140,1615,952,7778354,33">
+
+                                               <controls>
+
+                                                     <when value="33" thenDisplay="#otherdrugsspecify"/>
+
+                                               </controls>
+
+                                        </obs>
+
+                                        </td>
+
+             </tr>
+
+             <tr id="otherdrugsspecify"><td>E13e</td><td>Others specific</td><td><obs conceptId="1596"/></td></tr>
+
+             <tr><td>E14a</td><td>ARV Drugs Adherence</td>
+
+                   <td>
+
+                          <obs id="arvadh" conceptId="7777874" answerConceptIds="1398,1485,1397"
+
+                          answerLabels="G (Good) &gt; 95% &lt;&#61;3 doses, F (Fair) 85-95% 4-8 doses,P (Poor) &lt; 85% &gt;&#61; 9 doses"/>
+
+                   </td>
+
+           </tr>
+
+           <tr>
+
+                   <td>E14b</td>
+
+                   <td>Why Poor/Fair ARV adherence</td>
+
+                   <td>
+
+                             <table>
+
+                                 <tr>
+
+                                      <td>
+
+                                              <obs conceptId="7778453" answerConceptId="899" answerLabel="Forgot"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="1414" answerLabel="Fell asleep/slept through dose"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="1415" answerLabel="Change in routine/away from home"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="1416" answerLabel="Busy/working/at school"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="983" answerLabel="Got pregnant"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="7777775" answerLabel="Patient moved"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="44" answerLabel="Ran out of medication"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="48" answerLabel="Drug stock-out"/><br/>
+
+                                              <obs conceptId="7778453" answerConceptId="900" answerLabel="Not able to pay"/><br/>
+
+                                      </td>
+
+                                      <td>
+
+                                               <obs conceptId="7778453" answerConceptId="1419" answerLabel="Felt well"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1421" answerLabel="Felt sick/bad"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1422" answerLabel="Felt overwhelmed/depressed"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1423" answerLabel="Did not understand how to take medication"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1425" answerLabel="Did not want others to know"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1424" answerLabel="Too many pills"/><br/>
+
+                                               <obs conceptId="7778453" answerConceptId="1420" answerLabel="Did not want to take meds, Afraid of /affected by drug side effects"/><br/>
+
+                                               <b>Others specify:</b> <obs conceptId="7778456"/>
+
+                                     </td>
+
+                                 </tr>
+
+                             </table>
+
+                          </td>
+
+                    </tr>
+
+                </table>
+
+
+
+
+
+</section>-->
+
+
+
+
+
+
+
+<section headerLabel="COTRIMOXAZOLE">
+
+   <table cellspacing="10" cellpadding="2">
+
+      <tr><td>E15</td><td>Cotrimoxazole Dose</td><td><obs conceptId="7778203" answerLabels="CTX 480mg, CTX 960mg,CTX Dispersible 120mg" answerConceptIds="1547,1552,7778548"/></td></tr>
+
+      <tr><td>E16a</td><td>Cotrimoxazole Adherence</td><td><obs conceptId="7777875"  answerConceptIds="1398,1485,1397" answerLabels="G(Good)&gt;95&#37;&lt;&#61;3 doses,F (Fair) 85-95% 4-8 doses,P (Poor) &lt; 85% &gt;&#61; 9 doses"/></td></tr>
+
+<tr>
+
+                   <td>E16b</td>
+
+                   <td>Why Poor/Fair CTX adherence</td>
+
+                   <td>
+
+                             <table>
+
+                                 <tr>
+
+                                      <td>
+
+                                              <obs conceptId="7778454" answerConceptId="899" answerLabel="Forgot"/><br/>
+
+                                              <obs conceptId="7778454" answerConceptId="1414" answerLabel="Fell asleep/slept through dose"/><br/>
+
+                                              <obs conceptId="7778454" answerConceptId="1415" answerLabel="Change in routine/away from home"/><br/>
+
+                                              <obs conceptId="7778454" answerConceptId="1416" answerLabel="Busy/working/at school"/><br/>
+
+                                              <obs conceptId="7778454" answerConceptId="1417" answerLabel="Got pregnant"/><br/>
+
+                                              <obs conceptId="7778454" answerConceptId="983" answerLabel="Patient moved"/><br/>
+
+                                              <obs conceptId="7778454" answerConceptId="7777775" answerLabel="Ran out of medication"/><br/>
+
+                                              <obs conceptId="7778454" answerConceptId="44" answerLabel="Drug stock-out"/><br/>
+
+                                              <obs conceptId="7778454" answerConceptId="48" answerLabel="Not able to pay"/><br/>
+
+
+
+                                      </td>
+
+                                      <td>
+
+                                               <obs conceptId="7778454" answerConceptId="900" answerLabel="Felt well"/><br/>
+
+                                               <obs conceptId="7778454" answerConceptId="1419" answerLabel="Felt sick/bad"/><br/>
+
+                                               <obs conceptId="7778454" answerConceptId="1421" answerLabel="Felt overwhelmed/depressed"/><br/>
+
+                                               <obs conceptId="7778454" answerConceptId="1422" answerLabel="Did not understand how to take medication"/><br/>
+
+                                               <obs conceptId="7778454" answerConceptId="1423" answerLabel="Did not want others to know"/><br/>
+
+                                               <obs conceptId="7778454" answerConceptId="1425" answerLabel="Too many pills"/><br/>
+
+                                               <obs conceptId="7778454" answerConceptId="1424" answerLabel="Did not want to take meds, Afraid of /affected by drug side effects"/><br/>
+
+
+
+                                               <b>Others specify:</b><obs conceptId="7778457"/>
+
+                                     </td>
+
+                                 </tr>
+
+                             </table>
+
+                  </td>
+
+             </tr>
+
+
+
+   </table>
+
+</section>
+
+<section headerLabel="INH">
+
+   <table cellspacing="10" cellpadding="2">
+
+      <tr><td>E17</td><td>INH Dose</td><td><obs conceptId="7778202" answerLabels="INH 300mg, INH 100mg" answerConceptIds="1546,1543"/></td></tr>
+
+      <tr><td>E18a</td><td>INH Adherence</td><td><obs conceptId="7777876"  answerConceptIds="1398,1485,1397" answerLabels="G(Good)&gt;95&#37;&lt;&#61;3 doses,F (Fair) 85-95% 4-8 doses,P (Poor) &lt; 85% &gt;&#61; 9 doses"/></td></tr>
+
+<tr>
+
+                   <td>E18b</td>
+
+                   <td>Why Poor/Fair INH adherence</td>
+
+                   <td>
+
+                             <table>
+
+                                 <tr>
+
+                                      <td>
+
+                                              <obs conceptId="7778455" answerConceptId="899" answerLabel="Forgot"/><br/>
+
+                                              <obs conceptId="7778455" answerConceptId="1414" answerLabel="Fell asleep/slept through dose"/><br/>
+
+                                              <obs conceptId="7778455" answerConceptId="1415" answerLabel="Change in routine/away from home"/><br/>
+
+                                              <obs conceptId="7778455" answerConceptId="1416" answerLabel="Busy/working/at school"/><br/>
+
+                                              <obs conceptId="7778455" answerConceptId="1417" answerLabel="Got pregnant"/><br/>
+
+                                              <obs conceptId="7778455" answerConceptId="983" answerLabel="Patient moved"/><br/>
+
+                                              <obs conceptId="7778455" answerConceptId="7777775" answerLabel="Ran out of medication"/><br/>
+
+                                              <obs conceptId="7778455" answerConceptId="44" answerLabel="Drug stock-out"/><br/>
+
+                                              <obs conceptId="7778455" answerConceptId="48" answerLabel="Not able to pay"/><br/>
+
+
+
+
+
+                                      </td>
+
+                                      <td>
+
+                                               <obs conceptId="7778455" answerConceptId="900" answerLabel="Felt well"/><br/>
+
+                                               <obs conceptId="7778455" answerConceptId="1419" answerLabel="Felt sick/bad"/><br/>
+
+                                               <obs conceptId="7778455" answerConceptId="1421" answerLabel="Felt overwhelmed/depressed"/><br/>
+
+                                               <obs conceptId="7778455" answerConceptId="1422" answerLabel="Did not understand how to take medication"/><br/>
+
+                                               <obs conceptId="7778455" answerConceptId="1423" answerLabel="Did not want others to know"/><br/>
+
+                                               <obs conceptId="7778455" answerConceptId="1425" answerLabel="Too many pills"/><br/>
+
+                            <obs conceptId="7778455" answerConceptId="1424" answerLabel="Did not want to take meds, Afraid of /affected by drug side effects"/><br/>
+
+
+
+                                               <b>Others specify:</b> <obs conceptId="7778458"/>
+
+                                     </td>
+
+                                 </tr>
+
+                             </table>
+
+                  </td>
+
+             </tr>
+
+
+
+   </table>
+
+</section>
+
+<section headerLabel="Other drugs prescribed">
+
+    <table cellspacing="10" cellpadding="2">
+
+           <tr><td>E19</td><td>Other drugs prescribed</td><td><obs conceptId="7778231"/></td><td></td></tr>
+
+    </table>
+
+</section>
+
+<section headerLabel="Lab Orders">
+
+    <table cellspacing="10" cellpadding="2">
+
+         <tr><td>E20</td><td>CD4 Tick if scheduled</td><td><obs conceptId="382" answerConceptId="310" answerLabel="CD4"/>&#160;&#160;&#160;&#160;
+
+<font color='blue'>LAST CD4 :<lookup expression="fn.latestObs('88').valueNumeric"/>c/mm<sup>3</sup><lookup expression="fn.latestObs('88').obsDatetime"/></font></td></tr>
+
+<tr><td>E21</td><td>Viral Load Tick if scheduled</td>
+
+      <td><obs conceptId="382" answerConceptId="315" answerLabel="Viral Load"/>&#160;&#160;&#160;&#160;
+
+<font color='blue'>LAST VIRAL LOAD:<lookup expression="fn.latestObs('315').valueNumeric"/>c/mm<sup>3</sup><lookup expression="fn.latestObs('315').obsDatetime"/></font></td>
+
+</tr>
+
+         <tr><td>E22</td><td>Other Tests Done</td>
+
+               <td>
+
+                     <obs conceptId="382" answerLabel="1  HB&#47;PCV" answerConceptId="228"/><br/>
+
+                     <obs conceptId="382" answerLabel="2  WBC&#43;Diff" answerConceptId="331"/><br/>
+
+                     <obs conceptId="382" answerLabel="3  ALT" answerConceptId="309"/><br/>
+
+                     <obs conceptId="382" answerLabel="4  AST" answerConceptId="308"/><br/>
+
+                     <obs conceptId="382" answerLabel="5  Creatinine" answerConceptId="313"/><br/>
+
+                     <obs conceptId="382" answerLabel="6  Lipid Profile" answerConceptId="1165"/><br/>
+
+                     <obs conceptId="382" answerLabel="7  HBsAG" answerConceptId="1157"/><br/>
+
+                     <obs conceptId="382" answerLabel="8  Urinalysis" answerConceptId="297"/><br/>
+
+                     <obs conceptId="382" answerLabel="9  Sputum AFB" answerConceptId="9"/><br/>
+
+                     <obs conceptId="382" answerLabel="10 Chest Xray" answerConceptId="227"/><br/>
+
+                     &#160;&#160;&#160;&#160;11. Others (Specify) <obs conceptId="7778199" answerLabel=""/>
+
+
+
+</td>
+
+</tr>
+
+    </table>
+
+</section>
+
+<section headerLabel="Hospitalization">
+
+<table cellspacing="10" cellpadding="2">
+
+    <tr>
+
+           <td>E23</td><td>Hospitalised</td>
+
+          <td>
+
+                 <obs id="hospitalized" conceptId="45" answerConceptIds="80,81" answerLabels="Yes,No">
+
+                      <controls>
+
+                           <when value="80" thenDisplay="#hospitalizationinfo"/>
+
+                      </controls>
+
+                 </obs><span id="hospitalizationinfo"><b>Date of Hospitalization:</b><obs conceptId="998"/><b>Reason for Hospitalization:</b><obs conceptId="997"/></span>
+
+         </td>
+
+    </tr>
+
+</table>
+
+</section>
+
+<section headerLabel="Referrals">
+
+    <table cellspacing="7" cellpadding="1" style="width: 100%;">
+
+         <tr>
+
+                  <td>E23</td>
+
+                  <td>Referrals</td>
+
+                  <td style="width: 90%;">
+
+                           <table cellspacing="10" cellpadding="2" style="width: 100%;">
+
+                                <tr>
+
+                                        <td>
+
+                                                  <obs conceptId="260" answerConceptId="240" answerLabel="Adherence counselling"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="241" answerLabel="Referral for opportunistic infection treatment"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="242" answerLabel="Social Support Services"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="243" answerLabel="Voluntary counselling and testing for HIV"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="244" answerLabel="Referral for imaging study"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="245" answerLabel="Psychosocial counseling"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="246" answerLabel="dental Care Referral"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="247" answerLabel="Family Planning Services"/><br/>
+
+
+
+                                       </td>
+
+                                       <td>
+
+                                                  <obs conceptId="260" answerConceptId="248" answerLabel="Diagnostic testing and counseling for HIV"/><br/>
+
+                                                   <obs conceptId="260" answerConceptId="249" answerLabel="Referral for pregnancy termination"/><br/>
+
+                                                   <obs conceptId="260" answerConceptId="250" answerLabel="Tuberculosis treatment or DOT program"/><br/>
+
+                                                   <obs conceptId="260" answerConceptId="45" answerLabel="Inpatient care or Hospitalization"/><br/>
+
+                                                    <obs conceptId="260" answerConceptId="232" answerLabel="Alcohol counseling"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="251" answerLabel="Post Natal care referral"/><br/>
+
+                                                 <obs conceptId="260" answerConceptId="252" answerLabel="Referral for Antiretroviral Therapy"/><br/>
+
+                                                 <obs conceptId="260" answerConceptId="253" answerLabel="Personal history of abortion"/><br/></td><td>
+
+
+
+                                       </td>
+
+                                       <td>
+
+                                                 <obs conceptId="260" answerConceptId="258" answerLabel="Nutritional Support"/><br/>
+
+                                                 <obs conceptId="260" answerConceptId="880" answerLabel="Home-based care"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="882" answerLabel="Day-care services"/><br/>
+
+                                                 <obs conceptId="260" answerConceptId="257" answerLabel="Mental Health services"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="879" answerLabel="Family counseling"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="884" answerLabel="Medical Outpatient"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="239" answerLabel="Educational and counseling orders"/><br/>
+
+                                                  <obs conceptId="260" answerConceptId="255" answerLabel="Disclosure counseling"/><br/>
+
+                                                  <obs conceptId="7778345" rows="1" labelText="Others(Specify)"/>
+
+
+
+                                       </td>
+
+
+
+                                </tr>
+
+                           </table>
+
+                 </td>
+
+         </tr>
+
+    </table>
+
+</section>
+
+<section headerLabel="Appointment">
+
+    <table cellspacing="10" cellpadding="2">
+
+        <tr><td>E24</td><td>Next Appt Date</td><td><b>Next:</b><obs conceptId="7777821"  answerConceptIds="1570,1571,1628,1574,1575" answerLabels="1 Week,2 Weeks, 4 Weeks, 2 Months, 3 Months" style="radio"/>&#160;&#160;<b>Date:</b><obs conceptId="7777822" allowFutureDates="true" required="true"/></td></tr>
+
+    </table>
+
+</section>
+
+<section headerLabel="DISCONTINUATION AND INTERRUPTIONS" id="artinterruption">
+
+<p>
+
+<font color="red">(DON'T FILL MORE THAN ONCE ) FILL FOR DEAD,LTFU,TRANSFERRED OUT OR STOP TREATMENT</font><br/>
+
+<htmlformflowsheet formId="71"  addAnotherButtonLabel="CARE CARD DISCONTINUATION" />
+
+</p>
+
+
+
+
+
+      <!--<table cellspacing="10" cellpadding="2">
+
+        <tr><th colspan="2"><font color="red">FILL ONCE FOR ALL DEAD,TRANSFERRED OR LOST TO FOLLOW UP PATIENTS</font></th></tr>
+
+        <tr>
+
+
+
+                <td>E38a</td>
+
+                <td>Stopped(S)/Lost(L) [circle as appropriate]</td>
+
+                <td>
+
+                       <obs id="interruptiontype" conceptId="1729" answerLabels="Stopped(S),Lost(L)" answerConceptIds="1728,974">
+
+                       <controls>
+
+                                <when value="1728" thenDisplay="#stoppedinterruption"/>
+
+                                <when value="974" thenDisplay="#lost"/>
+
+                      </controls>
+
+                      </obs>
+
+               </td>
+
+        </tr>
+
+        <tr id="stoppedinterruption">
+
+               <td>E38b</td>
+
+               <td>Why STOP Codes</td>
+
+               <td><obs conceptId="52" answerConceptIds="46,47,51,50,45,44,48,31,32,33" answerLabels="Toxicity/Side effects, Pregnancy, Treatment failure, Poor adherence, illness or hospitalization, Drugs out of stock, Patient lacks finances, Other patient decision, Planned Rx interruption,Other"/></td>
+
+        </tr>
+
+        <tr id="lost">
+
+               <td>E38c</td>
+
+               <td>Lost Reason (Dead or Transferred)</td>
+
+               <td>
+
+                      <obs id="lostreason" conceptId="977"  answerConceptIds="974,211,975" answerLabels="Lost to follow up,Patient transferred out,Death">
+
+                             <controls>
+
+                                    <when value="211" thenDisplay="#transferredoutrow,#facilitytransferredto"/>
+
+                                    <when value="975" thenDisplay="#deadrow,#causeofdeath,#sourceofdeathinfo"/>
+
+                             </controls>
+
+                     </obs>
+
+             </td>
+
+        </tr>
+
+        <tr id="transferredoutrow"><td>39</td><td>Date of Transfer</td><td><obs conceptId="978"/></td></tr>
+
+        <tr id="facilitytransferredto"><td>40</td><td>Facility Transferred To</td><td><obs conceptId="979"/></td></tr>
+
+        <tr id="deadrow"><td>41.</td><td>Patient has died(ART) (PRE-ART) date</td><td><obs conceptId="7777868"/></td></tr>
+
+        <tr id="causeofdeath"><td>43</td><td>Cause of Death HIV related:</td><td><obs conceptId="7777869" answerLabels="Yes,No,Unknown" answerConceptIds="80,81,13"/></td></tr>
+
+        <tr id="sourceofdeathinfo"><td>42</td><td>Source of death information</td><td><obs conceptId="980"/></td></tr>
+
+
+
+    </table>-->
+
+</section>
+
+<br/><submit/><br/>
+
+</htmlform>

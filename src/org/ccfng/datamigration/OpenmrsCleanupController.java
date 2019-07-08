@@ -45,6 +45,9 @@ public class OpenmrsCleanupController {
 	public TableView<PharmacyEncounter> pharmacyEncounterTable;
 
 	@FXML
+	public TableView<PharmacyEncounter> lastEncounterTable;
+
+	@FXML
 	private TextArea appConsole;
 
 	@FXML
@@ -177,6 +180,7 @@ public class OpenmrsCleanupController {
 		int dtg_id = 0;
 		int t3d_drug_id = 0;
 		int t3d_strenght_id = 0;
+
 		String INSERT_SQL = "INSERT INTO concept"
 				+ "(concept_id,datatype_id, class_id, creator, uuid,date_created)" +
 				"VALUES (null,?,?,?,?,?)";
@@ -273,6 +277,9 @@ public class OpenmrsCleanupController {
 					dtg_id=rs3.getInt(1);
 					stmt.execute("INSERT INTO concept_name (concept_id, name, locale, creator, uuid, locale_preferred,concept_name_type,date_created) "
 							+ "VALUES("+dtg_id+",'Dolutegravir (DTG)','en',1,UUID(),1,'FULLY_SPECIFIED',NOW())");
+
+//					stmt.execute("INSERT INTO drug (concept_id, name, combination,dose_strength, creator,units, uuid,date_created) "
+//							+ "VALUES("+dtg_id+",'Dolutegravir (DTG) 50mg',0,1,1,'mg',UUID(),NOW())");
 				}
 				rs3.close();
 			} catch (SQLException e) {
@@ -296,6 +303,9 @@ public class OpenmrsCleanupController {
 					t3d_drug_id=rs4.getInt(1);
 					stmt.execute("INSERT INTO concept_name (concept_id, name, locale, creator, uuid, locale_preferred,concept_name_type,date_created) "
 							+ "VALUES("+t3d_drug_id+",'Tenofovir/Lamivudine/Dolutegravir (TDF/3TC/DTG)','en',1,UUID(),1,'FULLY_SPECIFIED',NOW())");
+
+//					stmt.execute("INSERT INTO drug (concept_id, name, combination,dose_strength, creator,units, uuid,date_created) "
+//							+ "VALUES("+dtg_id+",'Tenofovir/Lamivudine/Dolutegravir (TDF/3TC/DTG) 300mg/300mg/50mg',1,1,1,'mg',UUID(),NOW())");
 				}
 				rs4.close();
 			} catch (SQLException e) {
@@ -336,6 +346,21 @@ public class OpenmrsCleanupController {
 							+ "VALUES("+7778108+","+A3d_id+",1,UUID(), NOW())");
 					stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
 							+ "VALUES("+7778108+","+a3d_id+",1,UUID(), NOW())");
+
+				stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
+						+ "VALUES("+7778472+","+t3d_id+",1,UUID(), NOW())");
+				stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
+						+ "VALUES("+7778472+","+A3d_id+",1,UUID(), NOW())");
+				stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
+						+ "VALUES("+7778472+","+a3d_id+",1,UUID(), NOW())");
+
+				stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
+						+ "VALUES("+7778355+","+t3d_id+",1,UUID(), NOW())");
+				stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
+						+ "VALUES("+7778355+","+A3d_id+",1,UUID(), NOW())");
+				stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
+						+ "VALUES("+7778355+","+a3d_id+",1,UUID(), NOW())");
+
 			} catch (SQLException e) {
 				e.printStackTrace();
 				rollbackTransaction(conn, e);
@@ -384,6 +409,130 @@ public class OpenmrsCleanupController {
 				e.printStackTrace();
 				rollbackTransaction(conn, e);
 			}
+			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS);) {
+				String text = "";
+				try {
+					logToConsole("\n Fetching Pediatrics Pharmacy Form..");
+					text = new String(Files.readAllBytes(Paths.get("p_pharmacy_form.txt")));
+					logToConsole("\n Replacing Placeholders...");
+					String master = text;
+					String target1 = "DTGCOMBINATIONCONCEPT";
+					String target2 = "DTGCOMBINATIONSTRNGHT";
+					String target3 = "DTGCONCEPT";
+					String replacement1 = Integer.toString(t3d_drug_id);
+					String replacement2 = Integer.toString(t3d_strenght_id);
+					String replacement3 = Integer.toString(dtg_id);
+					String processed = master.replace(target1, replacement1);
+					String processed2 = processed.replace(target2, replacement2);
+					String processed3 = processed2.replace(target3, replacement3);
+
+					//					text.replaceAll("(?i)(" + target1 + ")(?!([^<]+)?>)", Integer.toString(t3d_drug_id));
+					//					text.replaceAll("(?i)(" + target2 + ")(?!([^<]+)?>)", Integer.toString(t3d_strenght_id));
+					//					text.replaceAll("(?i)(" + target3 + ")(?!([^<]+)?>)", Integer.toString(dtg_id));
+
+					logToConsole("\n Updating Pharmacy Form..");
+					//					stmt.execute("UPDATE htmlformentry_html_form set xml_data='"+processed3+"' where form_id=46");
+					stmt.setString(1, processed3);
+					stmt.setInt(2,53);
+					stmt.execute();
+
+
+					logToConsole("Pharmacy Form Updated successfully.");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}catch (Exception e){
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}
+
+			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS);) {
+				String text = "";
+				try {
+					logToConsole("\n Fetching Care Card Form..");
+					text = new String(Files.readAllBytes(Paths.get("care_card_form.txt")));
+					logToConsole("\n Replacing Placeholders...");
+					String master = text;
+					String target1 = "DTG1";
+					String target2 = "DTG2";
+					String target3 = "DTG3";
+					String replacement1 = Integer.toString(t3d_id);
+					String replacement2 = Integer.toString(a3d_id);
+					String replacement3 = Integer.toString(A3d_id);
+					String processed = master.replace(target1, replacement1);
+					String processed2 = processed.replace(target2, replacement2);
+					String processed3 = processed2.replace(target3, replacement3);
+
+					logToConsole("\n Updating Care Card Form..");
+					stmt.setString(1, processed3);
+					stmt.setInt(2,1);
+					stmt.execute();
+					logToConsole("Care Card Form Updated successfully.");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}catch (Exception e){
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}
+
+			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS);) {
+				String text = "";
+				try {
+					logToConsole("\n Fetching Care Card Follow Up Form..");
+					text = new String(Files.readAllBytes(Paths.get("care_card_follow_form.txt")));
+					logToConsole("\n Replacing Placeholders in Care Card Follow Up Form...");
+					String master = text;
+					String target1 = "DTG1";
+					String target2 = "DTG2";
+					String target3 = "DTG3";
+					logToConsole("\n Loader.. "+Integer.toString(t3d_id));
+					logToConsole("\n Loader.. "+Integer.toString(a3d_id));
+					logToConsole("\n Loader.. "+Integer.toString(A3d_id));
+					logToConsole("\n Fetching Care Card Follow Up Form..");
+					logToConsole("\n Fetching Care Card Follow Up Form..");
+					String replacement1 = Integer.toString(t3d_id);
+					String replacement2 = Integer.toString(a3d_id);
+					String replacement3 = Integer.toString(A3d_id);
+					String processed = master.replace(target1, replacement1);
+					String processed2 = processed.replace(target2, replacement2);
+					String processed3 = processed2.replace(target3, replacement3);
+					logToConsole(processed3);
+
+
+					logToConsole("\n Updating Care Card Follow Up Form..");
+					stmt.setString(1, processed3);
+					stmt.setInt(2,56);
+					stmt.execute();
+					int dee = -1000;
+					ResultSet rs = stmt.getGeneratedKeys();
+					if (rs.next()){
+						dee=rs.getInt(1);
+					}
+					logToConsole("Care Card Follow Up Form Updated successfully. with return message of: "+dee);
+				} catch (IOException e) {
+					e.printStackTrace();
+					logToConsole("Error: "+e.getMessage());
+				}catch (Exception ex){
+					logToConsole("Error: "+ex.getMessage());
+					ex.printStackTrace();
+				}
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}catch (Exception e){
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}
 			conn.commit();
 		} catch (SQLException e) {
 			logToConsole("Error: "+e.getMessage());
@@ -395,7 +544,9 @@ public class OpenmrsCleanupController {
 
 		//### ADD THE 3 DTG REGIMENS TO FIRST LINE CONCEPT ANSWER
 
-
+		allRegimenComboBox.getItems().removeAll();
+		newRegimenComboBox.getItems().removeAll();
+		getRegimens();
 		//### UPDATE PHARMACY FORM
 	}
 
@@ -504,7 +655,7 @@ public class OpenmrsCleanupController {
 								+ "ob.value_coded = "+allRegimenComboBox.getSelectionModel().getSelectedItem().getConceptID()
 								+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
 								//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
-								+ "' order by ob.person_id Limit 50";
+								+ "' order by ob.person_id";
 			logToConsole("\n Fetching Obs starting from .."+LocalDate.parse(startDate.getValue().toString() , formatter));
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -546,11 +697,85 @@ public class OpenmrsCleanupController {
 	}
 
 	@FXML
+	private void getLastEncounter(){
+
+		lastEncounterTable.getItems().removeAll();
+
+		ObservableList<PharmacyEncounter> pharmacyEncounters = FXCollections.observableArrayList();
+		appConsole.clear();
+		logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+
+		Statement stmt = null;
+		try {
+			//STEP 2: Register JDBC driver
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (Exception exc) {
+			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+		}
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+			logToConsole("\n Source Database connection successful..");
+
+			stmt = conn.createStatement();
+
+			String sql = "SELECT pa.patient_id as patientID, encounter.encounter_id as encounterID, "
+								//+ "ob.obs_id AS obsID, "
+								+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4) AS pepfarID,"
+								+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
+								+ "encounter.encounter_datetime AS EncounterDateTime, "
+								+ "(Select name from form where form_id = encounter.form_id) AS Question,"
+								//+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
+								+ "  FROM patient AS pa LEFt JOIN encounter "
+								+ "on pa.patient_id = encounter.patient_id where "
+								+ "encounter.form_id IN ()"
+								+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
+								//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
+								+ "' order by ob.person_id";
+			logToConsole("\n Fetching Obs starting from .." + LocalDate.parse(startDate.getValue().toString() , formatter));
+			ResultSet rs = stmt.executeQuery(sql);
+			//STEP 5: Extract data from result set
+			while (rs.next()) {
+				PharmacyEncounter pharmacyEncounter = new PharmacyEncounter();
+				pharmacyEncounter.setPatientID(rs.getInt("patientID"));
+				pharmacyEncounter.setEncounterID(rs.getInt("encounterID"));
+				//pharmacyEncounter.setObsID(rs.getInt("obsID"));
+				pharmacyEncounter.setPepfarID(rs.getString("pepfarID"));
+				pharmacyEncounter.setPatientName(rs.getString("patientName"));
+				pharmacyEncounter.setEncounterDateTime(rs.getDate("EncounterDateTime"));
+				pharmacyEncounter.setQuestion(rs.getString("Question"));
+				pharmacyEncounter.setAnswer(rs.getString("Answer"));
+				pharmacyEncounters.add(pharmacyEncounter);
+				logToConsole(pharmacyEncounter.toString()+"\n");
+			}
+			rs.close();
+			logToConsole("\n Done..");
+		} catch (SQLException e) {
+			logToConsole("\n Error: " + e.getMessage());
+			e.printStackTrace();
+		}finally {
+			//finally block used to close resources
+			try {
+				if (stmt != null);
+			} catch (Exception se) {
+			}// do nothing
+		}//end try
+		try {
+			if (pharmacyEncounters.isEmpty()) {
+				logToConsole("\n No Record Found..");
+			} else {
+				lastEncounterTable.setItems(pharmacyEncounters);
+			}
+		}catch (Exception ex){
+			logToConsole("\n Error: " + ex.getMessage());
+			ex.printStackTrace();
+		}
+	}
+
+	@FXML
 	private void updateRegimens(){
 		//Set<PharmacyEncounter> selectedEncounters = new HashSet<>();
 		logToConsole("\n Initializing.!\n");
 
-			String INSERT_SQL = "UPDATE obs SET value_coded=? WHERE obs_id=?";
+			String INSERT_SQL = "UPDATE obs SET concept_id=?, value_coded=? WHERE obs_id=?";
 
 			try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
 				Class.forName("com.mysql.jdbc.Driver");
@@ -562,9 +787,11 @@ public class OpenmrsCleanupController {
 					// Insert sample records
 					for (PharmacyEncounter pE : pharmacyEncounterTable.getSelectionModel().getSelectedItems()) {
 						logToConsole("\n Loading Selected Regimens...!!\n");
-						stmt.setInt(1, regimen.getConceptID());
-						stmt.setInt(2, pE.getObsID());
+						stmt.setInt(1, 7778108);
+						stmt.setInt(2, regimen.getConceptID());
+						stmt.setInt(3, pE.getObsID());
 						stmt.addBatch();
+						stmt.addBatch("UPDATE obs SET value_coded=7778108 where concept_id=7778111 && encounter_id="+pE.getEncounterID());
 					}
 					//execute batch
 					logToConsole("\n Updating Data....!\n");
