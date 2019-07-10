@@ -265,6 +265,7 @@
       	  <td class="mytd"><b><obs conceptId="7778364" answerConceptId="1189" answerLabel="Tenofovir+Lamivudine (TDF+3TC)"/></b></td>
       	  <td class="mytd"><obs conceptId="7778365" answerConceptIds="1602" style="radio"/><br/><b>Other Strength</b><obs conceptId="7778390"/></td>
       	       <td class="mytd">Value:<obs conceptId="7778366"/><br/>Units:<obs conceptId="7778367" /></td>
+      	        <td class="mytd">Value:<br/><obs conceptId="7778368"/><br/>Units:<obs conceptId="7778468"/></td>
       	       <td class="mytd">
       			<obs conceptId="7778407" answerLabels="BD,OD,Nocte,3x/wk,Stat,am and pm,PRN,TDS,4-5 times a day, after each stool, Every week, As directed,5 times a day,Every 4-6 hrs" answerConceptIds="1556,1555,1562,1561,7778399,7778400,7778401,7778402,7778403,7778404,7778405,7778406,7778464,7778465"/></td>
       		   <td class="mytd">Value:<obs conceptId="7778370"/><br/>Units:<obs conceptId="7778371"/></td>
@@ -277,6 +278,7 @@
       			<td class="mytd"><b><obs conceptId="7778364" answerConceptId="DTGCOMBINATIONCONCEPT" answerLabel="Tenofovir/Lamivudine/Dolutegravir (TDF/3TC/DTG)"/></b></td>
       		    <td class="mytd"><obs conceptId="7778365" answerConceptIds="DTGCOMBINATIONSTRNGHT" style="radio"/><br/><b>Other Strength</b><obs conceptId="7778390"/></td>
       	        <td class="mytd">Value:<obs conceptId="7778366"/><br/>Units:<obs conceptId="7778367" /></td>
+      	         <td class="mytd">Value:<br/><obs conceptId="7778368"/><br/>Units:<obs conceptId="7778468"/></td>
       	        <td class="mytd">
       			<obs conceptId="7778407" answerLabels="BD,OD,Nocte,3x/wk,Stat,am and pm,PRN,TDS,4-5 times a day, after each stool, Every week, As directed,5 times a day,Every 4-6 hrs" answerConceptIds="1556,1555,1562,1561,7778399,7778400,7778401,7778402,7778403,7778404,7778405,7778406,7778464,7778465"/></td>
       		 <td class="mytd">Value:<obs conceptId="7778370"/><br/>Units:<obs conceptId="7778371"/></td>
@@ -289,6 +291,7 @@
 			<td class="mytd"><b><obs conceptId="7778364" answerConceptId="DTGCONCEPT" answerLabel="Dolutegravir (DTG)"/></b></td>
 		    <td class="mytd"><obs conceptId="7778365" answerConceptIds="1551,1589" style="radio"/><br/><b>Other Strength</b><obs conceptId="7778390"/></td>
 	        <td class="mytd">Value:<obs conceptId="7778366"/><br/>Units:<obs conceptId="7778367" /></td>
+	         <td class="mytd">Value:<br/><obs conceptId="7778368"/><br/>Units:<obs conceptId="7778468"/></td>
 	        <td class="mytd">
 			<obs conceptId="7778407" answerLabels="BD,OD,Nocte,3x/wk,Stat,am and pm,PRN,TDS,4-5 times a day, after each stool, Every week, As directed,5 times a day,Every 4-6 hrs" answerConceptIds="1556,1555,1562,1561,7778399,7778400,7778401,7778402,7778403,7778404,7778405,7778406,7778464,7778465"/></td>
 		 <td class="mytd">Value:<obs conceptId="7778370"/><br/>Units:<obs conceptId="7778371"/></td>

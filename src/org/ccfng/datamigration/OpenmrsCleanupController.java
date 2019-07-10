@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -35,9 +36,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.ccfng.datamigration.obs.Obs;
+import org.ccfng.datamigration.openmrscleanup.LastCarePharmacy;
 import org.ccfng.datamigration.openmrscleanup.PharmacyEncounter;
 import org.ccfng.datamigration.openmrscleanup.Regimen;
 import org.ccfng.datamigration.session.SessionManager;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 
 public class OpenmrsCleanupController {
 
@@ -45,7 +50,7 @@ public class OpenmrsCleanupController {
 	public TableView<PharmacyEncounter> pharmacyEncounterTable;
 
 	@FXML
-	public TableView<PharmacyEncounter> lastEncounterTable;
+	public TableView<LastCarePharmacy> lastCarePharmacyEncounterTable;
 
 	@FXML
 	private TextArea appConsole;
@@ -61,6 +66,8 @@ public class OpenmrsCleanupController {
 
 	@FXML
 	private Button createDTG;
+
+	private Task<ObservableList<LastCarePharmacy>> lastPharmacyTask;
 
 
 	public String sourceHost;
@@ -100,6 +107,7 @@ public class OpenmrsCleanupController {
 	}
 
 	public void initialize(){
+
 		pharmacyEncounterTable.setOnMousePressed(event -> {
 			if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
 				Node node = ((Node) event.getTarget()).getParent();
@@ -135,9 +143,40 @@ public class OpenmrsCleanupController {
 			}
 		});
 
+//		lastCarePharmacyEncounterTable.setOnMousePressed(event -> {
+//
+//			logToConsole("\n Event Captured.");
+//			if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
+//				Node node = ((Node) event.getTarget()).getParent();
+//				TableRow row;
+//				if (node instanceof TableRow) {
+//					logToConsole("\n Row Captured.");
+//					row = (TableRow) node;
+//				} else {
+//					// clicking on text part
+//					logToConsole("\n Column Captured.");
+//					row = (TableRow) node.getParent();
+//				}
+//
+//				java.sql.Date fD = getLastPharmacyEncounter((LastCarePharmacy) row.getItem());
+//
+//				lastCarePharmacyEncounterTable.getSelectionModel()
+//						.getSelectedItem()
+//						.setLastPharmacyEncounterDate(fD);
+//
+//				logToConsole("\nLast Pharm Date: "+fD);
+//			}
+//
+//		});
+
 		pharmacyEncounterTable.getSelectionModel().setSelectionMode(
 				SelectionMode.MULTIPLE
 		);
+
+		lastCarePharmacyEncounterTable.getSelectionModel().setSelectionMode(
+				SelectionMode.MULTIPLE
+		);
+
 		logToConsole("\n Fetching Database Config!!");
 		try (Stream<String> stream = Files.lines(Paths.get("source-db-config.txt"))) {
 			List<String> db_files = FXCollections.observableArrayList();
@@ -161,6 +200,7 @@ public class OpenmrsCleanupController {
 
 		//Platform.runLater(() -> {
 			getRegimens();
+			getLastEncounter();
 		//});
 	}
 
@@ -643,7 +683,9 @@ public class OpenmrsCleanupController {
 //					+ "(encounter.encounter_type = 7 && obs.concept_id IN (7778108,7778109,7778410)";
 
 
-			String sql = "SELECT ob.person_id as patientID, encounter.encounter_id as encounterID, "
+			String sql = "SELECT ob.person_id as patientID, "
+					+ "(Select value_text from obs where encounter_id = ob.encounter_id AND concept_id = 1596 AND person_id = ob.person_id Limit 1) "
+					+ "AS valueText, encounter.encounter_id as encounterID, "
 								+ "ob.obs_id AS obsID, "
 								+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4) AS pepfarID,"
 								+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = ob.person_id && preferred = 1) As patientName,"
@@ -668,7 +710,7 @@ public class OpenmrsCleanupController {
 				pharmacyEncounter.setPatientName(rs.getString("patientName"));
 				pharmacyEncounter.setEncounterDateTime(rs.getDate("EncounterDateTime"));
 				pharmacyEncounter.setQuestion(rs.getString("Question"));
-				pharmacyEncounter.setAnswer(rs.getString("Answer"));
+				pharmacyEncounter.setAnswer(rs.getString("Answer") + " - " + rs.getString("valueText"));
 				pharmacyEncounters.add(pharmacyEncounter);
 				logToConsole(pharmacyEncounter.toString()+"\n");
 			}
@@ -696,12 +738,15 @@ public class OpenmrsCleanupController {
 		}
 	}
 
+
 	@FXML
 	private void getLastEncounter(){
 
-		lastEncounterTable.getItems().removeAll();
+//		if(lastCarePharmacyEncounterTable.getItems() != null) {
+//			lastCarePharmacyEncounterTable.getItems().removeAll();
+//		}
 
-		ObservableList<PharmacyEncounter> pharmacyEncounters = FXCollections.observableArrayList();
+		ObservableList<LastCarePharmacy> lastCarePharmacyEncounters = FXCollections.observableArrayList();
 		appConsole.clear();
 		logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
 
@@ -717,35 +762,72 @@ public class OpenmrsCleanupController {
 
 			stmt = conn.createStatement();
 
-			String sql = "SELECT pa.patient_id as patientID, encounter.encounter_id as encounterID, "
+			String sql = "SELECT pa.patient_id as patientID, enc.encounter_id as encounterID, person.birthdate, "
 								//+ "ob.obs_id AS obsID, "
 								+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4) AS pepfarID,"
 								+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
-								+ "encounter.encounter_datetime AS EncounterDateTime, "
-								+ "(Select name from form where form_id = encounter.form_id) AS Question,"
-								//+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
-								+ "  FROM patient AS pa LEFt JOIN encounter "
-								+ "on pa.patient_id = encounter.patient_id where "
-								+ "encounter.form_id IN ()"
-								+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
+								+ "enc.encounter_datetime AS LastCareEncounterDate, "
+								+ " ob.value_coded AS RegimenID , "
+								+ " (SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777821) Limit 1) AS NextAppointment,"
+//								+ " (SELECT encounter_datetime from encounter where encounter.patient_id = enc.patient_id AND "
+//								+ " encounter.encounter_datetime > enc.encounter_datetime AND "
+//								+ "encounter.form_id IN (46,53) group by encounter.patient_id Limit 1) AS LastPharmacyEncounterDate,"
+								+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS RegimenLine"
+//								+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
+								+ "  FROM encounter AS enc LEFt JOIN patient as pa "
+								+ "on pa.patient_id = enc.patient_id "
+								+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id"
+								+ " LEFT JOIN person on person.person_id = enc.patient_id "
+								+ " where "
+								+ " enc.form_id = 56 "
+								+ " AND ob.concept_id = 7778111"
+								+ " AND enc.encounter_datetime NOT IN (select encounter_datetime from encounter where patient_id = pa.patient_id AND encounter.form_id IN (46,53))"
+								//+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
 								//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
-								+ "' order by ob.person_id";
-			logToConsole("\n Fetching Obs starting from .." + LocalDate.parse(startDate.getValue().toString() , formatter));
+								+ " order by enc.encounter_datetime DESC ";
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
+			int tSum = 0;
 			while (rs.next()) {
-				PharmacyEncounter pharmacyEncounter = new PharmacyEncounter();
-				pharmacyEncounter.setPatientID(rs.getInt("patientID"));
-				pharmacyEncounter.setEncounterID(rs.getInt("encounterID"));
+				++tSum;
+				LastCarePharmacy lastCarePharmacy = new LastCarePharmacy();
+				lastCarePharmacy.setPatientID(rs.getInt("patientID"));
+				lastCarePharmacy.setEncounterID(rs.getInt("encounterID"));
 				//pharmacyEncounter.setObsID(rs.getInt("obsID"));
-				pharmacyEncounter.setPepfarID(rs.getString("pepfarID"));
-				pharmacyEncounter.setPatientName(rs.getString("patientName"));
-				pharmacyEncounter.setEncounterDateTime(rs.getDate("EncounterDateTime"));
-				pharmacyEncounter.setQuestion(rs.getString("Question"));
-				pharmacyEncounter.setAnswer(rs.getString("Answer"));
-				pharmacyEncounters.add(pharmacyEncounter);
-				logToConsole(pharmacyEncounter.toString()+"\n");
+				lastCarePharmacy.setPepfarID(rs.getString("pepfarID"));
+				lastCarePharmacy.setPatientName(rs.getString("patientName"));
+				lastCarePharmacy.setLastCareEncounterDate(rs.getDate("LastCareEncounterDate"));
+
+				lastCarePharmacy.setLastCareRegimenLineId(rs.getInt("RegimenID"));
+				lastCarePharmacy.setLastCareRegimenLine(rs.getString("RegimenLine"));
+				if(rs.getDate("birthdate") == null){
+					lastCarePharmacy.setPatientAge(18);
+				}else {
+					lastCarePharmacy.setPatientAge(Days.daysBetween(new DateTime(rs.getDate("birthdate")),new DateTime(new java.util.Date())).getDays() / 365);
+				}
+				logToConsole("Patient Age: "+lastCarePharmacy.getPatientAge());
+				if(rs.getInt("NextAppointment") == 1570)
+					lastCarePharmacy.setNextAppointment(7);
+				else if(rs.getInt("NextAppointment") == 1571)
+					lastCarePharmacy.setNextAppointment(15);
+				else if(rs.getInt("NextAppointment") == 1628)
+					lastCarePharmacy.setNextAppointment(30);
+				else if(rs.getInt("NextAppointment") == 1574)
+					lastCarePharmacy.setNextAppointment(60);
+				else if(rs.getInt("NextAppointment") == 1575)
+					lastCarePharmacy.setNextAppointment(90);
+
+				LastCarePharmacy lastCP  = getLastPharmacyEncounter(lastCarePharmacy);
+
+				lastCarePharmacy.setLastPharmacyEncounterDate(lastCP.getLastPharmacyEncounterDate());
+
+				lastCarePharmacy.setLastPharmEncounterID(lastCP.getLastPharmEncounterID());
+
+				lastCarePharmacyEncounters.add(lastCarePharmacy);
+
+				logToConsole(lastCarePharmacy.toString()+"\n");
 			}
+			logToConsole("\n Total Number: "+tSum);
 			rs.close();
 			logToConsole("\n Done..");
 		} catch (SQLException e) {
@@ -759,15 +841,408 @@ public class OpenmrsCleanupController {
 			}// do nothing
 		}//end try
 		try {
-			if (pharmacyEncounters.isEmpty()) {
+			if (lastCarePharmacyEncounters.isEmpty()) {
 				logToConsole("\n No Record Found..");
 			} else {
-				lastEncounterTable.setItems(pharmacyEncounters);
+				lastCarePharmacyEncounterTable.setItems(lastCarePharmacyEncounters);
 			}
 		}catch (Exception ex){
 			logToConsole("\n Error: " + ex.getMessage());
 			ex.printStackTrace();
 		}
+	}
+
+	@FXML
+	private void createPharmForm(){
+
+		ObservableList<LastCarePharmacy> lastCarePharmacys = lastCarePharmacyEncounterTable.getSelectionModel().getSelectedItems();
+
+		ObservableList<Obs> obses = FXCollections.observableArrayList();
+		for(LastCarePharmacy loadCF : lastCarePharmacys) {
+			logToConsole("\n No data merging!!!");
+			connectionSettings();
+
+			Connection conn = null;
+			Statement stmt = null;
+			try {
+				//STEP 2: Register JDBC driver
+				Class.forName("com.mysql.jdbc.Driver");
+
+				//STEP 3: Open a connection
+				logToConsole("\n Connecting to Source Database!!");
+				conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);
+				logToConsole("\n Connected to database successfully...");
+
+				//STEP 4: Execute a query
+
+				stmt = conn.createStatement();
+				String sql = "";
+
+				logToConsole("\n Fetching Obs...");
+
+				sql = "SELECT * FROM obs where encounter_id=" + loadCF.getLastPharmEncounterID();
+
+				logToConsole("USING: " + sql);
+				logToConsole("\n Creating Select statement...");
+				ResultSet rs = stmt.executeQuery(sql);
+				//STEP 5: Extract data from result set
+				while (rs.next()) {
+					//Retrieve by column name
+					Obs obs = new Obs();
+					if (rs.getString("accession_number") != null)
+						obs.setAccession_number(rs.getString("accession_number"));
+
+					if (rs.getString("comments") != null)
+						obs.setComments(rs.getString("comments"));
+
+					obs.setConcept_id(rs.getInt("concept_id"));
+
+					obs.setUuid(UUID.randomUUID());
+					obs.setCreator(1);
+					obs.setDate_created(rs.getDate("date_created"));
+
+					if (rs.getDate("date_voided") != null)
+						obs.setDate_voided(rs.getDate("date_voided"));
+
+					obs.setEncounter_id(rs.getInt("encounter_id"));
+					obs.setLocation_id(2);
+					if (rs.getString("void_reason") != null)
+						obs.setVoid_reason(rs.getString("void_reason"));
+
+					obs.setVoided(rs.getBoolean("voided"));
+					obs.setObs_datetime(rs.getDate("obs_datetime"));
+
+					if (rs.getInt("obs_group_id") > 0)
+						obs.setObs_group_id(rs.getInt("obs_group_id"));
+
+					if (rs.getInt("obs_id") > 0)
+						obs.setObs_id(rs.getInt("obs_id"));
+					if (rs.getInt("order_id") > 0)
+						obs.setOrder_id(rs.getInt("order_id"));
+
+					obs.setPerson_id(rs.getInt("person_id"));
+					if (rs.getInt("value_coded") > 0)
+						obs.setValue_coded(rs.getInt("value_coded"));
+					else
+						obs.setValue_coded(null);
+
+					if (rs.getInt("value_coded_name_id") > 0)
+						obs.setValue_coded_name_id(rs.getInt("value_coded_name_id"));
+
+					if (rs.getString("value_complex") != null)
+						obs.setValue_complex(rs.getString("value_complex"));
+					if (rs.getDate("value_datetime") != null)
+						obs.setValue_datetime(rs.getDate("value_datetime"));
+					if (rs.getInt("value_drug") > 0)
+						obs.setValue_drug(rs.getInt("value_drug"));
+					if (rs.getInt("value_group_id") > 0)
+						obs.setValue_group_id(rs.getInt("value_group_id"));
+					if (rs.getString("value_modifier") != null)
+						obs.setValue_modifier(rs.getString("value_modifier"));
+					if (rs.getDouble("value_numeric") != 0)
+						obs.setValue_numeric(rs.getDouble("value_numeric"));
+					if (rs.getString("value_text") != null)
+						obs.setValue_text(rs.getString("value_text"));
+					if (rs.getInt("voided_by") > 0)
+						obs.setVoided_by(rs.getInt("voided_by"));
+					obses.add(obs);
+
+				}
+				rs.close();
+				logToConsole("\n Data Successfully Fetched!\n");
+			}
+			catch (SQLException se) {
+				//Handle errors for JDBC
+				se.printStackTrace();
+				logToConsole("\n Error: " + se.getMessage());
+			}
+			catch (Exception e) {
+				//Handle errors for Class.forName
+				e.printStackTrace();
+				logToConsole("\n Error: " + e.getMessage());
+			}
+			finally {
+				//finally block used to close resources
+				try {
+					if (stmt != null)
+						conn.close();
+				}
+				catch (SQLException se) {
+				}// do nothing
+
+			}//end try
+
+			String INSERT_SQL = "INSERT INTO encounter"
+					+ "(encounter_id, encounter_type, patient_id, location_id, form_id, encounter_datetime, creator, date_created, "
+					+
+					"date_changed, voided, date_voided, void_reason, uuid,provider_id) " +
+					"VALUES ( NULL,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+			logToConsole("\n Connecting Encounter! \n");
+			int encounterID = 0;
+			try (Connection conn1 = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+				conn1.setAutoCommit(false);
+				try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);) {
+					logToConsole("\n Creating Encounter! \n");
+					try {
+
+						stmt1.setInt(1, 7);
+						stmt1.setInt(2, loadCF.getPatientID());
+						stmt1.setInt(3, 42);
+						stmt1.setInt(4, loadCF.getPatientAge() >= 18.0 ? 46 : 52);
+						stmt1.setDate(5, loadCF.getLastCareEncounterDate());
+						stmt1.setInt(6, 1);
+						stmt1.setDate(7, loadCF.getLastCareEncounterDate());
+						stmt1.setDate(8, null);
+						stmt1.setBoolean(9, false);
+						stmt1.setDate(10, null);
+						stmt1.setString(11, null);
+						stmt1.setString(12, UUID.randomUUID().toString());
+						stmt1.setInt(13, 1);
+
+						//Add statement to batch
+						stmt1.addBatch();
+
+						stmt1.executeBatch();
+						ResultSet rs1 = stmt1.getGeneratedKeys();
+						while (rs1.next()){
+							encounterID = rs1.getInt(1);
+						}
+
+
+						logToConsole("\n Connected Encounter with ID: "+encounterID);
+
+						//######################
+
+						//######################
+					}
+					catch (Exception ex) {
+						logToConsole(ex.getMessage());
+						ex.printStackTrace();
+					}
+
+				}
+				catch (SQLException e) {
+					logToConsole("\nError running Insert statement: " + e.getMessage());
+					e.printStackTrace();
+					rollbackTransaction(conn1, e);
+				}
+
+
+				String INSERT_SQL2 = "INSERT INTO obs"
+						+ "(person_id, concept_id, encounter_id, order_id, obs_datetime, location_id," +
+						"accession_number, value_group_id, value_coded, value_coded_name_id, value_drug, value_datetime, " +
+						"value_numeric, value_modifier, value_text, value_complex, comments," +
+						"creator, date_created, voided, date_voided, void_reason, uuid, obs_group_id) " +
+						"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+					try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL2);) {
+						logToConsole("\n Connecting Obs! \n");
+						for (Obs module : obses) {
+							///try {
+//							stmt1.setInt(26, module.getObs_id());
+							if(module.getObs_group_id() != null)
+								stmt1.setInt(24, module.getObs_group_id());
+							else
+								stmt1.setString(24, null);
+							stmt1.setInt(1, module.getPerson_id());
+							stmt1.setInt(2, module.getConcept_id());
+							stmt1.setInt(3, encounterID);
+							if(module.getOrder_id() != null)
+								stmt1.setInt(4, module.getOrder_id());
+							else
+								stmt1.setString(4, null);
+							if (module.getObs_datetime() != null)
+								stmt1.setDate(5, new java.sql.Date(loadCF.getLastCareEncounterDate().getTime()));
+							else
+								stmt1.setDate(5, null);
+							if (module.getLocation_id() >= 0)
+								stmt1.setInt(6, module.getLocation_id());
+							else
+								stmt1.setInt(6, 0);
+							if(module.getAccession_number() != null)
+								stmt1.setString(7, module.getAccession_number());
+							else
+								stmt1.setString(7, null);
+							if(module.getValue_group_id() != null)
+								stmt1.setInt(8, module.getValue_group_id());
+							else
+								stmt1.setString(8, null);
+							//logToConsole("\nValue Coded: "+module.getValue_coded());
+							if(module.getValue_coded() != null)
+								stmt1.setInt(9, module.getValue_coded());
+							else
+								stmt1.setString(9, null);
+							if(module.getValue_coded_name_id() != null)
+								stmt1.setInt(10, module.getValue_coded_name_id());
+							else
+								stmt1.setString(10, null);
+							if(module.getValue_drug() != null)
+								stmt1.setInt(11, module.getValue_drug());
+							else
+								stmt1.setString(11, null);
+							if (module.getValue_datetime() != null)
+								stmt1.setDate(12, new java.sql.Date(module.getValue_datetime().getTime()));
+							else
+								stmt1.setDate(12, null);
+							if(module.getValue_numeric() != null)
+								stmt1.setDouble(13, module.getValue_numeric());
+							else
+								stmt1.setString(13, null);
+							if(module.getValue_modifier() != null)
+								stmt1.setString(14, module.getValue_modifier());
+							else
+								stmt1.setString(14, null);
+							if(module.getValue_text() != null)
+								stmt1.setString(15, module.getValue_text());
+							else
+								stmt1.setString(15, null);
+							if(module.getValue_complex() != null)
+								stmt1.setString(16, module.getValue_complex());
+							else
+								stmt1.setString(16, null);
+							if(module.getComments() != null)
+								stmt1.setString(17, module.getComments());
+							else
+								stmt1.setString(17, null);
+							stmt1.setInt(18, module.getCreator());
+							if (module.getDate_created() != null)
+								stmt1.setDate(19, new java.sql.Date(loadCF.getLastCareEncounterDate().getTime()));
+							else
+								stmt1.setDate(19, null);
+							stmt1.setBoolean(20, module.isVoided());
+							if (module.getDate_voided() != null)
+								stmt1.setDate(21, new java.sql.Date(loadCF.getLastCareEncounterDate().getTime()));
+							else
+								stmt1.setDate(21, null);
+							if(module.getVoid_reason() != null)
+								stmt1.setString(22, module.getVoid_reason());
+							else
+								stmt1.setString(22, null);
+							stmt1.setString(23, UUID.randomUUID().toString());
+							//stmt1.setInt(24, module.getPrevious_version());
+//							if(module.getForm_namespace_and_path() != null)
+//								stmt1.setString(24, module.getForm_namespace_and_path());
+//							else
+//								stmt1.setString(24, null);
+							//Add statement to batch
+							stmt1.addBatch();
+
+						}
+						//execute batch
+						stmt1.executeBatch();
+						logToConsole("\nTransaction is committed successfully.");
+					} catch (SQLException e) {
+						logToConsole(e.getMessage());
+						e.printStackTrace();
+						rollbackTransaction(conn1, e);
+					}
+
+				//execute batch
+				try {
+
+					conn1.commit();
+					getLastEncounter();
+				}
+				catch (Exception ex) {
+					logToConsole("\nError in batch insert: " + ex.getMessage());
+
+				}
+			}
+			catch (SQLException e) {
+				logToConsole("\nError Establishing connection: " + e.getMessage());
+				e.printStackTrace();
+
+			}
+		}
+	}
+
+	@FXML
+	private LastCarePharmacy getLastPharmacyEncounter( LastCarePharmacy ls){
+
+		LastCarePharmacy lastCarePharmacy = new LastCarePharmacy();
+
+		appConsole.clear();
+
+		logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+
+		Statement stmt = null;
+
+		try {
+			//STEP 2: Register JDBC driver
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (Exception exc) {
+			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+		}
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+
+			logToConsole("\n Source Database connection successful..");
+
+			stmt = conn.createStatement();
+
+			logToConsole("\nPatient ID:"+ls.getPatientID());
+
+			String sql = "SELECT encounter_id, encounter_datetime AS LastPharmacyEncounterDate from encounter where encounter.patient_id = "+ls.getPatientID()+" AND "
+							+ " encounter.encounter_datetime > '"+ls.getLastCareEncounterDate()+"' AND "
+							+ "encounter.form_id IN (46,53) order by encounter.encounter_datetime ASC Limit 1 ";
+
+			ResultSet rs = stmt.executeQuery(sql);
+
+			logToConsole("\nLast Pharmacy Date: "+ls.getLastCareEncounterDate());
+
+			//STEP 5: Extract data from result set
+			int count = 0;
+			while (rs.next()) {
+				++count;
+				lastCarePharmacy.setLastPharmacyEncounterDate(rs.getDate("LastPharmacyEncounterDate"));
+				lastCarePharmacy.setLastPharmEncounterID(rs.getInt("encounter_id"));
+				logToConsole("\n Fetched Date: "+rs.getDate("LastPharmacyEncounterDate"));
+			}
+			rs.close();
+			if(count == 0){
+				sql = "SELECT encounter_id, encounter_datetime AS LastPharmacyEncounterDate from encounter where encounter.patient_id = "+ls.getPatientID()+" AND "
+						+ " encounter.encounter_datetime < '"+ls.getLastCareEncounterDate()+"' AND "
+						+ "encounter.form_id IN (46,53) order by encounter.encounter_datetime DESC Limit 1 ";
+
+				 rs = stmt.executeQuery(sql);
+
+				logToConsole("\nLast Pharmacy Date: "+ls.getLastCareEncounterDate());
+
+				//STEP 5: Extract data from result set
+				//int count = 0;
+				while (rs.next()) {
+					//++count;
+					lastCarePharmacy.setLastPharmacyEncounterDate(rs.getDate("LastPharmacyEncounterDate"));
+					lastCarePharmacy.setLastPharmEncounterID(rs.getInt("encounter_id"));
+					logToConsole("\n Fetched Date: "+rs.getDate("LastPharmacyEncounterDate"));
+				}
+				rs.close();
+			}
+			//logToConsole("\n Done..");
+		} catch (SQLException e) {
+			logToConsole("\n Error: " + e.getMessage());
+			e.printStackTrace();
+		}catch (Exception e) {
+			logToConsole("\n Error: " + e.getMessage());
+			e.printStackTrace();
+		}finally {
+			//finally block used to close resources
+			try {
+				if (stmt != null);
+			} catch (Exception se) {
+			}// do nothing
+		}//end try
+//		try {
+//			if (pharDate == null) {
+//				logToConsole("\n No Record Found..");
+//			} else {
+//				return pharDate;
+//			}
+//		}catch (Exception ex){
+//			logToConsole("\n Error: " + ex.getMessage());
+//			ex.printStackTrace();
+//		}
+		return lastCarePharmacy;
 	}
 
 	@FXML
@@ -818,7 +1293,7 @@ public class OpenmrsCleanupController {
 	private void rollbackTransaction(Connection conn, Exception e) {
 		if (conn != null) {
 			try {
-				logToConsole("Transaction is being rolled back: " + e.getMessage());
+				logToConsole("\nTransaction is being rolled back: " + e.getMessage());
 				conn.rollback();
 			} catch (Exception ex) {
 				ex.printStackTrace();
