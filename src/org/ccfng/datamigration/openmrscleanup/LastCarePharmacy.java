@@ -32,6 +32,10 @@ public class LastCarePharmacy extends Demographics {
 
 	private Integer lastPharmEncounterID;
 
+	private Long nextAppointmentDays;
+
+	private Date nextAppointmentDate;
+
 	public LastCarePharmacy() {
 	}
 
@@ -184,6 +188,22 @@ public class LastCarePharmacy extends Demographics {
 
 	public Integer getLastPharmEncounterID() {
 		return lastPharmEncounterID;
+	}
+
+	public Long getNextAppointmentDays() {
+		return nextAppointmentDays;
+	}
+
+	public void setNextAppointmentDays(Long nextAppointmentDays) {
+		this.nextAppointmentDays = nextAppointmentDays;
+	}
+
+	public Date getNextAppointmentDate() {
+		return nextAppointmentDate;
+	}
+
+	public void setNextAppointmentDate(Date nextAppointmentDate) {
+		this.nextAppointmentDate = nextAppointmentDate;
 	}
 
 	public void setLastPharmEncounterID(Integer lastPharmEncounterID) {

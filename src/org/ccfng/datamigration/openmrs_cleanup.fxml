@@ -12,6 +12,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -210,10 +211,156 @@
                            </children></AnchorPane>
                   </content>
                 </Tab>
-                  <Tab text="ART Start Date Fix">
+                  <Tab text="ART Start Date &amp; Date Confirmed HIV Positive Fix Fix">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="474.0" prefWidth="231.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#getDateDetails" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Reload" textFill="#f8f7f7" wrapText="true" />
+                                    <Label prefHeight="33.0" prefWidth="250.0" style="-fx-background-color: #336699;" text="Update Art Start Date" textFill="#fffefe">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                       <padding>
+                                          <Insets left="10.0" />
+                                       </padding>
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <Button mnemonicParsing="false" onAction="#updateHivConfirmedDate" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: darkgreen;" text="Update" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                 </children>
+                              </VBox>
+                              <VBox layoutX="231.0" prefHeight="472.0" prefWidth="1036.0">
+                                 <children>
+                                     <TableView fx:id="dateFixTableView" layoutX="230.0" layoutY="-1.0" prefHeight="484.0" prefWidth="1046.0">
+                                         <columns>
+                                             <TableColumn prefWidth="97.0" text="Patient ID">
+                                                 <cellValueFactory>
+                                                     <PropertyValueFactory property="PatientID" />
+                                                 </cellValueFactory>
+                                             </TableColumn>
+                                             <TableColumn prefWidth="133.0" text="PepFar ID">
+                                                 <cellValueFactory>
+                                                     <PropertyValueFactory property="PepfarID" />
+                                                 </cellValueFactory>
+                                             </TableColumn>
+                                             <TableColumn prefWidth="173.0" text="Patient Name">
+                                                 <cellValueFactory>
+                                                     <PropertyValueFactory property="PatientName" />
+                                                 </cellValueFactory>
+                                             </TableColumn>
+                                             <TableColumn prefWidth="145.0" text="ART Start Date">
+                                                 <cellValueFactory>
+                                                     <PropertyValueFactory property="artStartDate" />
+                                                 </cellValueFactory>
+                                             </TableColumn>
+                                             <TableColumn prefWidth="143.0" text="First ARV Date">
+                                                 <cellValueFactory>
+                                                     <PropertyValueFactory property="firstARVDate" />
+                                                 </cellValueFactory>
+                                             </TableColumn>
+                                             <TableColumn prefWidth="173.0" text="Date Confirmed Positive">
+                                                 <cellValueFactory>
+                                                     <PropertyValueFactory property="hivConfirmedDate" />
+                                                 </cellValueFactory>
+                                             </TableColumn>
+                                             <TableColumn prefWidth="171.0" text="Date Enrolled">
+                                                 <cellValueFactory>
+                                                     <PropertyValueFactory property="dateEnrolled" />
+                                                 </cellValueFactory>
+                                             </TableColumn>
+                                         </columns>
+                                     </TableView>
+
+                                 </children>
+                              </VBox>
+                           </children></AnchorPane>
                     </content>
+                  </Tab>
+                  <Tab text="Wrong Next appointment Date">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox layoutX="-2.0" prefHeight="472.0" prefWidth="246.0">
+                                 <children>
+                                    <Button layoutX="20.0" layoutY="63.0" mnemonicParsing="false" onAction="#getNextAppointment" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Reload" textFill="#f8f7f7" wrapText="true" />
+                                    <Label prefHeight="33.0" prefWidth="250.0" style="-fx-background-color: #336699;" text="Correct Next Appointment" textFill="#fffefe">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                       <padding>
+                                          <Insets left="10.0" />
+                                       </padding>
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <TextField fx:id="limit" promptText="Days to Add">
+                                       <VBox.margin>
+                                          <Insets left="10.0" right="10.0" top="30.0" />
+                                       </VBox.margin>
+                                    </TextField>
+                                    <Button mnemonicParsing="false" onAction="#updateNextAppointmentDate" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: darkgreen;" text="Correct" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets left="10.0" right="10.0" top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                 </children>
+                              </VBox>
+                              <VBox layoutX="244.0" prefHeight="473.0" prefWidth="1023.0" />
+                              <TableView fx:id="nextAppointmentTable" layoutX="245.0" layoutY="1.0" prefHeight="472.0" prefWidth="1021.0">
+                                 <columns>
+                                    <TableColumn prefWidth="97.0" text="Patient ID">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PatientID" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="133.0" text="PepFar ID">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PepfarID" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="173.0" text="Patient Name">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PatientName" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Encounter Date">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="lastCareEncounterDate" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="120.0" text="Care Card Regimen Line">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="lastCareRegimenLine" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="148.0" text="Next Appointment Date">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="nextAppointmentDate" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="141.0" text="Next Appointment Days">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="nextAppointmentDays" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="127.0" text="Last Pharmacy Visit Date">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="lastPharmacyEncounterDate" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                 </columns>
+                              </TableView>
+                           </children>
+                        </AnchorPane>
+                     </content>
                   </Tab>
               </tabs>
             </TabPane>
