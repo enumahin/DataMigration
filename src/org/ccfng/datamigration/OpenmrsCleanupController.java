@@ -1,6 +1,7 @@
 package org.ccfng.datamigration;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +40,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.ccfng.datamigration.obs.Obs;
 import org.ccfng.datamigration.openmrscleanup.DateFix;
 import org.ccfng.datamigration.openmrscleanup.LastCarePharmacy;
@@ -260,6 +266,8 @@ public class OpenmrsCleanupController {
 							+ " enc.form_id = 56 "
 							+ " AND ob.concept_id = 7778111"
 							+ " AND enc.voided = 0"
+							+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
+							+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
 							+ " AND enc.encounter_datetime NOT IN (select encounter_datetime from encounter where patient_id = pa.patient_id AND encounter.form_id IN (46,53))"
 							//+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
 							//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
@@ -777,8 +785,44 @@ public class OpenmrsCleanupController {
 	@FXML
 	private void getDispensed(){
 		pharmacyEncounterTable.getItems().removeAll();
+
+		String sql = "";
+
 		if(allRegimenComboBox.getSelectionModel().getSelectedItem() == null){
-			return;
+			logToConsole("\n Searching for First Lines without Regimen!\n");
+			sql = "SELECT ob.person_id as patientID, "
+					+ "(Select value_text from obs where encounter_id = ob.encounter_id AND concept_id = 1596 AND person_id = ob.person_id Limit 1) "
+					+ "AS valueText, encounter.encounter_id as encounterID, "
+					+ "ob.obs_id AS obsID, "
+					+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4) AS pepfarID,"
+					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = ob.person_id && preferred = 1) As patientName,"
+					+ "encounter.encounter_datetime AS EncounterDateTime, "
+					+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Question,"
+					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
+					+ "  FROM obs AS ob LEFt JOIN encounter "
+					+ "on ob.encounter_id = encounter.encounter_id where "
+					+ " ob.value_coded = 7778108 "
+					+ "AND encounter.encounter_id NOT IN (select encounter_id from obs where concept_id=7778108 AND person_id = ob.person_id AND voided = 0) "
+//					+ "ob.value_coded = "+allRegimenComboBox.getSelectionModel().getSelectedItem().getConceptID()
+					+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
+					//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
+					+ "' order by ob.person_id";
+		}else{
+			sql = "SELECT ob.person_id as patientID, "
+					+ "(Select value_text from obs where encounter_id = ob.encounter_id AND concept_id = 1596 AND person_id = ob.person_id Limit 1) "
+					+ "AS valueText, encounter.encounter_id as encounterID, "
+					+ "ob.obs_id AS obsID, "
+					+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4) AS pepfarID,"
+					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = ob.person_id && preferred = 1) As patientName,"
+					+ "encounter.encounter_datetime AS EncounterDateTime, "
+					+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Question,"
+					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
+					+ "  FROM obs AS ob LEFt JOIN encounter "
+					+ "on ob.encounter_id = encounter.encounter_id where "
+					+ "ob.value_coded = "+allRegimenComboBox.getSelectionModel().getSelectedItem().getConceptID()
+					+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
+					//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
+					+ "' order by ob.person_id";
 		}
 		Controller ctrl = new Controller();
 		ObservableList<PharmacyEncounter> pharmacyEncounters = FXCollections.observableArrayList();
@@ -809,21 +853,7 @@ public class OpenmrsCleanupController {
 //					+ "(encounter.encounter_type = 7 && obs.concept_id IN (7778108,7778109,7778410)";
 
 
-			String sql = "SELECT ob.person_id as patientID, "
-					+ "(Select value_text from obs where encounter_id = ob.encounter_id AND concept_id = 1596 AND person_id = ob.person_id Limit 1) "
-					+ "AS valueText, encounter.encounter_id as encounterID, "
-								+ "ob.obs_id AS obsID, "
-								+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4) AS pepfarID,"
-								+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = ob.person_id && preferred = 1) As patientName,"
-								+ "encounter.encounter_datetime AS EncounterDateTime, "
-								+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Question,"
-								+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
-								+ "  FROM obs AS ob LEFt JOIN encounter "
-								+ "on ob.encounter_id = encounter.encounter_id where "
-								+ "ob.value_coded = "+allRegimenComboBox.getSelectionModel().getSelectedItem().getConceptID()
-								+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
-								//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
-								+ "' order by ob.person_id";
+
 			logToConsole("\n Fetching Obs starting from .."+LocalDate.parse(startDate.getValue().toString() , formatter));
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -1284,16 +1314,71 @@ public class OpenmrsCleanupController {
 
 					// Insert sample records
 					for (PharmacyEncounter pE : pharmacyEncounterTable.getSelectionModel().getSelectedItems()) {
-						logToConsole("\n Loading Selected Regimens...!!\n");
-						stmt.setInt(1, 7778108);
-						stmt.setInt(2, regimen.getConceptID());
-						stmt.setInt(3, pE.getObsID());
-						stmt.addBatch();
-						stmt.addBatch("UPDATE obs SET value_coded=7778108 where concept_id=7778111 && encounter_id="+pE.getEncounterID());
+						if(allRegimenComboBox.getSelectionModel().getSelectedItem() != null) {
+							logToConsole("\n Loading Selected Regimens...!!\n");
+							stmt.setInt(1, 7778108);
+							stmt.setInt(2, regimen.getConceptID());
+							stmt.setInt(3, pE.getObsID());
+							stmt.addBatch();
+							stmt.addBatch("UPDATE obs SET value_coded=7778108 where concept_id=7778111 && encounter_id=" + pE
+									.getEncounterID());
+						}else{
+							stmt.addBatch("INSERT INTO obs"
+									+ "(person_id, concept_id, encounter_id, order_id, obs_datetime, location_id," +
+									"accession_number, value_group_id, value_coded, value_coded_name_id, value_drug, value_datetime, " +
+									"value_numeric, value_modifier, value_text, value_complex, comments," +
+									"creator, date_created, voided, date_voided, void_reason, uuid, obs_group_id) " +
+									"VALUES ("
+									+ pE.getPatientID()+","+
+									7778108+","+
+									pE.getEncounterID()+",NULL,"+
+									pE.getEncounterDateTime()+",42,NULL,NULL,"+regimen.getConceptID()+",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"+
+									pE.getEncounterDateTime()+",0,NULL,NULL,"+UUID.randomUUID().toString()+",NULL)");
+
+							logToConsole("\n Loading Selected Data...!!\n");
+							stmt.addBatch();
+						}
 					}
 					//execute batch
 					logToConsole("\n Updating Data....!\n");
 					stmt.executeBatch();
+
+					logToConsole("Regimens Updated successfully.");
+				} catch (SQLException e) {
+					e.printStackTrace();
+//					rollbackTransaction(conn, e);
+				}catch (Exception e){
+					e.printStackTrace();
+//					rollbackTransaction(conn, e);
+				}
+
+//				Create New Regimen
+
+//				try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+//
+//					// Insert sample records
+//					for (PharmacyEncounter pE : pharmacyEncounterTable.getSelectionModel().getSelectedItems()) {
+//						logToConsole("\n Loading Selected Regimens...!!\n");
+//						stmt.setInt(1, 7778108);
+//						stmt.setInt(2, regimen.getConceptID());
+//						stmt.setInt(3, pE.getObsID());
+//						stmt.addBatch();
+//						stmt.addBatch("UPDATE obs SET value_coded=7778108 where concept_id=7778111 && encounter_id="+pE.getEncounterID());
+//					}
+//					//execute batch
+//					logToConsole("\n Updating Data....!\n");
+//					stmt.executeBatch();
+//
+//					logToConsole("Regimens Updated successfully.");
+//				} catch (SQLException e) {
+//					e.printStackTrace();
+//					//					rollbackTransaction(conn, e);
+//				}catch (Exception e){
+//					e.printStackTrace();
+//					//					rollbackTransaction(conn, e);
+//				}
+
+				try{
 					conn.commit();
 					logToConsole("Regimens Updated successfully.");
 				} catch (SQLException e) {
@@ -1361,6 +1446,8 @@ public class OpenmrsCleanupController {
 					+ " enc.form_id = 56 "
 					+ " AND ob.concept_id = 7778111"
 					+ " AND enc.voided = 0"
+					+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
+					+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
 					+ " AND enc.encounter_datetime NOT IN (select encounter_datetime from encounter where patient_id = pa.patient_id AND encounter.form_id IN (46,53))"
 					//+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
 					//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
@@ -1466,18 +1553,20 @@ public class OpenmrsCleanupController {
 					//								+ " encounter.encounter_datetime > enc.encounter_datetime AND "
 					//								+ "encounter.form_id IN (46,53) group by encounter.patient_id Limit 1) AS LastPharmacyEncounterDate,"
 					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && "
-					+ "concept_name.locale ='en' && concept_name.locale_preferred = 1) AS RegimenLine, "
+					+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 Limit 1) AS RegimenLine, "
 					+ "ob.obs_id AS obsID"
 					//								+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
 					+ "  FROM encounter AS enc LEFt JOIN patient as pa "
 					+ "on pa.patient_id = enc.patient_id "
-					+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id"
+					+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id AND ob.voided = 0 AND ob.concept_id = 7777822"
 					+ " LEFT JOIN person on person.person_id = enc.patient_id "
 					+ " where "
 					+ " enc.form_id = 56 "
-					+ " AND ob.concept_id = 7777822"
+//					+ " AND ob.concept_id = 7777822"
 					+ " AND enc.voided = 0"
-//					+ " AND ob.encounter_id IN (select encounter_id FROM obs WHERE person_id = pa.patient_id AND concept_id=7778111 AND voided = 0 group by concept_id)"
+					+ " AND enc.encounter_id IN (select encounter_id FROM obs WHERE person_id = pa.patient_id AND concept_id=7778111 AND voided = 0) "
+					+ " AND enc.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
+					+ " AND enc.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
 					+ " HAVING LastCareEncounterDate > NextAppointmentDATE" //" OR (DATEDIFF(NextAppointmentDATE, STR_TO_DATE(LastCareEncounterDate, '%Y-%m-%d')) > 180)"
 					//+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
 					//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
@@ -1665,7 +1754,10 @@ public class OpenmrsCleanupController {
 								+ " LEFT JOIN patient_identifier on patient_identifier.patient_id = pa.patient_id && identifier_type = 4"
 								+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && person_name.preferred = 1"
 								+ " WHERE "
-								+ " pa.voided = 0 HAVING (ArtStartDate = null || DateConfirmed = null || DateConfirmed > ArtStartDate) "
+								+ " pa.voided = 0 "
+								+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
+								+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
+								+ " HAVING (ArtStartDate = null || DateConfirmed = null || DateConfirmed > ArtStartDate) "
 			//					+ " AND ob.concept_id = 7778111"
 			//					+ " AND ob.concept_id = 7778111"
 			//					+ " AND enc.voided = 0"
@@ -1968,5 +2060,141 @@ public class OpenmrsCleanupController {
 			logToConsole("Error: "+ex.getMessage());
 			ex.printStackTrace();
 		}
+	}
+
+	@FXML
+	private void exportToExcel() throws IOException {
+
+		TableView<LastCarePharmacy> table = lastCarePharmacyEncounterTable;
+
+		Workbook workbook = new HSSFWorkbook();
+		Sheet spreadsheet = workbook.createSheet("Export");
+
+		Row row = spreadsheet.createRow(0);
+
+		for (int j = 0; j < table.getColumns().size(); j++) {
+			row.createCell(j).setCellValue(table.getColumns().get(j).getText());
+		}
+
+		for (int i = 0; i < table.getItems().size(); i++) {
+			row = spreadsheet.createRow(i + 1);
+			for (int j = 0; j < table.getColumns().size(); j++) {
+				if(table.getColumns().get(j).getCellData(i) != null) {
+					row.createCell(j).setCellValue(table.getColumns().get(j).getCellData(i).toString());
+				}
+				else {
+					row.createCell(j).setCellValue("");
+				}
+			}
+		}
+
+		FileOutputStream fileOut = new FileOutputStream(LocalDateTime.now().toString()+".xls");
+		workbook.write(fileOut);
+		fileOut.close();
+
+//		Platform.exit();
+
+	}
+
+	@FXML
+	private void exportNextToExcel() throws IOException {
+
+		TableView<LastCarePharmacy> table = nextAppointmentTable;
+
+		Workbook workbook = new HSSFWorkbook();
+		Sheet spreadsheet = workbook.createSheet("Export");
+
+		Row row = spreadsheet.createRow(0);
+
+		for (int j = 0; j < table.getColumns().size(); j++) {
+			row.createCell(j).setCellValue(table.getColumns().get(j).getText());
+		}
+
+		for (int i = 0; i < table.getItems().size(); i++) {
+			row = spreadsheet.createRow(i + 1);
+			for (int j = 0; j < table.getColumns().size(); j++) {
+				if(table.getColumns().get(j).getCellData(i) != null) {
+					row.createCell(j).setCellValue(table.getColumns().get(j).getCellData(i).toString());
+				}
+				else {
+					row.createCell(j).setCellValue("");
+				}
+			}
+		}
+
+		FileOutputStream fileOut = new FileOutputStream(LocalDateTime.now().toString()+".xls");
+		workbook.write(fileOut);
+		fileOut.close();
+
+		//		Platform.exit();
+
+	}
+
+	@FXML
+	public void exportDateFxToExcel() throws IOException {
+
+		TableView<DateFix> table = dateFixTableView;
+
+		Workbook workbook = new HSSFWorkbook();
+		Sheet spreadsheet = workbook.createSheet("Export");
+
+		Row row = spreadsheet.createRow(0);
+
+		for (int j = 0; j < table.getColumns().size(); j++) {
+			row.createCell(j).setCellValue(table.getColumns().get(j).getText());
+		}
+
+		for (int i = 0; i < table.getItems().size(); i++) {
+			row = spreadsheet.createRow(i + 1);
+			for (int j = 0; j < table.getColumns().size(); j++) {
+				if(table.getColumns().get(j).getCellData(i) != null) {
+					row.createCell(j).setCellValue(table.getColumns().get(j).getCellData(i).toString());
+				}
+				else {
+					row.createCell(j).setCellValue("");
+				}
+			}
+		}
+
+		FileOutputStream fileOut = new FileOutputStream(LocalDateTime.now().toString()+".xls");
+		workbook.write(fileOut);
+		fileOut.close();
+
+//		Platform.exit();
+
+	}
+
+	@FXML
+	private void pharmToExcel() throws IOException {
+
+		TableView<PharmacyEncounter> table = pharmacyEncounterTable;
+
+		Workbook workbook = new HSSFWorkbook();
+		Sheet spreadsheet = workbook.createSheet("Export");
+
+		Row row = spreadsheet.createRow(0);
+
+		for (int j = 0; j < table.getColumns().size(); j++) {
+			row.createCell(j).setCellValue(table.getColumns().get(j).getText());
+		}
+
+		for (int i = 0; i < table.getItems().size(); i++) {
+			row = spreadsheet.createRow(i + 1);
+			for (int j = 0; j < table.getColumns().size(); j++) {
+				if(table.getColumns().get(j).getCellData(i) != null) {
+					row.createCell(j).setCellValue(table.getColumns().get(j).getCellData(i).toString());
+				}
+				else {
+					row.createCell(j).setCellValue("");
+				}
+			}
+		}
+
+		FileOutputStream fileOut = new FileOutputStream(LocalDateTime.now().toString()+".xls");
+		workbook.write(fileOut);
+		fileOut.close();
+
+//		Platform.exit();
+
 	}
 }

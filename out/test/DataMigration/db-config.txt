@@ -1,6 +1,0 @@
-/Users/mac/Desktop/IQCare_Extraction_Tools/2 Populate IQCare
-localhost
-3316
-openmrs
-openmrs
-openmrs

@@ -1,13 +1,9 @@
 <component name="libraryTable">
   <library name="joda-time-2.4-javadoc">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/Downloads/joda-time-2.4.jar!/" />
-    </CLASSES>
+    <CLASSES />
     <JAVADOC>
-      <root url="jar://$USER_HOME$/Downloads/joda-time-2.4-javadoc.jar!/" />
+      <root url="jar://$USER_HOME$/Desktop/Java_Files/joda-time-2.4-javadoc.jar!/" />
     </JAVADOC>
-    <SOURCES>
-      <root url="jar://$USER_HOME$/Downloads/joda-time-2.4-sources.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>

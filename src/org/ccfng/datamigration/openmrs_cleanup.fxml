@@ -87,6 +87,11 @@
                                                 <Insets top="30.0" />
                                              </VBox.margin>
                                           </Separator>
+                                          <Button mnemonicParsing="false" onAction="#pharmToExcel" prefHeight="27.0" prefWidth="215.0" text="Export Table">
+                                             <VBox.margin>
+                                                <Insets left="10.0" right="10.0" top="10.0" />
+                                             </VBox.margin>
+                                          </Button>
                                        </children>
                                        <HBox.margin>
                                           <Insets />
@@ -162,6 +167,11 @@
                                           <Insets left="10.0" right="10.0" top="20.0" />
                                        </VBox.margin>
                                     </Button>
+                                    <Button layoutX="20.0" layoutY="110.0" mnemonicParsing="false" onAction="#exportToExcel" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Export Table" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
                                  </children></VBox>
                               <VBox layoutX="244.0" prefHeight="473.0" prefWidth="1023.0" />
                               <TableView fx:id="lastCarePharmacyEncounterTable" layoutX="245.0" layoutY="1.0" prefHeight="472.0" prefWidth="1021.0">
@@ -211,7 +221,7 @@
                            </children></AnchorPane>
                   </content>
                 </Tab>
-                  <Tab text="ART Start Date &amp; Date Confirmed HIV Positive Fix Fix">
+                  <Tab text="ART Start Date &amp; Date Confirmed">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
@@ -232,6 +242,11 @@
                                     <Button mnemonicParsing="false" onAction="#updateHivConfirmedDate" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: darkgreen;" text="Update" textFill="#f8f7f7" wrapText="true">
                                        <VBox.margin>
                                           <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button mnemonicParsing="false" onAction="#exportDateFxToExcel" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Export Table" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
                                        </VBox.margin>
                                     </Button>
                                  </children>
@@ -311,6 +326,11 @@
                                           <Insets left="10.0" right="10.0" top="20.0" />
                                        </VBox.margin>
                                     </Button>
+                                    <Button mnemonicParsing="false" onAction="#exportNextToExcel" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Export Table" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
                                  </children>
                               </VBox>
                               <VBox layoutX="244.0" prefHeight="473.0" prefWidth="1023.0" />
@@ -358,6 +378,54 @@
                                     </TableColumn>
                                  </columns>
                               </TableView>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+                  <Tab text="Patient Status">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="472.0" prefWidth="1266.0">
+                                 <children>
+                                    <TableView prefHeight="474.0" prefWidth="1266.0">
+                                      <columns>
+                                        <TableColumn prefWidth="75.0" text="Patient ID" />
+                                        <TableColumn prefWidth="150.0" text="Pepfar ID" />
+                                          <TableColumn prefWidth="166.0" text="Patient Name" />
+                                          <TableColumn prefWidth="166.0" text="Last ARV Pick-Up Date" />
+                                          <TableColumn prefWidth="166.0" text="Drug Duration" />
+                                          <TableColumn prefWidth="166.0" text="Next Appointment Date" />
+                                          <TableColumn prefWidth="166.0" text="Status" />
+                                          <TableColumn prefWidth="166.0" text="Reason" />
+                                      </columns>
+                                    </TableView>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </Tab>
+                  <Tab text="VL Eligibility">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="474.0" prefWidth="1268.0">
+                                 <children>
+                                    <TableView prefHeight="474.0" prefWidth="1266.0">
+                                       <columns>
+                                          <TableColumn prefWidth="75.0" text="Patient ID" />
+                                          <TableColumn prefWidth="150.0" text="Pepfar ID" />
+                                          <TableColumn prefWidth="166.0" text="Patient Name" />
+                                          <TableColumn prefWidth="166.0" text="ART Start Date" />
+                                          <TableColumn prefWidth="166.0" text="Last VL Date" />
+                                          <TableColumn prefWidth="166.0" text="VL Status" />
+                                          <TableColumn prefWidth="166.0" text="VL Due Date" />
+                                          <TableColumn prefWidth="166.0" text="Reason" />
+                                       </columns>
+                                    </TableView>
+                                 </children>
+                              </VBox>
                            </children>
                         </AnchorPane>
                      </content>
