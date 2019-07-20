@@ -33,6 +33,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -45,8 +46,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.ccfng.datamigration.obs.Obs;
+import org.ccfng.datamigration.openmrscleanup.Address;
 import org.ccfng.datamigration.openmrscleanup.DateFix;
 import org.ccfng.datamigration.openmrscleanup.LastCarePharmacy;
+import org.ccfng.datamigration.openmrscleanup.PatientStatus;
 import org.ccfng.datamigration.openmrscleanup.PharmacyEncounter;
 import org.ccfng.datamigration.openmrscleanup.Regimen;
 import org.ccfng.datamigration.session.SessionManager;
@@ -66,10 +69,22 @@ public class OpenmrsCleanupController {
 	public TableView<DateFix> dateFixTableView;
 
 	@FXML
+	public TableView<PatientStatus> patientStatusTableView;
+
+	@FXML
 	private TextArea appConsole;
 
 	@FXML
 	private TextField limit;
+
+	@FXML
+	private TextField gThan;
+
+	@FXML
+	private TextField lThan;
+
+	@FXML
+	private TextField tRecords;
 
 	@FXML
 	private ComboBox<Regimen> allRegimenComboBox;
@@ -86,6 +101,33 @@ public class OpenmrsCleanupController {
 	private Task<ObservableList<LastCarePharmacy>> lastPharmacyTask;
 
 
+	private Task<ObservableList<PatientStatus>> patientStatusTask;
+
+	private Task<ObservableList<PharmacyEncounter>> weightHeightTask;
+
+	@FXML
+	private TableView<PharmacyEncounter> weightHeightTable;
+
+	@FXML
+	private TableView<PatientStatus> noCommencementTableView;
+
+	@FXML
+	private TableView<Address> addressTableView;
+
+	private Task<ObservableList<Address>> addressTask;
+
+	@FXML
+	private ComboBox<String> observationCombo;
+
+	@FXML
+	private ComboBox<String> criteriaCombo;
+
+	@FXML
+	private TextField valueToSearch;
+
+	@FXML
+	private TextField valueToAdd;
+
 	public String sourceHost;
 
 	public String sourcePort;
@@ -97,6 +139,9 @@ public class OpenmrsCleanupController {
 	public String sourceDb;
 
 	public String tableSuffix;
+
+	@FXML
+	public Label weightHeightStatus;
 
 	String source_jdbcUrl = null;
 	String driver = null;
@@ -122,7 +167,13 @@ public class OpenmrsCleanupController {
 		});
 	}
 
+
 	public void initialize(){
+
+		observationCombo.getItems().add("Weight");
+		observationCombo.getItems().add("Height");
+		criteriaCombo.getItems().add("Greater Than");
+		criteriaCombo.getItems().add("Less Than");
 		limit.setText("0");
 		pharmacyEncounterTable.setOnMousePressed(event -> {
 			if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
@@ -159,32 +210,6 @@ public class OpenmrsCleanupController {
 			}
 		});
 
-//		lastCarePharmacyEncounterTable.setOnMousePressed(event -> {
-//
-//			logToConsole("\n Event Captured.");
-//			if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
-//				Node node = ((Node) event.getTarget()).getParent();
-//				TableRow row;
-//				if (node instanceof TableRow) {
-//					logToConsole("\n Row Captured.");
-//					row = (TableRow) node;
-//				} else {
-//					// clicking on text part
-//					logToConsole("\n Column Captured.");
-//					row = (TableRow) node.getParent();
-//				}
-//
-//				java.sql.Date fD = getLastPharmacyEncounter((LastCarePharmacy) row.getItem());
-//
-//				lastCarePharmacyEncounterTable.getSelectionModel()
-//						.getSelectedItem()
-//						.setLastPharmacyEncounterDate(fD);
-//
-//				logToConsole("\nLast Pharm Date: "+fD);
-//			}
-//
-//		});
-
 		pharmacyEncounterTable.getSelectionModel().setSelectionMode(
 				SelectionMode.MULTIPLE
 		);
@@ -198,6 +223,10 @@ public class OpenmrsCleanupController {
 		);
 
 		nextAppointmentTable.getSelectionModel().setSelectionMode(
+				SelectionMode.MULTIPLE
+		);
+
+		weightHeightTable.getSelectionModel().setSelectionMode(
 				SelectionMode.MULTIPLE
 		);
 
@@ -224,124 +253,12 @@ public class OpenmrsCleanupController {
 
 		//Platform.runLater(() -> {
 			getRegimens();
+		gThan.setText("-90");
+		lThan.setText("8");
+		tRecords.setText("100");
 
-		lastPharmacyTask = new Task<ObservableList<LastCarePharmacy>>() {
-
-			@Override
-			protected ObservableList<LastCarePharmacy> call() throws Exception {
-
-				ObservableList<LastCarePharmacy> lastCarePharmacyEncounters = FXCollections.observableArrayList();
-				appConsole.clear();
-				logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
-
-				Statement stmt = null;
-				try {
-					//STEP 2: Register JDBC driver
-					Class.forName("com.mysql.jdbc.Driver");
-				} catch (Exception exc) {
-					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
-				}
-				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
-					logToConsole("\n Source Database connection successful..");
-
-					stmt = conn.createStatement();
-
-					String sql = "SELECT pa.patient_id as patientID, enc.encounter_id as encounterID, DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
-							//+ "ob.obs_id AS obsID, "
-							+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4) AS pepfarID,"
-							+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
-							+ "enc.encounter_datetime AS LastCareEncounterDate, "
-							+ " ob.value_coded AS RegimenID , "
-							+ " (SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777821) Limit 1) AS NextAppointment,"
-							//								+ " (SELECT encounter_datetime from encounter where encounter.patient_id = enc.patient_id AND "
-							//								+ " encounter.encounter_datetime > enc.encounter_datetime AND "
-							//								+ "encounter.form_id IN (46,53) group by encounter.patient_id Limit 1) AS LastPharmacyEncounterDate,"
-							+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS RegimenLine"
-							//								+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
-							+ "  FROM encounter AS enc LEFt JOIN patient as pa "
-							+ "on pa.patient_id = enc.patient_id "
-							+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id"
-							+ " LEFT JOIN person on person.person_id = enc.patient_id "
-							+ " where "
-							+ " enc.form_id = 56 "
-							+ " AND ob.concept_id = 7778111"
-							+ " AND enc.voided = 0"
-							+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
-							+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
-							+ " AND enc.encounter_datetime NOT IN (select encounter_datetime from encounter where patient_id = pa.patient_id AND encounter.form_id IN (46,53))"
-							//+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
-							//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
-							+ " order by enc.encounter_datetime DESC";
-					ResultSet rs = stmt.executeQuery(sql);
-					//STEP 5: Extract data from result set
-					int tSum = 0;
-					while (rs.next()) {
-						++tSum;
-						LastCarePharmacy lastCarePharmacy = new LastCarePharmacy();
-						lastCarePharmacy.setPatientID(rs.getInt("patientID"));
-						lastCarePharmacy.setEncounterID(rs.getInt("encounterID"));
-						//pharmacyEncounter.setObsID(rs.getInt("obsID"));
-						lastCarePharmacy.setPepfarID(rs.getString("pepfarID"));
-						lastCarePharmacy.setPatientName(rs.getString("patientName"));
-						lastCarePharmacy.setLastCareEncounterDate(rs.getDate("LastCareEncounterDate"));
-
-						lastCarePharmacy.setLastCareRegimenLineId(rs.getInt("RegimenID"));
-						lastCarePharmacy.setLastCareRegimenLine(rs.getString("RegimenLine"));
-
-						lastCarePharmacy.setPatientAge(rs.getInt("birthdate"));
-
-						logToConsole("\nPatient Age: "+lastCarePharmacy.getPatientAge());
-						if(rs.getInt("NextAppointment") == 1570)
-							lastCarePharmacy.setNextAppointment(7);
-						else if(rs.getInt("NextAppointment") == 1571)
-							lastCarePharmacy.setNextAppointment(15);
-						else if(rs.getInt("NextAppointment") == 1628)
-							lastCarePharmacy.setNextAppointment(30);
-						else if(rs.getInt("NextAppointment") == 1574)
-							lastCarePharmacy.setNextAppointment(60);
-						else if(rs.getInt("NextAppointment") == 1575)
-							lastCarePharmacy.setNextAppointment(90);
-
-						LastCarePharmacy lastCP  = getLastPharmacyEncounter(lastCarePharmacy);
-
-						lastCarePharmacy.setLastPharmacyEncounterDate(lastCP.getLastPharmacyEncounterDate());
-
-						lastCarePharmacy.setLastPharmEncounterID(lastCP.getLastPharmEncounterID());
-
-						lastCarePharmacyEncounters.add(lastCarePharmacy);
-
-						//logToConsole(lastCarePharmacy.toString()+"\n");
-					}
-					logToConsole("\n Total Number: "+tSum);
-					rs.close();
-					logToConsole("\n Done..");
-				} catch (SQLException e) {
-					logToConsole("\n Error: " + e.getMessage());
-					e.printStackTrace();
-				}finally {
-					//finally block used to close resources
-					try {
-						if (stmt != null);
-					} catch (Exception se) {
-					}// do nothing
-				}//end try
-				try {
-					if (lastCarePharmacyEncounters.isEmpty()) {
-						logToConsole("\n No Record Found..");
-						return null;
-					}
-				}catch (Exception ex){
-					logToConsole("\n Error: " + ex.getMessage());
-					ex.printStackTrace();
-				}
-				Platform.runLater(() ->{
-					lastCarePharmacyEncounterTable.setItems(lastCarePharmacyEncounters);
-				});
-				return lastCarePharmacyEncounters;
-			}
-		};
-		//});
 	}
+
 
 	@FXML
 	private void createDTG(){
@@ -791,33 +708,41 @@ public class OpenmrsCleanupController {
 		if(allRegimenComboBox.getSelectionModel().getSelectedItem() == null){
 			logToConsole("\n Searching for First Lines without Regimen!\n");
 			sql = "SELECT ob.person_id as patientID, "
-					+ "(Select value_text from obs where encounter_id = ob.encounter_id AND concept_id = 1596 AND person_id = ob.person_id Limit 1) "
-					+ "AS valueText, encounter.encounter_id as encounterID, "
-					+ "ob.obs_id AS obsID, "
-					+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4) AS pepfarID,"
-					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = ob.person_id && preferred = 1) As patientName,"
+					+ "(select value_coded from obs where concept_id=7778108 AND person_id = ob.person_id "
+					+ "AND encounter_id=ob.encounter_id AND voided = 0 order by obs_id ASC LIMIT 1) AS valueText,"
+//					+ "null AS valueText, "
+						+ "encounter.encounter_id as encounterID, "
+						+ "ob.obs_id AS obsID, "
+					+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4 limit 1) AS pepfarID,"
+					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName "
+						+ "FROM person_name where person_id = ob.person_id && preferred = 1 limit 1) As patientName,"
 					+ "encounter.encounter_datetime AS EncounterDateTime, "
+
 					+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Question,"
 					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
 					+ "  FROM obs AS ob LEFt JOIN encounter "
 					+ "on ob.encounter_id = encounter.encounter_id where "
 					+ " ob.value_coded = 7778108 "
-					+ "AND encounter.encounter_id NOT IN (select encounter_id from obs where concept_id=7778108 AND person_id = ob.person_id AND voided = 0) "
-//					+ "ob.value_coded = "+allRegimenComboBox.getSelectionModel().getSelectedItem().getConceptID()
 					+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
-					//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
-					+ "' order by ob.person_id";
+					+ "' AND NOT Exists( select value_coded from obs where concept_id=7778108 AND person_id = ob.person_id "
+							+ "AND encounter_id=ob.encounter_id AND voided = 0) "
+					// + "' HAVING regimenSel = null || regimenSel = '' || regimenSel = 0"
+					+ " order by ob.person_id";
 		}else{
 			sql = "SELECT ob.person_id as patientID, "
-					+ "(Select value_text from obs where encounter_id = ob.encounter_id AND concept_id = 1596 AND person_id = ob.person_id Limit 1) "
-					+ "AS valueText, encounter.encounter_id as encounterID, "
-					+ "ob.obs_id AS obsID, "
-					+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4) AS pepfarID,"
-					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = ob.person_id && preferred = 1) As patientName,"
-					+ "encounter.encounter_datetime AS EncounterDateTime, "
-					+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Question,"
-					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
-					+ "  FROM obs AS ob LEFt JOIN encounter "
+					+ "(Select value_text from obs where encounter_id = ob.encounter_id "
+							+ "AND concept_id = 1596 AND person_id = ob.person_id group by value_text Limit 1) "
+							+ "AS valueText, encounter.encounter_id as encounterID, "
+							+ "ob.obs_id AS obsID, "
+					+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4 group by identifier) AS pepfarID,"
+					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName "
+					+ "FROM person_name where person_id = ob.person_id && preferred = 1) As patientName,"
+							+ "encounter.encounter_datetime AS EncounterDateTime, "
+					+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && "
+							+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 group by name) AS Question,"
+					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && "
+						+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 group by name) AS Answer"
+						+ "  FROM obs AS ob LEFt JOIN encounter "
 					+ "on ob.encounter_id = encounter.encounter_id where "
 					+ "ob.value_coded = "+allRegimenComboBox.getSelectionModel().getSelectedItem().getConceptID()
 					+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
@@ -866,7 +791,10 @@ public class OpenmrsCleanupController {
 				pharmacyEncounter.setPatientName(rs.getString("patientName"));
 				pharmacyEncounter.setEncounterDateTime(rs.getDate("EncounterDateTime"));
 				pharmacyEncounter.setQuestion(rs.getString("Question"));
-				pharmacyEncounter.setAnswer(rs.getString("Answer") + " - " + rs.getString("valueText"));
+				if(rs.getString("valueText") != null)
+					pharmacyEncounter.setAnswer(rs.getString("Answer") + " - " + rs.getString("valueText"));
+				else
+					pharmacyEncounter.setAnswer(rs.getString("Answer"));
 				pharmacyEncounters.add(pharmacyEncounter);
 				logToConsole(pharmacyEncounter.toString()+"\n");
 			}
@@ -1548,64 +1476,21 @@ public class OpenmrsCleanupController {
 					+ " (SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777821 AND voided = 0) Limit 1) AS NextAppointment,"
 					+ " (SELECT value_datetime from obs where (obs.encounter_id = enc.encounter_id "
 					+ "AND obs.concept_id=7777822 AND voided = 0) Limit 1) AS NextAppointmentDATE,"
-//					+ " DATEDIFF((SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777822) Limit 1),STR_TO_DATE(enc.encounter_datetime, '%Y-%m-%d')) AS NextAppointmentDay,"
-
-					//								+ " encounter.encounter_datetime > enc.encounter_datetime AND "
-					//								+ "encounter.form_id IN (46,53) group by encounter.patient_id Limit 1) AS LastPharmacyEncounterDate,"
-					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && "
-					+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 Limit 1) AS RegimenLine, "
+//					+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 Limit 1) AS RegimenLine, "
 					+ "ob.obs_id AS obsID"
-					//								+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
 					+ "  FROM encounter AS enc LEFt JOIN patient as pa "
 					+ "on pa.patient_id = enc.patient_id "
 					+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id AND ob.voided = 0 AND ob.concept_id = 7777822"
 					+ " LEFT JOIN person on person.person_id = enc.patient_id "
 					+ " where "
 					+ " enc.form_id = 56 "
-//					+ " AND ob.concept_id = 7777822"
-					+ " AND enc.voided = 0"
-					+ " AND enc.encounter_id IN (select encounter_id FROM obs WHERE person_id = pa.patient_id AND concept_id=7778111 AND voided = 0) "
-					+ " AND enc.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
-					+ " AND enc.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
-					+ " HAVING LastCareEncounterDate > NextAppointmentDATE" //" OR (DATEDIFF(NextAppointmentDATE, STR_TO_DATE(LastCareEncounterDate, '%Y-%m-%d')) > 180)"
-					//+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
-					//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
+//					+ " AND enc.voided = 0"
+					+ " AND EXISTS (select encounter_id FROM obs WHERE encounter_id=enc.encounter_id AND person_id = pa.patient_id AND concept_id=7778111 AND voided = 0) "
+					+ " AND NOT EXISTS (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
+					+ " AND NOT EXISTS (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
+					+ " HAVING LastCareEncounterDate >= NextAppointmentDATE" //" OR (DATEDIFF(NextAppointmentDATE, STR_TO_DATE(LastCareEncounterDate, '%Y-%m-%d')) > 180)"
 					+ " order by enc.encounter_datetime DESC Limit "+lim;
 
-//			String sql = "SELECT pa.patient_id as patientID, enc.encounter_id as encounterID, "
-//					+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
-//					//+ "ob.obs_id AS obsID, "
-//					+ "patient_identifier.identifier AS pepfarID,"
-//					+ "person_name.given_name,person_name.family_name,enc.encounter_datetime,value_datetime,ob.obs_id"
-////					+ "FROM person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
-////					+ " enc.encounter_datetime "
-////					+ " ob.value_coded AS RegimenID , "
-////					+ " (SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777821) Limit 1) AS NextAppointment,"
-////					+ " (SELECT value_datetime from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777822 AND obs.voided = 0) Limit 1) AS NextAppointmentDATE,"
-//					//					+ " DATEDIFF((SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777822) Limit 1),STR_TO_DATE(enc.encounter_datetime, '%Y-%m-%d')) AS NextAppointmentDay,"
-//
-//					//								+ " encounter.encounter_datetime > enc.encounter_datetime AND "
-//					//								+ "encounter.form_id IN (46,53) group by encounter.patient_id Limit 1) AS LastPharmacyEncounterDate,"
-////					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS RegimenLine"
-//					//								+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
-//					+ "  FROM encounter AS enc LEFt JOIN patient as pa "
-//					+ "on pa.patient_id = enc.patient_id "
-//					+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id AND ob.voided = 0 AND ob.concept_id = 7777822"
-//					+ " LEFT JOIN person on person.person_id = enc.patient_id "
-//					+ " LEFT JOIN person_name on person_name.person_id = enc.patient_id AND person_name.preferred = 1"
-//					+ " LEFT JOIN patient_identifier on patient_identifier.patient_id = pa.patient_id && identifier_type = 4 "
-//					+ " LEFT JOIN encounter AS enc2 on enc.encounter_datetime = enc2.encounter_datetime && enc2.encounter_type = 7 && "
-//					+ "enc2.patient_id=enc.patient_id && enc2.voided=0"
-//					+ " where "
-//					+ " enc.form_id = 56 "
-////					+ " AND ob.concept_id = 7777822"
-//					+ " AND enc.voided = 0"
-//					+ " AND enc.patient_id IN (select patient_id FROM encounter WHERE encounter_type = 7 AND "
-//					+ "encounter_datetime=enc.encounter_datetime AND voided = 0 group by patient_id)"
-//					+ " AND enc.encounter_datetime > value_datetime " //" OR (DATEDIFF(NextAppointmentDATE, STR_TO_DATE(LastCareEncounterDate, '%Y-%m-%d')) > 180)"
-//					//+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
-//					//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
-//					+ " order by enc.encounter_datetime DESC Limit "+lim;
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
 			int tSum = 0;
@@ -1695,36 +1580,8 @@ public class OpenmrsCleanupController {
 
 			stmt = conn.createStatement();
 
-//			String sql = "SELECT pa.patient_id as patientID, "
-//					+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
-//					+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4) AS pepfarID,"
-//					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
-//					+ "(SELECT value_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id where encounter.form_id=1 AND encounter.patient_id=pa.patient_id AND obs.concept_id=863 order by obs.obs_id ASC Limit 1) AS ArtStartDate, "
-//					+ "(SELECT encounter.encounter_id from obs left join encounter on obs.encounter_id = encounter.encounter_id where form_id=1 AND encounter.patient_id=pa.patient_id AND obs.concept_id=863 Limit 1) AS ArtStartEncounterID, "
-//					+ "(SELECT obs.concept_id from obs left join encounter on obs.encounter_id = encounter.encounter_id where form_id=1 AND encounter.patient_id=pa.patient_id AND obs.concept_id=863 Limit 1) AS ArtStartConceptID, "
-//					+ "(SELECT value_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id where form_id=65 AND encounter.patient_id=pa.patient_id AND obs.concept_id=859 Limit 1) AS DateConfirmed, "
-//					+ "(SELECT encounter.encounter_id from obs left join encounter on obs.encounter_id = encounter.encounter_id where form_id=65 AND encounter.patient_id=pa.patient_id AND obs.concept_id=859 Limit 1) AS DateConfirmedEncounterID, "
-//					+ "(SELECT obs.concept_id from obs left join encounter on obs.encounter_id = encounter.encounter_id where form_id=65 AND encounter.patient_id=pa.patient_id AND obs.concept_id=859 Limit 1) AS DateConfirmedConceptID, "
-//					+ "(SELECT encounter.encounter_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id where (form_id=46 || form_id=53 ) AND encounter.patient_id=pa.patient_id AND obs.concept_id=7778111 order by encounter.encounter_id ASC Limit 1) AS FirstPharmacy, "
-//					+ "(SELECT encounter.encounter_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id where form_id=65 AND encounter.patient_id=pa.patient_id Limit 1) AS DateEnrolled "
-//					//+ " ob.value_coded AS RegimenID , "
-////					+ "  FROM encounter AS enc LEFt JOIN patient as pa "
-//					+ " FROM patient as pa "
-////					+ "on pa.patient_id = enc.patient_id "
-////					+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id"
-//					+ " LEFT JOIN person on person.person_id = pa.patient_id "
-//					+ " WHERE "
-//					+ " pa.voided = 0 HAVING (DateConfirmed > ArtStartDate) "
-////					+ " AND ob.concept_id = 7778111"
-////					+ " AND ob.concept_id = 7778111"
-////					+ " AND enc.voided = 0"
-////					+ " AND enc.encounter_datetime NOT IN (select encounter_datetime from encounter where patient_id = pa.patient_id AND encounter.form_id IN (46,53))"
-////					+ " order by enc.encounter_datetime DESC Limit 15";
-//					+ " order by pa.patient_id DESC";
-
-
 						String sql = "SELECT pa.patient_id as patientID, "
-								+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
+//								+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
 								+ "patient_identifier.identifier AS pepfarID,"
 								+ "CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName ,"
 								+ "(SELECT value_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id "
@@ -1745,12 +1602,8 @@ public class OpenmrsCleanupController {
 									+ "order by encounter.encounter_id ASC Limit 1) AS FirstPharmacy, "
 								+ "(SELECT encounter.encounter_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id "
 									+ "where form_id=65 AND encounter.patient_id=pa.patient_id AND obs.voided = 0 Limit 1) AS DateEnrolled "
-								//+ " ob.value_coded AS RegimenID , "
-			//					+ "  FROM encounter AS enc LEFt JOIN patient as pa "
 								+ " FROM patient as pa "
-			//					+ "on pa.patient_id = enc.patient_id "
-			//					+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id"
-								+ " LEFT JOIN person on person.person_id = pa.patient_id "
+			//					+ " LEFT JOIN person on person.person_id = pa.patient_id "
 								+ " LEFT JOIN patient_identifier on patient_identifier.patient_id = pa.patient_id && identifier_type = 4"
 								+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && person_name.preferred = 1"
 								+ " WHERE "
@@ -1758,11 +1611,6 @@ public class OpenmrsCleanupController {
 								+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
 								+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
 								+ " HAVING (ArtStartDate = null || DateConfirmed = null || DateConfirmed > ArtStartDate) "
-			//					+ " AND ob.concept_id = 7778111"
-			//					+ " AND ob.concept_id = 7778111"
-			//					+ " AND enc.voided = 0"
-			//					+ " AND enc.encounter_datetime NOT IN (select encounter_datetime from encounter where patient_id = pa.patient_id AND encounter.form_id IN (46,53))"
-			//					+ " order by enc.encounter_datetime DESC Limit 15";
 								+ " order by pa.patient_id DESC";
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -1776,7 +1624,7 @@ public class OpenmrsCleanupController {
 					++tSum;
 					DateFix dateFix = new DateFix();
 					dateFix.setPatientID(rs.getInt("patientID"));
-					dateFix.setPatientAge(rs.getInt("birthdate"));
+//					dateFix.setPatientAge(rs.getInt("birthdate"));
 					dateFix.setPepfarID(rs.getString("pepfarID"));
 					dateFix.setPatientName(rs.getString("patientName"));
 					dateFix.setArtStartDate(rs.getDate("ArtStartDate"));
@@ -1790,17 +1638,8 @@ public class OpenmrsCleanupController {
 
 					logToConsole("\n Patient : " + dateFix.toString());
 
-					//				logToConsole("\nPatient Age: "+dateFix.getPatientAge());
-
-					//LastCarePharmacy lastCP  = getLastPharmacyEncounter(dateFix);
-
-					//				lastCarePharmacy.setLastPharmacyEncounterDate(lastCP.getLastPharmacyEncounterDate());
-					//
-					//				lastCarePharmacy.setLastPharmEncounterID(lastCP.getLastPharmEncounterID());
-
 					dateFixes.add(dateFix);
 
-					//logToConsole(lastCarePharmacy.toString()+"\n");
 //				}
 			}
 			logToConsole("\n Total Number: "+tSum);
@@ -1827,126 +1666,6 @@ public class OpenmrsCleanupController {
 		dateFixTableView.setItems(dateFixes);
 
 	}
-
-//	@FXML
-//	private void getNoArtStartDate(){
-//		ObservableList<DateFix> dateFixes = FXCollections.observableArrayList();
-//		appConsole.clear();
-//		logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
-//
-//		Statement stmt = null;
-//		try {
-//			//STEP 2: Register JDBC driver
-//			Class.forName("com.mysql.jdbc.Driver");
-//		} catch (Exception exc) {
-//			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
-//		}
-//		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
-//			logToConsole("\n Source Database connection successful..");
-//
-//			stmt = conn.createStatement();
-//
-//			String sql = "SELECT pa.patient_id as patientID, "
-//					+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
-//					+ "patient_identifier.identifier AS pepfarID,"
-//					+ "CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName ,"
-//					+ "(SELECT value_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id "
-//						+ "where encounter.form_id=1 AND encounter.patient_id=pa.patient_id AND obs.concept_id=863 "
-//						+ "AND obs.voided = 0 order by obs.obs_id ASC Limit 1) AS ArtStartDate, "
-//					+ "(SELECT encounter.encounter_id from obs left join encounter on obs.encounter_id = encounter.encounter_id "
-//						+ "where form_id=1 AND encounter.patient_id=pa.patient_id AND obs.concept_id=863 AND obs.voided = 0 Limit 1) AS ArtStartEncounterID, "
-//					+ "(SELECT obs.concept_id from obs left join encounter on obs.encounter_id = encounter.encounter_id "
-//						+ "where form_id=1 AND encounter.patient_id=pa.patient_id AND obs.concept_id=863 AND obs.voided = 0 Limit 1) AS ArtStartConceptID, "
-//					+ "(SELECT value_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id "
-//						+ "where form_id=65 AND encounter.patient_id=pa.patient_id AND obs.concept_id=859 AND obs.voided = 0 Limit 1) AS DateConfirmed, "
-//					+ "(SELECT encounter.encounter_id from obs left join encounter on obs.encounter_id = encounter.encounter_id "
-//						+ "where form_id=65 AND encounter.patient_id=pa.patient_id AND obs.concept_id=859 AND obs.voided = 0 Limit 1) AS DateConfirmedEncounterID, "
-//					+ "(SELECT obs.concept_id from obs left join encounter on obs.encounter_id = encounter.encounter_id "
-//						+ "where form_id=65 AND encounter.patient_id=pa.patient_id AND obs.concept_id=859 AND obs.voided = 0 Limit 1) AS DateConfirmedConceptID, "
-//					+ "(SELECT encounter.encounter_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id "
-//						+ "where (form_id=46 || form_id=53 ) AND encounter.patient_id=pa.patient_id AND obs.concept_id=7778111 AND obs.voided = 0 "
-//						+ "order by encounter.encounter_id ASC Limit 1) AS FirstPharmacy, "
-//					+ "(SELECT encounter.encounter_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id "
-//						+ "where form_id=65 AND encounter.patient_id=pa.patient_id AND obs.voided = 0 Limit 1) AS DateEnrolled "
-//					//+ " ob.value_coded AS RegimenID , "
-////					+ "  FROM encounter AS enc LEFt JOIN patient as pa "
-//					+ " FROM patient as pa "
-////					+ "on pa.patient_id = enc.patient_id "
-////					+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id"
-//					+ " LEFT JOIN person on person.person_id = pa.patient_id "
-//					+ " LEFT JOIN patient_identifier on patient_identifier.patient_id = pa.patient_id && identifier_type = 4"
-//					+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && preferred = 1"
-//					+ " WHERE "
-//					+ " pa.voided = 0 HAVING (ArtStartDate = null || DateConfirmed = null || DateConfirmed > ArtStartDate) "
-////					+ " AND ob.concept_id = 7778111"
-////					+ " AND ob.concept_id = 7778111"
-////					+ " AND enc.voided = 0"
-////					+ " AND enc.encounter_datetime NOT IN (select encounter_datetime from encounter where patient_id = pa.patient_id AND encounter.form_id IN (46,53))"
-////					+ " order by enc.encounter_datetime DESC Limit 15";
-//					+ " order by pa.patient_id DESC";
-//			ResultSet rs = stmt.executeQuery(sql);
-//			//STEP 5: Extract data from result set
-//			int tSum = 0;
-//			while (rs.next()) {
-////				if(
-////						(rs.getDate("ArtStartDate") == null || rs.getDate("DateConfirmed") == null)
-////						||
-////							(rs.getDate("DateConfirmed") > rs.getDate("ArtStartDate"))
-////						) {
-//					++tSum;
-//					DateFix dateFix = new DateFix();
-//					dateFix.setPatientID(rs.getInt("patientID"));
-//					dateFix.setPatientAge(rs.getInt("birthdate"));
-//					dateFix.setPepfarID(rs.getString("pepfarID"));
-//					dateFix.setPatientName(rs.getString("patientName"));
-//					dateFix.setArtStartDate(rs.getDate("ArtStartDate"));
-//					dateFix.setArtStartEncounterId(rs.getInt("ArtStartEncounterID"));
-//					dateFix.setHivConfirmedDate(rs.getDate("DateConfirmed"));
-//					dateFix.setHivConfirmedEncounterId(rs.getInt("DateConfirmedEncounterID"));
-//					dateFix.setHivConfirmedConceptId(rs.getInt("DateConfirmedConceptID"));
-//					dateFix.setFirstARVDate(rs.getDate("FirstPharmacy"));
-//					dateFix.setDateEnrolled(rs.getDate("DateEnrolled"));
-//					dateFix.setArtStartConceptId(rs.getInt("ArtStartConceptID"));
-//
-//					logToConsole("\n Patient : " + dateFix.toString());
-//
-//					//				logToConsole("\nPatient Age: "+dateFix.getPatientAge());
-//
-//					//LastCarePharmacy lastCP  = getLastPharmacyEncounter(dateFix);
-//
-//					//				lastCarePharmacy.setLastPharmacyEncounterDate(lastCP.getLastPharmacyEncounterDate());
-//					//
-//					//				lastCarePharmacy.setLastPharmEncounterID(lastCP.getLastPharmEncounterID());
-//
-//					dateFixes.add(dateFix);
-//
-//					//logToConsole(lastCarePharmacy.toString()+"\n");
-////				}
-//			}
-//			logToConsole("\n Total Number: "+tSum);
-//			rs.close();
-//			logToConsole("\n Done..");
-//		} catch (SQLException e) {
-//			logToConsole("\n Error: " + e.getMessage());
-//			e.printStackTrace();
-//		}finally {
-//			//finally block used to close resources
-//			try {
-//				if (stmt != null);
-//			} catch (Exception se) {
-//			}// do nothing
-//		}//end try
-//		try {
-//			if (dateFixes.isEmpty()) {
-//				logToConsole("\n No Record Found..");
-//			}
-//		}catch (Exception ex){
-//			logToConsole("\n Error: " + ex.getMessage());
-//			ex.printStackTrace();
-//		}
-//		dateFixTableView.setItems(dateFixes);
-//
-//	}
 
 	@FXML
 	private void updateHivConfirmedDate(){
@@ -2088,7 +1807,7 @@ public class OpenmrsCleanupController {
 			}
 		}
 
-		FileOutputStream fileOut = new FileOutputStream(LocalDateTime.now().toString()+".xls");
+		FileOutputStream fileOut = new FileOutputStream("export_"+LocalDateTime.now().toString()+".xls");
 		workbook.write(fileOut);
 		fileOut.close();
 
@@ -2122,7 +1841,7 @@ public class OpenmrsCleanupController {
 			}
 		}
 
-		FileOutputStream fileOut = new FileOutputStream(LocalDateTime.now().toString()+".xls");
+		FileOutputStream fileOut = new FileOutputStream("next_appointment_"+LocalDateTime.now().toString()+".xls");
 		workbook.write(fileOut);
 		fileOut.close();
 
@@ -2148,7 +1867,7 @@ public class OpenmrsCleanupController {
 			row = spreadsheet.createRow(i + 1);
 			for (int j = 0; j < table.getColumns().size(); j++) {
 				if(table.getColumns().get(j).getCellData(i) != null) {
-					row.createCell(j).setCellValue(table.getColumns().get(j).getCellData(i).toString());
+					row.createCell(j).setCellValue("dates_"+table.getColumns().get(j).getCellData(i).toString());
 				}
 				else {
 					row.createCell(j).setCellValue("");
@@ -2182,7 +1901,7 @@ public class OpenmrsCleanupController {
 			row = spreadsheet.createRow(i + 1);
 			for (int j = 0; j < table.getColumns().size(); j++) {
 				if(table.getColumns().get(j).getCellData(i) != null) {
-					row.createCell(j).setCellValue(table.getColumns().get(j).getCellData(i).toString());
+					row.createCell(j).setCellValue("pharm_"+table.getColumns().get(j).getCellData(i).toString());
 				}
 				else {
 					row.createCell(j).setCellValue("");
@@ -2196,5 +1915,502 @@ public class OpenmrsCleanupController {
 
 //		Platform.exit();
 
+	}
+
+	@FXML
+	private void appointmentToExcel() throws IOException {
+
+		TableView<PatientStatus> table = patientStatusTableView;
+
+		Workbook workbook = new HSSFWorkbook();
+		Sheet spreadsheet = workbook.createSheet("Export");
+
+		Row row = spreadsheet.createRow(0);
+
+		for (int j = 0; j < table.getColumns().size(); j++) {
+			row.createCell(j).setCellValue(table.getColumns().get(j).getText());
+		}
+
+		for (int i = 0; i < table.getItems().size(); i++) {
+			row = spreadsheet.createRow(i + 1);
+			for (int j = 0; j < table.getColumns().size(); j++) {
+				if(table.getColumns().get(j).getCellData(i) != null) {
+					row.createCell(j).setCellValue(table.getColumns().get(j).getCellData(i).toString());
+				}
+				else {
+					row.createCell(j).setCellValue("");
+				}
+			}
+		}
+
+		FileOutputStream fileOut = new FileOutputStream("missed_appointment_"+LocalDateTime.now().toString()+".xls");
+		workbook.write(fileOut);
+		fileOut.close();
+
+		//		Platform.exit();
+
+	}
+
+	@FXML
+	private void coCommencementToExcel() throws IOException {
+
+		TableView<PatientStatus> table = noCommencementTableView;
+
+		Workbook workbook = new HSSFWorkbook();
+		Sheet spreadsheet = workbook.createSheet("Export");
+
+		Row row = spreadsheet.createRow(0);
+
+		for (int j = 0; j < table.getColumns().size(); j++) {
+			row.createCell(j).setCellValue(table.getColumns().get(j).getText());
+		}
+
+		for (int i = 0; i < table.getItems().size(); i++) {
+			row = spreadsheet.createRow(i + 1);
+			for (int j = 0; j < table.getColumns().size(); j++) {
+				if(table.getColumns().get(j).getCellData(i) != null) {
+					row.createCell(j).setCellValue(table.getColumns().get(j).getCellData(i).toString());
+				}
+				else {
+					row.createCell(j).setCellValue("");
+				}
+			}
+		}
+
+		FileOutputStream fileOut = new FileOutputStream("No_Commencement_"+LocalDateTime.now().toString()+".xls");
+		workbook.write(fileOut);
+		fileOut.close();
+
+		//		Platform.exit();
+
+	}
+
+	private void fetchPatientStatus(Boolean artStartDate){
+		appConsole.clear();
+		patientStatusTask = new Task<ObservableList<PatientStatus>>(){
+
+			@Override
+			protected ObservableList<PatientStatus> call() {
+
+				patientStatusTableView.getItems().removeAll();
+
+				String sql = "SELECT pa.patient_id as patientID, "
+						+ "patient_identifier.identifier AS pepfarID,"
+						+ "CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName ,"
+						+ "(SELECT value_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id "
+						+ "where encounter.form_id=1 AND encounter.patient_id=pa.patient_id AND obs.concept_id=863 "
+						+ "AND obs.voided = 0 order by obs.obs_id ASC Limit 1) AS ArtStartDate, "
+						+ "(SELECT value_datetime from encounter Left join obs on encounter.encounter_id = obs.encounter_id where "
+						+ "obs.concept_id=7777822 AND encounter.form_id=56 AND obs.voided = 0 AND encounter.voided=0 "
+						+ "AND encounter.patient_id=pa.patient_id order by obs.obs_id DESC Limit 1) AS NextAppointmentDATE, "
+						+ "(SELECT value_text from obs where "
+						+ "(obs.concept_id=7778430 || obs.concept_id=891) AND voided = 0 AND obs.person_id=pa.patient_id order by obs.obs_id DESC Limit 1) AS PhoneNumber, "
+						+ "(select concept_name.name FROM obs LEFT JOIN concept_name on concept_name.concept_id = obs.value_coded WHERE person_id = pa.patient_id "
+						+ "AND (obs.concept_id=1737 || obs.concept_id=977) AND obs.voided = 0 AND concept_name.voided = 0 AND concept_name.locale = 'en' "
+						+ "AND concept_name.locale_preferred = 1 order by value_coded DESC Limit 1) AS Exited, "
+						+ "(SELECT encounter_datetime from encounter Left join obs on encounter.encounter_id = obs.encounter_id where "
+						+ "obs.concept_id=7777822 AND encounter.form_id=56 AND obs.voided = 0 AND encounter.voided=0 "
+						+ "AND encounter.patient_id=pa.patient_id order by obs.obs_id DESC Limit 1) AS LastDrugPickUpDate "
+						+ " FROM patient as pa "
+						+ " LEFT JOIN patient_identifier on patient_identifier.patient_id = pa.patient_id && identifier_type = 4"
+						+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && person_name.preferred = 1 "
+						+ " LEFT JOIN patient_program on patient_program.patient_id = pa.patient_id"
+						+ " WHERE "
+						+ " program_id = 3 AND patient_program.voided=0";
+//						+ " pa.voided = 0 ";
+						if(!artStartDate){
+							sql += " AND NOT EXISTS (SELECT * from encounter where form_id = 1 and patient_id = pa.patient_id)";
+						}else{
+							sql += " pa.voided = 0 ";
+						}
+						//sql += " HAVING DATEDIFF(NextAppointmentDATE, STR_TO_DATE(NOW(), '%Y-%m-%d')) < 8 "//+Integer.parseInt(lThan.getText())
+						//+" AND DATEDIFF(NextAppointmentDATE, STR_TO_DATE(NOW(), '%Y-%m-%d')) > "+Integer.parseInt(gThan.getText())
+						sql += " order by pa.patient_id DESC ";//Limit "+Integer.parseInt(tRecords.getText());
+
+				Controller ctrl = new Controller();
+				ObservableList<PatientStatus> patientStatuses = FXCollections.observableArrayList();
+				appConsole.clear();
+				logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+
+				Statement stmt = null;
+				try {
+					//STEP 2: Register JDBC driver
+					Class.forName("com.mysql.jdbc.Driver");
+				} catch (Exception exc) {
+					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+				}
+				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+					logToConsole("\n Destination Database connection successful..");
+
+					logToConsole("\n Fetching Appointment List Please wait...");
+
+					stmt = conn.createStatement();
+
+					//logToConsole("\n Fetching Obs starting from .."+LocalDate.parse(startDate.getValue().toString() , formatter));
+					ResultSet rs = stmt.executeQuery(sql);
+					//STEP 5: Extract data from result set
+					while (rs.next()) {
+						PatientStatus patientStatus = new PatientStatus();
+						patientStatus.setPatientID(rs.getInt("patientID"));
+						//						patientStatus.setEncounterID(rs.getInt("encounterID"));
+						//						patientStatus.setObsID(rs.getInt("obsID"));
+						patientStatus.setPepfarID(rs.getString("pepfarID"));
+						patientStatus.setPatientName(rs.getString("patientName"));
+						if(rs.getDate("NextAppointmentDATE") != null) {
+							patientStatus.setNextAppointmentDate(rs.getDate("NextAppointmentDATE"));
+							patientStatus.setDrugDuration(Duration.between(
+									LocalDate.now().atStartOfDay(),
+									LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(), formatter).atStartOfDay()
+							).toDays());
+						}
+						if(rs.getDate("LastDrugPickUpDate") != null) {
+							patientStatus.setLastARVDate(rs.getDate("LastDrugPickUpDate"));
+						}
+						if(rs.getString("Exited") != null) {
+							patientStatus.setStatus(rs.getString("Exited"));
+						}else{
+							if(patientStatus.getDrugDuration() != null) {
+								if (patientStatus.getDrugDuration() >= 0) {
+									patientStatus.setStatus("Active");
+								} else if (patientStatus.getDrugDuration() >= -28) {
+									patientStatus.setStatus("Missed Appointment");
+								} else {
+									patientStatus.setStatus("Lost to Follow Up");
+								}
+							}
+						}
+						patientStatus.setPatientPhoneNumber(rs.getString("PhoneNumber"));
+
+						patientStatuses.add(patientStatus);
+						logToConsole(patientStatus.toString()+"\n");
+					}
+					rs.close();
+					logToConsole("\n Done..");
+				} catch (SQLException e) {
+					logToConsole("\n Error: " + e.getMessage());
+					e.printStackTrace();
+				}finally {
+					//finally block used to close resources
+					try {
+						if (stmt != null);
+					} catch (Exception se) {
+					}// do nothing
+				}//end try
+				try {
+					if (patientStatuses.isEmpty()) {
+						logToConsole("\n No Record Found..");
+					} else {
+						Platform.runLater(() -> {
+							if(artStartDate)
+								patientStatusTableView.setItems(patientStatuses);
+							else
+								noCommencementTableView.setItems(patientStatuses);
+						});
+					}
+				}catch (Exception ex){
+					logToConsole("\n Error: " + ex.getMessage());
+					ex.printStackTrace();
+				}
+				return patientStatuses;
+			}
+		};
+	}
+
+	private void getNoAddress(){
+		appConsole.clear();
+		addressTask = new Task<ObservableList<Address>>(){
+
+			@Override
+			protected ObservableList<Address> call() {
+
+				addressTableView.getItems().removeAll();
+
+				String sql = "SELECT pa.patient_id as patientID, "
+						+ "(SELECT state_province From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1) AS stateProvince, "
+						+ "(SELECT city_village From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1) AS cityVillage, "
+						+ "(SELECT address1 From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1) AS Address1, "
+						+ "(SELECT address2 From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1) AS Address2, "						+ "patient_identifier.identifier AS pepfarID,"
+						+ "CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName ,"
+						+ "(SELECT value_text from obs where "
+						+ "(obs.concept_id=7778430 || obs.concept_id=891) AND voided = 0 AND obs.person_id=pa.patient_id order by obs.obs_id DESC Limit 1) AS PhoneNumber "
+						+ " FROM patient as pa "
+						+ " LEFT JOIN patient_identifier on patient_identifier.patient_id = pa.patient_id && identifier_type = 4"
+						+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && person_name.preferred = 1 "
+//						+ " LEFT JOIN person_address on person_address.person_id = pa.patient_id && person_address.preferred = 1 "
+//						+ " WHERE NOT EXISTS (select * from person_address where person_id=pa.patient_id) "
+//						+ " HAVING stateProvince = ''"
+						+ " order by pa.patient_id DESC ";
+
+				Controller ctrl = new Controller();
+				ObservableList<Address> patientStatuses = FXCollections.observableArrayList();
+				appConsole.clear();
+				logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+
+				Statement stmt = null;
+				try {
+					//STEP 2: Register JDBC driver
+					Class.forName("com.mysql.jdbc.Driver");
+				} catch (Exception exc) {
+					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+				}
+				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+					logToConsole("\n Destination Database connection successful..");
+
+					logToConsole("\n Fetching Appointment List Please wait...");
+
+					stmt = conn.createStatement();
+
+					//logToConsole("\n Fetching Obs starting from .."+LocalDate.parse(startDate.getValue().toString() , formatter));
+					ResultSet rs = stmt.executeQuery(sql);
+					//STEP 5: Extract data from result set
+					while (rs.next()) {
+						if(rs.getString("cityVillage") == null || rs.getString("stateProvince") == null) {
+							Address patientStatus = new Address();
+							patientStatus.setPatientID(rs.getInt("patientID"));
+							//						patientStatus.setEncounterID(rs.getInt("encounterID"));
+							//						patientStatus.setObsID(rs.getInt("obsID"));
+							patientStatus.setPepfarID(rs.getString("pepfarID"));
+							patientStatus.setPatientName(rs.getString("patientName"));
+
+							patientStatus.setState(rs.getString("stateProvince"));
+							patientStatus.setTown(rs.getString("cityVillage"));
+							patientStatus.setAddress1(rs.getString("Address1"));
+							patientStatus.setAddress2(rs.getString("Address2"));
+
+							patientStatuses.add(patientStatus);
+							logToConsole(patientStatus.toString() + "\n");
+						}
+					}
+					rs.close();
+					logToConsole("\n Done..");
+				} catch (SQLException e) {
+					logToConsole("\n Error: " + e.getMessage());
+					e.printStackTrace();
+				}finally {
+					//finally block used to close resources
+					try {
+						if (stmt != null);
+					} catch (Exception se) {
+					}// do nothing
+				}//end try
+				try {
+					if (patientStatuses.isEmpty()) {
+						logToConsole("\n No Record Found..");
+					} else {
+						Platform.runLater(() -> {
+							addressTableView.setItems(patientStatuses);
+						});
+					}
+				}catch (Exception ex){
+					logToConsole("\n Error: " + ex.getMessage());
+					ex.printStackTrace();
+				}
+				return patientStatuses;
+			}
+		};
+	}
+
+	@FXML
+	private void getPatientAddress(){
+		getNoAddress();
+		new Thread(addressTask).start();
+	}
+
+	@FXML
+	private void getPatientStatus(){
+		fetchPatientStatus(true);
+		new Thread(patientStatusTask).start();
+	}
+
+	private void getExcess(){
+
+		if(observationCombo.getSelectionModel().getSelectedItem() == null){
+			logToConsole("\n Select Observation");
+			return;
+		}
+		if(criteriaCombo.getSelectionModel().getSelectedItem() == null){
+			logToConsole("\n Select Criteria");
+			return;
+		}
+		weightHeightStatus.setText("Fetching Data ...");
+		weightHeightStatus.setStyle("-fx-text-fill: brown");
+
+		weightHeightTask = new Task<ObservableList<PharmacyEncounter>>() {
+
+			@Override
+			protected ObservableList<PharmacyEncounter> call() throws Exception {
+
+				ObservableList<PharmacyEncounter> lastCarePharmacyEncounters = FXCollections.observableArrayList();
+				appConsole.clear();
+				logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+
+				Statement stmt = null;
+				try {
+					//STEP 2: Register JDBC driver
+					Class.forName("com.mysql.jdbc.Driver");
+				} catch (Exception exc) {
+					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+				}
+				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+					logToConsole("\n Source Database connection successful..");
+
+					stmt = conn.createStatement();
+
+					String sql = "SELECT pa.patient_id as patientID, enc.encounter_id as encounterID, "
+							+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
+							+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4) AS pepfarID,"
+							+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName "
+							+ "FROM person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
+							+ "enc.encounter_datetime AS LastCareEncounterDate, "
+							+ " ob.value_numeric AS Answer , "
+							+ "ob.obs_id As ObsID ,"
+//							+ " (SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777821) Limit 1) AS NextAppointment,"
+							+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id "
+							+ "&& concept_name.locale ='en' && concept_name.locale_preferred = 1 AND voided = 0) AS Question"
+							+ "  FROM encounter AS enc LEFt JOIN patient as pa "
+							+ "on pa.patient_id = enc.patient_id "
+							+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id"
+							+ " LEFT JOIN person on person.person_id = enc.patient_id "
+							+ " where ";
+//							+ " enc.form_id = 56 "
+
+					if(observationCombo.getSelectionModel().getSelectedItem() == "Weight"){
+						sql += " ob.concept_id IN (1734,7778168,1087,1022,1017,951,729,715,640,426,198,193,85,30)";
+					}else if(observationCombo.getSelectionModel().getSelectedItem() == "Height"){
+						sql+= " ob.concept_id IN (442,571,1735)";
+					}
+					sql += " AND enc.voided = 0";
+					if(criteriaCombo.getSelectionModel().getSelectedItem() == "Greater Than"){
+						sql += " AND ob.value_numeric >  "+Integer.parseInt(valueToSearch.getText());
+					}else{
+						sql += " AND ob.value_numeric <  "+Integer.parseInt(valueToSearch.getText());
+					}
+
+//							+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
+//							+ " AND enc.encounter_datetime NOT IN (select encounter_datetime from encounter where patient_id = pa.patient_id AND encounter.form_id IN (46,53))"
+						sql += " order by enc.encounter_datetime DESC";
+					ResultSet rs = stmt.executeQuery(sql);
+
+					int tSum = 0;
+					while (rs.next()) {
+						++tSum;
+						PharmacyEncounter lastCarePharmacy = new PharmacyEncounter();
+						lastCarePharmacy.setPatientID(rs.getInt("patientID"));
+						lastCarePharmacy.setEncounterID(rs.getInt("encounterID"));
+						lastCarePharmacy.setPepfarID(rs.getString("pepfarID"));
+						lastCarePharmacy.setPatientName(rs.getString("patientName"));
+						lastCarePharmacy.setEncounterDateTime(rs.getDate("LastCareEncounterDate"));
+						lastCarePharmacy.setValueNumeric(rs.getInt("Answer"));
+						lastCarePharmacy.setQuestion(rs.getString("Question"));
+						lastCarePharmacy.setObsID(rs.getInt("ObsID"));
+						logToConsole("\n Patient Age is: "+rs.getInt("birthdate"));
+//						logToConsole("\nPatient Age: "+lastCarePharmacy.getPatientAge());
+
+//						LastCarePharmacy lastCP  = getLastPharmacyEncounter(lastCarePharmacy);
+//						lastCarePharmacy.setLastPharmacyEncounterDate(lastCP.getLastPharmacyEncounterDate());
+//						lastCarePharmacy.setLastPharmEncounterID(lastCP.getLastPharmEncounterID());
+						lastCarePharmacyEncounters.add(lastCarePharmacy);
+					}
+					logToConsole("\n Total Number: "+tSum);
+					rs.close();
+					logToConsole("\n Done..");
+				} catch (SQLException e) {
+					weightHeightStatus.setText("Error! ...");
+					weightHeightStatus.setStyle("-fx-text-fill: brown");
+					logToConsole("\n Error: " + e.getMessage());
+					e.printStackTrace();
+				}finally {
+					//finally block used to close resources
+					try {
+						if (stmt != null);
+					} catch (Exception se) {
+					}// do nothing
+				}//end try
+				try {
+					if (lastCarePharmacyEncounters.isEmpty()) {
+						logToConsole("\n No Record Found..");
+						weightHeightStatus.setText("No Record Found ...");
+						weightHeightStatus.setStyle("-fx-text-fill: brown");
+					}
+				}catch (Exception ex){
+					logToConsole("\n Error: " + ex.getMessage());
+					ex.printStackTrace();
+				}
+				Platform.runLater(()->{
+					weightHeightTable.setItems(lastCarePharmacyEncounters);
+					weightHeightStatus.setText("Data Fetched ...");
+					weightHeightStatus.setStyle("-fx-text-fill: darkgreen");
+				});
+
+				return lastCarePharmacyEncounters;
+			}
+		};
+	}
+
+	@FXML
+	private void getWeightHeight(){
+		getExcess();
+
+		new Thread(weightHeightTask).start();
+	}
+
+	@FXML
+	private void updateWeightHeight(){
+
+		if(valueToAdd.getText() == null) {
+			logToConsole("\n Can not Add Empty Value");
+			return;
+		}else if(Integer.parseInt(valueToAdd.getText()) < 1 || Integer.parseInt(valueToAdd.getText()) > 200){
+			logToConsole("\n Value is out of Range");
+			return;
+		}
+
+		logToConsole("\n Initializing.!\n");
+
+		String INSERT_SQL = "UPDATE obs SET value_numeric=? WHERE obs_id=?";
+
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+			Class.forName("com.mysql.jdbc.Driver");
+			logToConsole("\n Connecting..!\n");
+			conn.setAutoCommit(false);
+
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+
+				for (PharmacyEncounter dF : weightHeightTable.getSelectionModel().getSelectedItems()) {
+
+						logToConsole("\n Loading Selected Data...!!\n");
+						stmt.setInt(1, Integer.parseInt(valueToAdd.getText()));
+						stmt.setInt(2, dF.getObsID());
+						stmt.addBatch();
+
+				}
+				//execute batch
+				logToConsole("\n Updating Data....!\n");
+				stmt.executeBatch();
+				conn.commit();
+				logToConsole("Value Updated successfully.");
+			} catch (SQLException e) {
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}catch (Exception e){
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}
+		} catch (SQLException e) {
+			logToConsole("Error: "+e.getMessage());
+			e.printStackTrace();
+		}catch (Exception ex){
+			logToConsole("Error: "+ex.getMessage());
+			ex.printStackTrace();
+		}
+
+		getExcess();
+		new Thread(weightHeightTask).start();
+	}
+
+	@FXML
+	private void fetchNoArtCommencement(){
+		fetchPatientStatus(false);
+		new Thread(patientStatusTask).start();
 	}
 }

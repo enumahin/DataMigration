@@ -22,6 +22,8 @@ public class PharmacyEncounter {
 
 	private String Answer;
 
+	private Integer ValueNumeric;
+
 
 	public PharmacyEncounter() {
 	}
@@ -108,6 +110,14 @@ public class PharmacyEncounter {
 
 	public void setObsGroupID(Integer obsGroupID) {
 		ObsGroupID = obsGroupID;
+	}
+
+	public Integer getValueNumeric() {
+		return ValueNumeric;
+	}
+
+	public void setValueNumeric(Integer valueNumeric) {
+		ValueNumeric = valueNumeric;
 	}
 
 	@Override

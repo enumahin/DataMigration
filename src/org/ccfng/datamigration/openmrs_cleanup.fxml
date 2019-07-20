@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -144,7 +134,7 @@
                         </AnchorPane>
                   </content>
                 </Tab>
-                <Tab text="Last Drug Pick-Up Fix">
+                <Tab text="Missing Pharmacy Form">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
@@ -221,7 +211,7 @@
                            </children></AnchorPane>
                   </content>
                 </Tab>
-                  <Tab text="ART Start Date &amp; Date Confirmed">
+                  <Tab text="ART Start Date Earlier Than Date Confirmed">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
@@ -382,24 +372,308 @@
                         </AnchorPane>
                      </content>
                   </Tab>
+                  <Tab text="Weight &amp; Height">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="472.0" prefWidth="186.0">
+                                 <children>
+                                    <Label prefHeight="33.0" prefWidth="248.0" style="-fx-background-color: #336699;" text="Find By" textFill="#fffefe">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                       <padding>
+                                          <Insets left="10.0" />
+                                       </padding>
+                                    </Label>
+                                    <ComboBox fx:id="observationCombo" prefHeight="27.0" prefWidth="248.0" promptText="Select Observation">
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </ComboBox>
+                                    <ComboBox fx:id="criteriaCombo" layoutX="10.0" layoutY="53.0" prefHeight="27.0" prefWidth="248.0" promptText="Select Criteria">
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </ComboBox>
+                                    <TextField fx:id="valueToSearch" promptText="Value">
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </TextField>
+                                    <Button mnemonicParsing="false" onAction="#getWeightHeight" prefHeight="27.0" prefWidth="253.0" text="Fetch">
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Label layoutX="10.0" layoutY="10.0" prefHeight="33.0" prefWidth="248.0" style="-fx-background-color: #336699;" text="Update To" textFill="#fffefe">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets top="30.0" />
+                                       </VBox.margin>
+                                       <padding>
+                                          <Insets left="10.0" />
+                                       </padding>
+                                    </Label>
+                                    <TextField fx:id="valueToAdd" layoutX="10.0" layoutY="127.0" promptText="Value">
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </TextField>
+                                    <Button layoutX="10.0" layoutY="164.0" mnemonicParsing="false" onAction="#updateWeightHeight" prefHeight="27.0" prefWidth="253.0" text="Update">
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Label fx:id="weightHeightStatus" prefHeight="32.0" prefWidth="186.0" textFill="#110000">
+                                       <padding>
+                                          <Insets left="10.0" />
+                                       </padding>
+                                       <font>
+                                          <Font name="System Bold Italic" size="13.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </VBox>
+                              <VBox layoutX="187.0" prefHeight="472.0" prefWidth="1080.0">
+                                 <children>
+                                    <TableView fx:id="weightHeightTable" prefHeight="474.0" prefWidth="1054.0">
+                                       <columns>
+                                          <TableColumn prefWidth="97.0" text="Patient ID">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="PatientID" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="133.0" text="PepFar ID">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="PepfarID" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="173.0" text="Patient Name">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="PatientName" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="134.0" text="Encounter Date">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="EncounterDateTime" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="134.0" text="Question">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="Question" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="134.0" text="Answer">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="ValueNumeric" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                       </columns>
+                                    </TableView>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </Tab>
+                  <Tab text="No ART Commencement">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="473.0" prefWidth="230.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#fetchNoArtCommencement" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Load" textFill="#f8f7f7" wrapText="true" />
+                                    <Button mnemonicParsing="false" onAction="#coCommencementToExcel" prefHeight="32.0" prefWidth="227.0" text="Export" />
+                                 </children>
+                              </VBox>
+                              <VBox layoutX="230.0" prefHeight="472.0" prefWidth="1036.0" />
+                              <TableView fx:id="noCommencementTableView" layoutX="227.0" prefHeight="484.0" prefWidth="1049.0">
+                                 <columns>
+                                    <TableColumn prefWidth="97.0" text="Patient ID">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PatientID" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="133.0" text="PepFar ID">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PepfarID" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="173.0" text="Patient Name">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PatientName" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="166.0" text="Phone Number">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="patientPhoneNumber" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="166.0" text="Last ARV Pick-Up Date">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="lastARVDate" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="166.0" text="Days">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="drugDuration" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="166.0" text="Next Appointment Date">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="nextAppointmentDate" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="166.0" text="Status">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="status" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                 </columns>
+                              </TableView>
+                           </children></AnchorPane>
+                    </content>
+                  </Tab>
+                  <Tab text="Address Issue">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="472.0" prefWidth="199.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#getPatientAddress" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Load" textFill="#f8f7f7" wrapText="true" />
+                                    <Button mnemonicParsing="false" onAction="#coCommencementToExcel" prefHeight="32.0" prefWidth="227.0" text="Export" />
+                                 </children>
+                              </VBox>
+                              <VBox layoutX="199.0" prefHeight="473.0" prefWidth="1069.0">
+                                 <children>
+                                    <TableView fx:id="addressTableView" prefHeight="474.0" prefWidth="1054.0">
+                                       <columns>
+                                          <TableColumn prefWidth="97.0" text="Patient ID">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="PatientID" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="133.0" text="PepFar ID">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="PepfarID" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="173.0" text="Patient Name">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="PatientName" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="134.0" text="State">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="state" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="134.0" text="Town">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="town" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="134.0" text="Ward">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="ward" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                           <TableColumn prefWidth="134.0" text="Address 1">
+                                               <cellValueFactory>
+                                                   <PropertyValueFactory property="address1" />
+                                               </cellValueFactory>
+                                           </TableColumn>
+                                           <TableColumn prefWidth="134.0" text="Address 2">
+                                               <cellValueFactory>
+                                                   <PropertyValueFactory property="address2" />
+                                               </cellValueFactory>
+                                           </TableColumn>
+                                       </columns>
+                                    </TableView>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </Tab>
                   <Tab text="Patient Status">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <VBox prefHeight="472.0" prefWidth="1266.0">
+                              <VBox layoutX="180.0" prefHeight="472.0" prefWidth="1086.0">
                                  <children>
-                                    <TableView prefHeight="474.0" prefWidth="1266.0">
+                                    <TableView fx:id="patientStatusTableView" prefHeight="474.0" prefWidth="1266.0">
                                       <columns>
-                                        <TableColumn prefWidth="75.0" text="Patient ID" />
-                                        <TableColumn prefWidth="150.0" text="Pepfar ID" />
-                                          <TableColumn prefWidth="166.0" text="Patient Name" />
-                                          <TableColumn prefWidth="166.0" text="Last ARV Pick-Up Date" />
-                                          <TableColumn prefWidth="166.0" text="Drug Duration" />
-                                          <TableColumn prefWidth="166.0" text="Next Appointment Date" />
-                                          <TableColumn prefWidth="166.0" text="Status" />
-                                          <TableColumn prefWidth="166.0" text="Reason" />
+										  <TableColumn prefWidth="97.0" text="Patient ID">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="PatientID" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="133.0" text="PepFar ID">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="PepfarID" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="173.0" text="Patient Name">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="PatientName" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="166.0" text="Phone Number">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="patientPhoneNumber" />
+											  </cellValueFactory>
+										  </TableColumn>
+                                          <TableColumn prefWidth="166.0" text="Last ARV Pick-Up Date">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="lastARVDate" />
+											  </cellValueFactory>
+										  </TableColumn>
+                                          <TableColumn prefWidth="166.0" text="Days">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="drugDuration" />
+											  </cellValueFactory>
+										  </TableColumn>
+                                          <TableColumn prefWidth="166.0" text="Next Appointment Date">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="nextAppointmentDate" />
+											  </cellValueFactory>
+										  </TableColumn>
+                                          <TableColumn prefWidth="166.0" text="Status">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="status" />
+											  </cellValueFactory>
+										  </TableColumn>
+
                                       </columns>
                                     </TableView>
+                                 </children>
+                              </VBox>
+                              <VBox layoutY="-2.0" prefHeight="475.0" prefWidth="180.0">
+                                 <children>
+                                    <Label alignment="CENTER" prefHeight="32.0" prefWidth="180.0" style="-fx-background-color: #336699;" text="Criteria" textFill="#fffefe">
+                                       <font>
+                                          <Font size="20.0" />
+                                       </font></Label>
+                                    <Label alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="32.0" prefWidth="180.0" text="Days Less Than" />
+                                    <TextField fx:id="lThan" disable="true" prefHeight="27.0" prefWidth="130.0" promptText="Days Less Than" />
+                                    <Label alignment="CENTER" prefHeight="23.0" prefWidth="181.0" text="AND Days Greater Than" />
+                                    <TextField fx:id="gThan" disable="true" promptText="Days Greater Than" />
+                                    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="26.0" prefWidth="180.0" text="Limit" textAlignment="CENTER" />
+                                    <TextField fx:id="tRecords" disable="true" promptText="Number of Records" />
+                                    <Button mnemonicParsing="false" onAction="#getPatientStatus" prefHeight="27.0" prefWidth="181.0" text="Fetch">
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button mnemonicParsing="false" onAction="#appointmentToExcel" prefHeight="32.0" prefWidth="183.0" text="Export">
+                                       <VBox.margin>
+                                          <Insets top="10.0" />
+                                       </VBox.margin>
+                                    </Button>
                                  </children>
                               </VBox>
                            </children>

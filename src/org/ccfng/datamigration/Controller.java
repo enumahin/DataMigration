@@ -46,6 +46,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.ccfng.datamigration.encounter.Encounter;
@@ -148,6 +149,12 @@ public class Controller {
     @FXML
     private Label totalObs;
 
+    @FXML
+    private VBox vBoxTables;
+
+    @FXML
+    private VBox vBoxDestination;
+
     private ObservableList<Encounter> allEncounters;
 
     private Task<ObservableList<Encounter>> encounterTask;
@@ -249,6 +256,10 @@ public class Controller {
     private CheckBox loadByEnc;
 
     public void initialize() {
+
+        vBoxTables.setDisable(true);
+
+        vBoxDestination.setDisable(true);
 
         //this.concepts =
         readConceptMapsFromCSV("conceptMapping.csv");
@@ -789,28 +800,6 @@ public class Controller {
                                     encounter.setForm_id(rs.getInt("form_id"));
                                     encounter.setEncounter_type(rs.getInt("encounter_type"));
                                 }
-//                                if (tablesComboBox.getSelectionModel().getSelectedIndex() == 0) {
-//                                    if (rs.getInt("encounter_type") == 1 || rs.getInt("encounter_type") == 3)
-//                                        encounter.setEncounter_type(9);
-//                                    else if (rs.getInt("encounter_type") == 2)
-//                                        encounter.setEncounter_type(12);
-//                                    else if (rs.getInt("encounter_type") == 4)
-//                                        encounter.setEncounter_type(18);
-//                                    else if (rs.getInt("encounter_type") == 5)
-//                                        encounter.setEncounter_type(11);
-//                                    else if (rs.getInt("encounter_type") == 7)
-//                                        encounter.setEncounter_type(13);
-//                                    else if (rs.getInt("encounter_type") == 8)
-//                                        encounter.setEncounter_type(7);
-//                                    else if (rs.getInt("encounter_type") == 13 || rs.getInt("encounter_type") == 9)
-//                                        encounter.setEncounter_type(10);
-//                                    else if (rs.getInt("encounter_type") == 15)
-//                                        encounter.setEncounter_type(8);
-//                                    else if (rs.getInt("encounter_type") == 12)
-//                                        encounter.setEncounter_type(8);
-//                                    else
-//                                        encounter.setEncounter_type(rs.getInt("encounter_type"));
-//                                } else
 
                                 encounter.setUuid(UUID.randomUUID());
                                 encounter.setCreator(1);
@@ -992,29 +981,6 @@ public class Controller {
         marshaller.marshal(ArrayOfObs, System.out);
 
     }
-
-//
-//
-//    private Set<ConceptMap> getRecordFromLine(String line) {
-//
-//        List<List<String>> records = new ArrayList<>();
-//        try (Scanner scanner = new Scanner(new File("book.csv"));) {
-//            while (scanner.hasNextLine()) {
-//                records.add(getRecordFromLine(scanner.nextLine()));
-//            }
-//        }catch ( IOException ex){
-//
-//        }
-//
-//        List<String> values = new ArrayList<String>();
-//        try (Scanner rowScanner = new Scanner(line)) {
-//            rowScanner.useDelimiter();
-//            while (rowScanner.hasNext()) {
-//                values.add(rowScanner.next());
-//            }
-//        }
-//        return values;
-//    }
 
     private static ConceptMap createConceptMap(String[] metadata) {
         Integer openmrs =  Integer.parseInt(metadata[0]);
@@ -4663,6 +4629,9 @@ public class Controller {
     @FXML
     private void openOpenMRSCleanup(){
         try {
+
+            checkConnection();
+
             Stage stage = new Stage();
 
             FXMLLoader fxmlLoader = new FXMLLoader();
@@ -4682,5 +4651,13 @@ public class Controller {
             logToConsole(ex.getMessage());
             ex.printStackTrace();
         }
+    }
+
+    @FXML
+    private void activateDataMigration(){
+
+        vBoxTables.setDisable(! vBoxTables.isDisabled());
+
+        vBoxDestination.setDisable(! vBoxDestination.isDisabled());
     }
 }

@@ -6,7 +6,7 @@ public class PatientStatus extends Demographics {
 
 	private Date lastARVDate;
 
-	private Integer drugDuration;
+	private Long drugDuration;
 
 	private Date nextAppointmentDate;
 
@@ -14,10 +14,12 @@ public class PatientStatus extends Demographics {
 
 	private String reason;
 
+	private String patientPhoneNumber;
+
 	public PatientStatus() {
 	}
 
-	public PatientStatus(Date lastARVDate, Integer drugDuration, Date nextAppointmentDate, String status,
+	public PatientStatus(Date lastARVDate, Long drugDuration, Date nextAppointmentDate, String status,
 			String reason) {
 		this.lastARVDate = lastARVDate;
 		this.drugDuration = drugDuration;
@@ -27,7 +29,7 @@ public class PatientStatus extends Demographics {
 	}
 
 	public PatientStatus(Integer patientID, Integer encounterID, Integer obsID, Integer obsGroupID, String pepfarID,
-			String patientName, Date lastARVDate, Integer drugDuration, Date nextAppointmentDate, String status,
+			String patientName, Date lastARVDate, Long drugDuration, Date nextAppointmentDate, String status,
 			String reason) {
 		super(patientID, encounterID, obsID, obsGroupID, pepfarID, patientName);
 		this.lastARVDate = lastARVDate;
@@ -45,11 +47,11 @@ public class PatientStatus extends Demographics {
 		this.lastARVDate = lastARVDate;
 	}
 
-	public Integer getDrugDuration() {
+	public Long getDrugDuration() {
 		return drugDuration;
 	}
 
-	public void setDrugDuration(Integer drugDuration) {
+	public void setDrugDuration(Long drugDuration) {
 		this.drugDuration = drugDuration;
 	}
 
@@ -75,6 +77,14 @@ public class PatientStatus extends Demographics {
 
 	public void setReason(String reason) {
 		this.reason = reason;
+	}
+
+	public String getPatientPhoneNumber() {
+		return patientPhoneNumber;
+	}
+
+	public void setPatientPhoneNumber(String patientPhoneNumber) {
+		this.patientPhoneNumber = patientPhoneNumber;
 	}
 
 	@Override
