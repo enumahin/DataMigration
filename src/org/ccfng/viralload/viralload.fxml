@@ -55,8 +55,13 @@
 									<PropertyValueFactory property="vlCount" />
 								</cellValueFactory>
 							</TableColumn>
-      						<TableColumn prefWidth="166.0" text="VL Due Date" />
-      						<TableColumn prefWidth="166.0" text="Reason" />
+      						<TableColumn prefWidth="166.0" text="VL Due Date">
+								<cellValueFactory>
+									<PropertyValueFactory property="vlduedate"/>
+								</cellValueFactory>
+							</TableColumn>
+      						<TableColumn prefWidth="166.0" text="Reason">
+							</TableColumn>
       					</columns>
       				</TableView>
       			</children>

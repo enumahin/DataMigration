@@ -136,7 +136,7 @@ public class Controller {
 						+ " HAVING (DATEDIFF(NextAppointmentDATE, STR_TO_DATE(CURRENT_DATE, '%Y-%m-%d'))  < "+Integer.parseInt(lThan.getText())
 						+ " AND DATEDIFF(NextAppointmentDATE, STR_TO_DATE(CURRENT_DATE, '%Y-%m-%d')) > "+Integer.parseInt(gThan.getText())
 						+ ") "
-						+ " order by pa.patient_id DESC Limit "+Integer.parseInt(tRecords.getText());
+						+ " Limit "+Integer.parseInt(tRecords.getText());
 
 				ObservableList<PatientStatus> patientStatuses = FXCollections.observableArrayList();
 				appConsole.clear();

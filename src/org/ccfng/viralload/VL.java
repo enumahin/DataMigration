@@ -12,7 +12,7 @@ public class VL extends Demographics {
 
 	private String vLStatus;
 
-	private Date vLDueDate;
+	private Date vlduedate;
 
 	private Integer vlCount;
 
@@ -43,12 +43,12 @@ public class VL extends Demographics {
 		this.vLStatus = vLStatus;
 	}
 
-	public Date getvLDueDate() {
-		return vLDueDate;
+	public Date getVlduedate() {
+		return vlduedate;
 	}
 
-	public void setvLDueDate(Date vLDueDate) {
-		this.vLDueDate = vLDueDate;
+	public void setVlduedate(Date vlduedate) {
+		this.vlduedate = vlduedate;
 	}
 
 	public Integer getVlCount() {

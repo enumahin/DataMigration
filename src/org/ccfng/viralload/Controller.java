@@ -125,11 +125,11 @@ public class Controller {
 											.atStartOfDay(),
 									LocalDate.now().atStartOfDay()
 							).toDays() >= 180) {
-//
+								VL vl = new VL();
 								if ( rs.getDate("LastVLDATE") == null || rs.getInt("LastVLCount") == 0){
 //									logToConsole( "\n 1-"+rs.getDate("LastVLDATE"));
 //									logToConsole( "\n 1-"+rs.getDate("ArtStartDate"));
-									VL vl = new VL();
+
 									vl.setPatientID(rs.getInt("patientID"));
 									vl.setPepfarID(rs.getString("pepfarID"));
 									vl.setPatientName(rs.getString("patientName"));
@@ -137,26 +137,18 @@ public class Controller {
 									vl.setArtStartDate(rs.getDate("ArtStartDate"));
 									vl.setLastVLDate(rs.getDate("LastVLDATE"));
 									vl.setVlCount(rs.getInt("LastVLCount"));
-									vls.add(vl);
+									vl.setVlduedate( java.sql.Date.valueOf(rs.getDate("ArtStartDate").toLocalDate().plusDays(180)));									vls.add(vl);
 								}
 								 else if(
-												(
+
 														Duration.between(
 																LocalDate.parse(rs.getDate("LastVLDATE").toString(),
 																		cc.getFormatter()).atStartOfDay(),
 																LocalDate.now().atStartOfDay()
 														).toDays() >= 90 && rs.getInt("LastVLCount") > 999
-												)
-												||
-												(
-														Duration.between(
-																LocalDate.parse(rs.getDate("LastVLDATE").toString(),
-																		cc.getFormatter()).atStartOfDay(),
-																LocalDate.now().atStartOfDay()
-														).toDays() >= 365 && rs.getInt("LastVLCount") < 1000
-												)
-										) {
-									VL vl = new VL();
+										)
+								{
+
 									vl.setPatientID(rs.getInt("patientID"));
 									vl.setPepfarID(rs.getString("pepfarID"));
 									vl.setPatientName(rs.getString("patientName"));
@@ -164,10 +156,30 @@ public class Controller {
 									vl.setArtStartDate(rs.getDate("ArtStartDate"));
 									vl.setLastVLDate(rs.getDate("LastVLDATE"));
 									vl.setVlCount(rs.getInt("LastVLCount"));
+									vl.setVlduedate( java.sql.Date.valueOf(rs.getDate("LastVLDATE").toLocalDate().plusDays(90)));
+									vls.add(vl);
+
+								}else if(
+														Duration.between(
+																LocalDate.parse(rs.getDate("LastVLDATE").toString(),
+																		cc.getFormatter()).atStartOfDay(),
+																LocalDate.now().atStartOfDay()
+														).toDays() >= 365 && rs.getInt("LastVLCount") < 1000
+
+										) {
+
+									vl.setPatientID(rs.getInt("patientID"));
+									vl.setPepfarID(rs.getString("pepfarID"));
+									vl.setPatientName(rs.getString("patientName"));
+									vl.setPatientPhoneNumber(rs.getString("PhoneNumber"));
+									vl.setArtStartDate(rs.getDate("ArtStartDate"));
+									vl.setLastVLDate(rs.getDate("LastVLDATE"));
+									vl.setVlCount(rs.getInt("LastVLCount"));
+									vl.setVlduedate( java.sql.Date.valueOf(rs.getDate("LastVLDATE").toLocalDate().plusDays(365)));
 									vls.add(vl);
 									//logToConsole(patientStatus.toString() + "\n");
 								}
-
+//								logToConsole("\nVl Due Date: "+vl.getVlduedate());
 							}
 //							logToConsole( "\n"+rs.getDate("LastVLDATE"));
 //							logToConsole( "\n"+rs.getDate("ArtStartDate"));

@@ -63,6 +63,9 @@ public class OpenmrsCleanupController {
 	public TableView<LastCarePharmacy> lastCarePharmacyEncounterTable;
 
 	@FXML
+	public TableView<LastCarePharmacy> lastPharmacyEncounterTable;
+
+	@FXML
 	public TableView<LastCarePharmacy> nextAppointmentTable;
 
 	@FXML
@@ -816,9 +819,16 @@ public class OpenmrsCleanupController {
 	}
 
 	@FXML
-	private void createPharmForm(){
+	private void createPharmForm() {
+      createForm(lastCarePharmacyEncounterTable.getSelectionModel().getSelectedItems(), "Pharm");
+	}
 
-		ObservableList<LastCarePharmacy> lastCarePharmacys = lastCarePharmacyEncounterTable.getSelectionModel().getSelectedItems();
+	@FXML
+	private void createCareForm() {
+		createForm(lastPharmacyEncounterTable.getSelectionModel().getSelectedItems(), "Care");
+	}
+
+	private void createForm( ObservableList<LastCarePharmacy> lastCarePharmacys ,String loc){
 
 		ObservableList<Obs> obses = FXCollections.observableArrayList();
 		for(LastCarePharmacy loadCF : lastCarePharmacys) {
@@ -951,7 +961,10 @@ public class OpenmrsCleanupController {
 						stmt1.setInt(1, 7);
 						stmt1.setInt(2, loadCF.getPatientID());
 						stmt1.setInt(3, 42);
-						stmt1.setInt(4, loadCF.getPatientAge() >= 15 ? 46 : 53);
+						if(loc.equals("Pharm"))
+							stmt1.setInt(4, loadCF.getPatientAge() >= 15 ? 46 : 53);
+						else
+							stmt1.setInt(4, 56);
 						stmt1.setDate(5, loadCF.getLastCareEncounterDate());
 						stmt1.setInt(6, 1);
 						stmt1.setDate(7, loadCF.getLastCareEncounterDate());
@@ -1119,8 +1132,8 @@ public class OpenmrsCleanupController {
 		}
 	}
 
-	@FXML
-	private LastCarePharmacy getLastPharmacyEncounter( LastCarePharmacy ls){
+
+	private LastCarePharmacy getLastPharmacyEncounter( LastCarePharmacy ls, String loc){
 
 		LastCarePharmacy lastCarePharmacy = new LastCarePharmacy();
 
@@ -1145,9 +1158,11 @@ public class OpenmrsCleanupController {
 			logToConsole("\nPatient ID:"+ls.getPatientID());
 
 			String sql = "SELECT encounter_id, encounter_datetime AS LastPharmacyEncounterDate from encounter where encounter.patient_id = "+ls.getPatientID()+" AND "
-							+ " encounter.encounter_datetime > '"+ls.getLastCareEncounterDate()+"' AND "
-							+ "encounter.form_id IN (46,53) order by encounter.encounter_datetime ASC Limit 1 ";
-
+							+ " encounter.encounter_datetime > '"+ls.getLastCareEncounterDate()+"' AND ";
+			if(loc.equals("pharm"))
+				sql += "encounter.form_id IN (46,53) order by encounter.encounter_datetime ASC Limit 1 ";
+			else
+				sql += "encounter.form_id = 56 order by encounter.encounter_datetime ASC Limit 1 ";
 			ResultSet rs = stmt.executeQuery(sql);
 
 			logToConsole("\nLast Pharmacy Date: "+ls.getLastCareEncounterDate());
@@ -1163,22 +1178,25 @@ public class OpenmrsCleanupController {
 			rs.close();
 			if(count == 0){
 				sql = "SELECT encounter_id, encounter_datetime AS LastPharmacyEncounterDate from encounter where encounter.patient_id = "+ls.getPatientID()+" AND "
-						+ " encounter.encounter_datetime < '"+ls.getLastCareEncounterDate()+"' AND "
-						+ "encounter.form_id IN (46,53) order by encounter.encounter_datetime DESC Limit 1 ";
-
-				 rs = stmt.executeQuery(sql);
+						+ " encounter.encounter_datetime < '"+ls.getLastCareEncounterDate()+"' AND ";
+				if(loc.equals("pharm"))
+					sql += "encounter.form_id IN (46,53) order by encounter.encounter_datetime DESC Limit 1 ";
+				else
+					sql += "encounter.form_id = 56 order by encounter.encounter_datetime DESC Limit 1 ";
+				ResultSet rs2 = stmt.executeQuery(sql);
+				 rs2 = stmt.executeQuery(sql);
 
 				logToConsole("\nLast Pharmacy Date: "+ls.getLastCareEncounterDate());
 
 				//STEP 5: Extract data from result set
 				//int count = 0;
-				while (rs.next()) {
+				while (rs2.next()) {
 					//++count;
-					lastCarePharmacy.setLastPharmacyEncounterDate(rs.getDate("LastPharmacyEncounterDate"));
-					lastCarePharmacy.setLastPharmEncounterID(rs.getInt("encounter_id"));
-					logToConsole("\n Fetched Date: "+rs.getDate("LastPharmacyEncounterDate"));
+					lastCarePharmacy.setLastPharmacyEncounterDate(rs2.getDate("LastPharmacyEncounterDate"));
+					lastCarePharmacy.setLastPharmEncounterID(rs2.getInt("encounter_id"));
+					logToConsole("\n Fetched Date: "+rs2.getDate("LastPharmacyEncounterDate"));
 				}
-				rs.close();
+				rs2.close();
 			}
 			//logToConsole("\n Done..");
 		} catch (SQLException e) {
@@ -1392,7 +1410,7 @@ public class OpenmrsCleanupController {
 				else if(rs.getInt("NextAppointment") == 1575)
 					lastCarePharmacy.setNextAppointment(90);
 
-				LastCarePharmacy lastCP  = getLastPharmacyEncounter(lastCarePharmacy);
+				LastCarePharmacy lastCP  = getLastPharmacyEncounter(lastCarePharmacy,"pharm");
 
 				lastCarePharmacy.setLastPharmacyEncounterDate(lastCP.getLastPharmacyEncounterDate());
 
@@ -1746,9 +1764,16 @@ public class OpenmrsCleanupController {
 	}
 
 	@FXML
-	private void exportToExcel() throws IOException {
+	private void exportToExcel() throws IOException{
+		exportCarePharm(lastCarePharmacyEncounterTable);
+	}
 
-		TableView<LastCarePharmacy> table = lastCarePharmacyEncounterTable;
+	@FXML
+	private void exportPharmToExcel() throws IOException{
+		exportCarePharm(lastPharmacyEncounterTable);
+	}
+
+	private void exportCarePharm(TableView<LastCarePharmacy> table) throws IOException {
 
 		Workbook workbook = new HSSFWorkbook();
 		Sheet spreadsheet = workbook.createSheet("Export");
@@ -1949,7 +1974,7 @@ public class OpenmrsCleanupController {
 						+ " AND NOT EXISTS (SELECT * from encounter where form_id = 1 and patient_id = pa.patient_id)"
 						+ " order by pa.patient_id DESC ";
 
-				Controller ctrl = new Controller();
+//				Controller ctrl = new Controller();
 				ObservableList<PatientStatus> patientStatuses = FXCollections.observableArrayList();
 				appConsole.clear();
 				logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
@@ -2325,5 +2350,132 @@ public class OpenmrsCleanupController {
 	private void fetchNoArtCommencement(){
 		fetchPatientStatus();
 		new Thread(patientStatusTask).start();
+	}
+
+	private void fetchCareWOPharmacy(){
+
+		appConsole.clear();
+		logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+
+//		lastPharmacyTask = new Task<ObservableList<LastCarePharmacy>>() {
+//
+//			@Override
+//			protected ObservableList<LastCarePharmacy> call() throws Exception {
+				ObservableList<LastCarePharmacy> lastCarePharmacyEncounters = FXCollections.observableArrayList();
+
+				Statement stmt = null;
+				try {
+					//STEP 2: Register JDBC driver
+					Class.forName("com.mysql.jdbc.Driver");
+				} catch (Exception exc) {
+					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+				}
+				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+					logToConsole("\n Source Database connection successful..");
+
+					stmt = conn.createStatement();
+
+					String sql = "SELECT pa.patient_id as patientID, enc.encounter_id as encounterID, "
+							+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
+							//+ "ob.obs_id AS obsID, "
+							+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4) AS pepfarID,"
+							+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM "
+							+ "person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
+							+ "enc.encounter_datetime AS LastCareEncounterDate, "
+							+ " ob.value_coded AS RegimenID , "
+							+ " (SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777821) Limit 1) AS NextAppointment,"
+							+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' "
+							+ "&& concept_name.locale_preferred = 1) AS RegimenLine"
+							+ "  FROM encounter AS enc LEFt JOIN patient as pa "
+							+ "on pa.patient_id = enc.patient_id "
+							+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id"
+							+ " LEFT JOIN person on person.person_id = enc.patient_id "
+							+ " where "
+							+ " enc.form_id IN (46,53) "
+							+ " AND ob.concept_id = 7778111"
+							+ " AND enc.voided = 0"
+							+ " AND NOT EXISTS (select * FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
+							+ " AND NOT EXISTS (select * FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
+							+ " AND NOT EXISTS (select encounter_datetime from encounter where encounter_datetime= enc.encounter_datetime AND patient_id = pa.patient_id AND encounter.form_id = 56)"
+							+ " order by enc.encounter_datetime DESC Limit 15";
+					ResultSet rs = stmt.executeQuery(sql);
+					//STEP 5: Extract data from result set
+					int tSum = 0;
+					while (rs.next()) {
+						++tSum;
+						LastCarePharmacy lastCarePharmacy = new LastCarePharmacy();
+						lastCarePharmacy.setPatientID(rs.getInt("patientID"));
+						lastCarePharmacy.setEncounterID(rs.getInt("encounterID"));
+						//pharmacyEncounter.setObsID(rs.getInt("obsID"));
+						lastCarePharmacy.setPepfarID(rs.getString("pepfarID"));
+						lastCarePharmacy.setPatientName(rs.getString("patientName"));
+						lastCarePharmacy.setLastCareEncounterDate(rs.getDate("LastCareEncounterDate"));
+
+						lastCarePharmacy.setLastCareRegimenLineId(rs.getInt("RegimenID"));
+						lastCarePharmacy.setLastCareRegimenLine(rs.getString("RegimenLine"));
+
+						lastCarePharmacy.setPatientAge(rs.getInt("birthdate"));
+						logToConsole("\n Patient Age is: "+rs.getInt("birthdate"));
+
+						logToConsole("\nPatient Age: "+lastCarePharmacy.getPatientAge());
+						if(rs.getInt("NextAppointment") == 1570)
+							lastCarePharmacy.setNextAppointment(7);
+						else if(rs.getInt("NextAppointment") == 1571)
+							lastCarePharmacy.setNextAppointment(15);
+						else if(rs.getInt("NextAppointment") == 1628)
+							lastCarePharmacy.setNextAppointment(30);
+						else if(rs.getInt("NextAppointment") == 1574)
+							lastCarePharmacy.setNextAppointment(60);
+						else if(rs.getInt("NextAppointment") == 1575)
+							lastCarePharmacy.setNextAppointment(90);
+
+						LastCarePharmacy lastCP  = getLastPharmacyEncounter(lastCarePharmacy,"care");
+						if(lastCP != null) {
+							lastCarePharmacy.setLastPharmacyEncounterDate(lastCP.getLastPharmacyEncounterDate());
+
+							lastCarePharmacy.setLastPharmEncounterID(lastCP.getLastPharmEncounterID());
+						}
+						lastCarePharmacyEncounters.add(lastCarePharmacy);
+
+						//logToConsole(lastCarePharmacy.toString()+"\n");
+					}
+					logToConsole("\n Total Number: "+tSum);
+					rs.close();
+					logToConsole("\n Done..");
+				} catch (SQLException e) {
+					logToConsole("\n Error: " + e.getMessage());
+					e.printStackTrace();
+				}finally {
+					//finally block used to close resources
+					try {
+						if (stmt != null);
+					} catch (Exception se) {
+					}// do nothing
+				}//end try
+				try {
+					if (lastCarePharmacyEncounters.isEmpty()) {
+						logToConsole("\n No Record Found..");
+					}
+				}catch (Exception ex){
+					logToConsole("\n Error: " + ex.getMessage());
+					ex.printStackTrace();
+				}
+
+//				Platform.runLater(()->{
+					lastPharmacyEncounterTable.setItems(lastCarePharmacyEncounters);
+//				});
+
+//				return lastCarePharmacyEncounters;
+//
+//			}
+//		};
+
+
+	}
+
+	@FXML
+	private void getCareWOPharmacy(){
+		fetchCareWOPharmacy();
+//		new Thread(lastPharmacyTask).start();
 	}
 }

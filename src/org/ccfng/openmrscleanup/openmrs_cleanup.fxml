@@ -211,6 +211,85 @@
                            </children></AnchorPane>
                   </content>
                 </Tab>
+                  <Tab text="Missing Care Card Form">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox layoutX="-2.0" prefHeight="472.0" prefWidth="246.0">
+                                 <children>
+                                    <Button layoutX="20.0" layoutY="63.0" mnemonicParsing="false" onAction="#getCareWOPharmacy" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Reload" textFill="#f8f7f7" wrapText="true" />
+                                    <Label prefHeight="33.0" prefWidth="250.0" style="-fx-background-color: #336699;" text="Create Care Card Form" textFill="#fffefe">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                       <padding>
+                                          <Insets left="10.0" />
+                                       </padding>
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <Button mnemonicParsing="false" onAction="#createCareForm" prefHeight="27.0" prefWidth="236.0" style="-fx-background-color: darkgreen;" text="Create" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets left="10.0" right="10.0" top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button layoutX="20.0" layoutY="110.0" mnemonicParsing="false" onAction="#exportPharmToExcel" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Export Table" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                 </children>
+                              </VBox>
+                              <VBox layoutX="244.0" prefHeight="473.0" prefWidth="1023.0" />
+                              <TableView fx:id="lastPharmacyEncounterTable" layoutX="245.0" layoutY="1.0" prefHeight="472.0" prefWidth="1021.0">
+                                 <columns>
+                                    <TableColumn prefWidth="97.0" text="Patient ID">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PatientID" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="133.0" text="PepFar ID">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PepfarID" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="173.0" text="Patient Name">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="PatientName" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Encounter Date">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="lastCareEncounterDate" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Pharmacy Regimen ID">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="lastCareRegimenLineId" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Parmacy Regimen Line">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="lastCareRegimenLine" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Next Appointment Days">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="nextAppointment" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Nearest Care Card Entry">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="lastPharmacyEncounterDate" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                 </columns>
+                              </TableView>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
                   <Tab text="ART Start Date Earlier Than Date Confirmed">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -598,30 +677,6 @@
                            </children>
                         </AnchorPane>
                     </content>
-                  </Tab>
-                  <Tab text="VL Eligibility">
-                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <VBox prefHeight="474.0" prefWidth="1268.0">
-                                 <children>
-                                    <TableView prefHeight="474.0" prefWidth="1266.0">
-                                       <columns>
-                                          <TableColumn prefWidth="75.0" text="Patient ID" />
-                                          <TableColumn prefWidth="150.0" text="Pepfar ID" />
-                                          <TableColumn prefWidth="166.0" text="Patient Name" />
-                                          <TableColumn prefWidth="166.0" text="ART Start Date" />
-                                          <TableColumn prefWidth="166.0" text="Last VL Date" />
-                                          <TableColumn prefWidth="166.0" text="VL Status" />
-                                          <TableColumn prefWidth="166.0" text="VL Due Date" />
-                                          <TableColumn prefWidth="166.0" text="Reason" />
-                                       </columns>
-                                    </TableView>
-                                 </children>
-                              </VBox>
-                           </children>
-                        </AnchorPane>
-                     </content>
                   </Tab>
               </tabs>
             </TabPane>
