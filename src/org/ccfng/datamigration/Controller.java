@@ -80,6 +80,7 @@ import org.ccfng.datamigration.users.User;
 import org.ccfng.datamigration.users.Users;
 import org.ccfng.datamigration.visit.Visit;
 import org.ccfng.datamigration.visit.Visits;
+import org.ccfng.openmrscleanup.OpenmrsCleanupController;
 import org.hibernate.HibernateException;
 
 public class Controller {
@@ -4626,6 +4627,16 @@ public class Controller {
         return visits;
     }
 
+
+    @FXML
+    private void activateDataMigration(){
+
+        vBoxTables.setDisable(! vBoxTables.isDisabled());
+
+        vBoxDestination.setDisable(! vBoxDestination.isDisabled());
+    }
+
+
     @FXML
     private void openOpenMRSCleanup(){
         try {
@@ -4636,7 +4647,7 @@ public class Controller {
 
             FXMLLoader fxmlLoader = new FXMLLoader();
 
-            Pane root = (Pane) fxmlLoader.load(getClass().getResource("openmrs_cleanup.fxml").openStream());
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/openmrscleanup/openmrs_cleanup.fxml").openStream());
 
             OpenmrsCleanupController openmrsController = (OpenmrsCleanupController) fxmlLoader.getController();
 
@@ -4653,11 +4664,58 @@ public class Controller {
         }
     }
 
+
     @FXML
-    private void activateDataMigration(){
+    private void patientTracker(){
+        try {
 
-        vBoxTables.setDisable(! vBoxTables.isDisabled());
+            checkConnection();
 
-        vBoxDestination.setDisable(! vBoxDestination.isDisabled());
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/patienttracker/patienttracker.fxml").openStream());
+
+            org.ccfng.patienttracker.Controller controller = (org.ccfng.patienttracker.Controller) fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("Patient Tracker");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void vlEligibility(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/viralload/viralload.fxml").openStream());
+
+            org.ccfng.viralload.Controller controller = (org.ccfng.viralload.Controller) fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("Viral Load Eligibility");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 }

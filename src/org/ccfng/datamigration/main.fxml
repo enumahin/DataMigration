@@ -43,9 +43,9 @@
                         </Menu>
                         <Menu mnemonicParsing="false" text="Generate Lists">
                             <items>
-                                <MenuItem mnemonicParsing="false" text="Patient Tracker" />
+                                <MenuItem mnemonicParsing="false" onAction="#patientTracker" text="Patient Tracker" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Viral Load Eligibility" />
+                        <MenuItem mnemonicParsing="false" onAction="#vlEligibility" text="Viral Load Eligibility" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" text="Line List" />
                             </items>

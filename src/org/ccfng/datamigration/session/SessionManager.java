@@ -1,6 +1,6 @@
 package org.ccfng.datamigration.session;
 
-import org.ccfng.datamigration.openmrscleanup.PharmacyEncounter;
+import org.ccfng.openmrscleanup.models.PharmacyEncounter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
