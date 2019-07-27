@@ -47,7 +47,7 @@
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#vlEligibility" text="Viral Load Eligibility" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Line List" />
+                        <MenuItem mnemonicParsing="false" onAction="#lineList" text="Line List" />
                             </items>
                         </Menu>
                   <Menu mnemonicParsing="false" text="Help">

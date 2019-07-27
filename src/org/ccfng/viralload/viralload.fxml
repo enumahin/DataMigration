@@ -19,7 +19,7 @@
       		<VBox prefHeight="435.0" prefWidth="1078.0">
       			<children>
       				<TableView fx:id="vlTableView" prefHeight="436.0" prefWidth="1077.0">
-      					<columns>
+						<columns>
 							<TableColumn prefWidth="97.0" text="Patient ID">
 								<cellValueFactory>
 									<PropertyValueFactory property="PatientID" />
@@ -40,29 +40,29 @@
 									<PropertyValueFactory property="patientPhoneNumber" />
 								</cellValueFactory>
 							</TableColumn>
-      						<TableColumn prefWidth="166.0" text="ART Start Date">
+							<TableColumn prefWidth="166.0" text="ART Start Date">
 								<cellValueFactory>
 									<PropertyValueFactory property="artStartDate" />
 								</cellValueFactory>
 							</TableColumn>
-      						<TableColumn prefWidth="166.0" text="Last VL Date">
+							<TableColumn prefWidth="166.0" text="Last VL Date">
 								<cellValueFactory>
 									<PropertyValueFactory property="lastVLDate" />
 								</cellValueFactory>
 							</TableColumn>
-      						<TableColumn prefWidth="166.0" text="VL Count">
+							<TableColumn prefWidth="166.0" text="VL Count">
 								<cellValueFactory>
 									<PropertyValueFactory property="vlCount" />
 								</cellValueFactory>
 							</TableColumn>
-      						<TableColumn prefWidth="166.0" text="VL Due Date">
+							<TableColumn prefWidth="166.0" text="VL Due Date">
 								<cellValueFactory>
 									<PropertyValueFactory property="vlduedate"/>
 								</cellValueFactory>
 							</TableColumn>
-      						<TableColumn prefWidth="166.0" text="Reason">
+							<TableColumn prefWidth="166.0" text="Reason">
 							</TableColumn>
-      					</columns>
+						</columns>
       				</TableView>
       			</children>
       		</VBox>

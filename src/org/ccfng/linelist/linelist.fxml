@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<AnchorPane prefHeight="589.0" prefWidth="1266.0" xmlns="http://javafx.com/javafx/10.0.1"
+			xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ccfng.linelist.Controller">
+
+	<children>
+		<HBox prefHeight="435.0" prefWidth="1266.0">
+			<children>
+				<VBox prefHeight="435.0" prefWidth="1078.0">
+					<children>
+						<TableView fx:id="lineListTableView" prefHeight="436.0" prefWidth="1077.0">
+							<columns>
+								<TableColumn prefWidth="97.0" text="Patient ID">
+									<cellValueFactory>
+										<PropertyValueFactory property="PatientID" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="133.0" text="PepFar ID">
+									<cellValueFactory>
+										<PropertyValueFactory property="PepfarID" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="173.0" text="Patient Name">
+									<cellValueFactory>
+										<PropertyValueFactory property="PatientName" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Phone Number">
+									<cellValueFactory>
+										<PropertyValueFactory property="patientPhoneNumber" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Address">
+									<cellValueFactory>
+										<PropertyValueFactory property="address" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Hospital Number">
+									<cellValueFactory>
+										<PropertyValueFactory property="hospitalNumber" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Sex">
+									<cellValueFactory>
+										<PropertyValueFactory property="sex" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="ART Start Date">
+									<cellValueFactory>
+										<PropertyValueFactory property="artStartDate" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Age ART Start Date">
+									<cellValueFactory>
+										<PropertyValueFactory property="ageAtArtStart" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Current Age">
+									<cellValueFactory>
+										<PropertyValueFactory property="PatientAge" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Last Drug Pickup Date">
+									<cellValueFactory>
+										<PropertyValueFactory property="lastPickUpDate" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Days of Art Refill">
+									<cellValueFactory>
+										<PropertyValueFactory property="daysOfArtRefill" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Next Appointment Date">
+									<cellValueFactory>
+										<PropertyValueFactory property="nextAppointmentDate" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Regimen Line At Start">
+									<cellValueFactory>
+										<PropertyValueFactory property="regimenLineAtStart" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Regimen At Start">
+									<cellValueFactory>
+										<PropertyValueFactory property="regimenAtStart" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Current Regimen Line">
+									<cellValueFactory>
+										<PropertyValueFactory property="currentRegimenLine" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Current Regimen">
+									<cellValueFactory>
+										<PropertyValueFactory property="currentRegimen" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Pregnancy Status">
+									<cellValueFactory>
+										<PropertyValueFactory property="pregnancyStatus" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Date of Current Viral Load">
+									<cellValueFactory>
+										<PropertyValueFactory property="dateOfCurrentViralLoad" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Current Viral Load">
+									<cellValueFactory>
+										<PropertyValueFactory property="currentViralLoad" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Viral Load Indication">
+									<cellValueFactory>
+										<PropertyValueFactory property="viralLoadIndication"/>
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Current Art Status">
+									<cellValueFactory>
+										<PropertyValueFactory property="currentArtStatus"/>
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Number of Days Missed Appointment">
+									<cellValueFactory>
+										<PropertyValueFactory property="numberOfDaysMissedAppointment"/>
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Active By 28 Days">
+									<cellValueFactory>
+										<PropertyValueFactory property="activeBy28"/>
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Active By 90 Days">
+									<cellValueFactory>
+										<PropertyValueFactory property="activeBy90"/>
+									</cellValueFactory>
+								</TableColumn>
+							</columns>
+						</TableView>
+					</children>
+				</VBox>
+				<VBox prefHeight="435.0" prefWidth="190.0">
+					<children>
+						<Label prefHeight="30.0" prefWidth="190.0" style="-fx-background-color: #336699;" text="Actions" textFill="#f8f7f7">
+							<font>
+								<Font size="16.0" />
+							</font>
+							<padding>
+								<Insets left="10.0" />
+							</padding>
+						</Label>
+						<Button mnemonicParsing="false" onAction="#getLineList" prefHeight="31.0" prefWidth="189.0" text="Load" />
+						<Button mnemonicParsing="false" onAction="#lLToExcel" prefHeight="31.0" prefWidth="189.0" text="Export" />
+					</children>
+				</VBox>
+			</children>
+		</HBox>
+		<HBox prefHeight="100.0" prefWidth="200.0" />
+		<TextArea fx:id="appConsole" layoutX="-1.0" layoutY="435.0" prefHeight="196.0" prefWidth="1266.0" />
+	</children>
+
+</AnchorPane>

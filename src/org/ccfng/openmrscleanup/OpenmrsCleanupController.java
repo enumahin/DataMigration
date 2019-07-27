@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +48,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.ccfng.datamigration.Controller;
 import org.ccfng.datamigration.obs.Obs;
 import org.ccfng.datamigration.session.SessionManager;
+import org.ccfng.global.Location;
 import org.ccfng.openmrscleanup.models.Address;
 import org.ccfng.openmrscleanup.models.DateFix;
 import org.ccfng.openmrscleanup.models.LastCarePharmacy;
@@ -78,6 +80,24 @@ public class OpenmrsCleanupController {
 	@FXML
 	private TextField limit;
 
+	@FXML
+	private TextField noPharm;
+
+	@FXML
+	private TextField noCare;
+
+	@FXML
+	private TextField noArtStart;
+
+	@FXML
+	private TextField noHivConf;
+
+	@FXML
+	private TextField daysPlus;
+
+	@FXML
+	private TextField daysPlusI;
+
 
 	@FXML
 	private ComboBox<Regimen> allRegimenComboBox;
@@ -104,6 +124,9 @@ public class OpenmrsCleanupController {
 	private TableView<PatientStatus> noCommencementTableView;
 
 	@FXML
+	private TableView<PatientStatus> noInitialTableView;
+
+	@FXML
 	private TableView<Address> addressTableView;
 
 	private Task<ObservableList<Address>> addressTask;
@@ -119,6 +142,11 @@ public class OpenmrsCleanupController {
 
 	@FXML
 	private TextField valueToAdd;
+
+	@FXML
+	private ComboBox<Location> locationComboBox;
+
+	private Task<ObservableList<Location>> locationTask;
 
 	public String sourceHost;
 
@@ -156,12 +184,21 @@ public class OpenmrsCleanupController {
 
 	public void initialize(){
 
+		getLocation();
+		new Thread(locationTask).start();
+
 		observationCombo.getItems().add("Weight");
 		observationCombo.getItems().add("Height");
 		observationCombo.getItems().add("Drug Duration Number");
 		criteriaCombo.getItems().add("Greater Than");
 		criteriaCombo.getItems().add("Less Than");
 		limit.setText("0");
+		daysPlus.setText("0");
+		daysPlusI.setText("0");
+		noPharm.setText("0");
+		noCare.setText("0");
+		noArtStart.setText("0");
+		noHivConf.setText("0");
 		pharmacyEncounterTable.setOnMousePressed(event -> {
 			if (event.isPrimaryButtonDown() && event.getClickCount() == 2) {
 				Node node = ((Node) event.getTarget()).getParent();
@@ -205,6 +242,10 @@ public class OpenmrsCleanupController {
 				SelectionMode.MULTIPLE
 		);
 
+		lastPharmacyEncounterTable.getSelectionModel().setSelectionMode(
+				SelectionMode.MULTIPLE
+		);
+
 		dateFixTableView.getSelectionModel().setSelectionMode(
 				SelectionMode.MULTIPLE
 		);
@@ -243,6 +284,67 @@ public class OpenmrsCleanupController {
 
 	}
 
+	private void getLocation() {
+		locationTask = new Task<ObservableList<Location>>() {
+
+			@Override
+			protected ObservableList<Location> call() throws Exception {
+				ObservableList<Location> locations = FXCollections.observableArrayList();
+
+				connectionSettings();
+
+				Connection conn = null;
+				Statement stmt = null;
+				try {
+					//STEP 2: Register JDBC driver
+					Class.forName("com.mysql.jdbc.Driver");
+
+					//STEP 3: Open a connection
+					logToConsole("\n Connecting to Source Database!!");
+					conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);
+					logToConsole("\n Connected to database successfully...");
+
+					//STEP 4: Execute a query
+
+					stmt = conn.createStatement();
+					String sql = "SELECT * from location";
+
+					logToConsole("\n Creating Select statement...");
+
+					ResultSet rs = stmt.executeQuery(sql);
+					//STEP 5: Extract data from result set
+					while (rs.next()) {
+						//Retrieve by column name
+						Location location = new Location();
+						location.setLocationID(rs.getInt("location_id"));
+						location.setLocation(rs.getString("name"));
+						locations.add(location);
+					}
+					rs.close();
+					logToConsole("\n Data Successfully Fetched!\n");
+
+				} catch (SQLException e) {
+					logToConsole("\n Error: " + e.getMessage());
+					e.printStackTrace();
+				} catch (Exception e) {
+					logToConsole("\n Error: " + e.getMessage());
+					e.printStackTrace();
+				}finally {
+					//finally block used to close resources
+					try {
+						if (stmt != null);
+					} catch (Exception se) {
+					}// do nothing
+				}//end try
+				Platform.runLater(() -> {
+					Comparator<Location> comparator = Comparator.comparing(Location::getLocation);
+					FXCollections.sort(locations,comparator);
+					locationComboBox.setItems(locations);
+				});
+				return locations;
+			}
+		};
+	}
 
 	@FXML
 	private void createDTG(){
@@ -699,17 +801,17 @@ public class OpenmrsCleanupController {
 						+ "ob.obs_id AS obsID, "
 					+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4 limit 1) AS pepfarID,"
 					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName "
-						+ "FROM person_name where person_id = ob.person_id && preferred = 1 limit 1) As patientName,"
+						+ "FROM person_name where person_id = ob.person_id && (preferred = 1 || preferred = 0) limit 1) As patientName,"
 					+ "encounter.encounter_datetime AS EncounterDateTime, "
 
-					+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Question,"
-					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
+					+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && concept_name.locale ='en' && concept_name.locale_preferred = 1 Limit 1) AS Question,"
+					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1 Limit 1) AS Answer"
 					+ "  FROM obs AS ob LEFt JOIN encounter "
 					+ "on ob.encounter_id = encounter.encounter_id where "
 					+ " ob.value_coded = 7778108 "
 					+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
 					+ "' AND NOT Exists( select value_coded from obs where concept_id=7778108 AND person_id = ob.person_id "
-							+ "AND encounter_id=ob.encounter_id AND voided = 0) "
+							+ "AND encounter_id=ob.encounter_id AND obs.voided = 0 Limit 1) "
 					// + "' HAVING regimenSel = null || regimenSel = '' || regimenSel = 0"
 					+ " order by ob.person_id";
 		}else{
@@ -718,14 +820,14 @@ public class OpenmrsCleanupController {
 							+ "AND concept_id = 1596 AND person_id = ob.person_id group by value_text Limit 1) "
 							+ "AS valueText, encounter.encounter_id as encounterID, "
 							+ "ob.obs_id AS obsID, "
-					+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4 group by identifier) AS pepfarID,"
+					+ "(Select identifier FROM patient_identifier where patient_id = ob.person_id && identifier_type = 4 group by identifier Limit 1) AS pepfarID,"
 					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName "
-					+ "FROM person_name where person_id = ob.person_id && preferred = 1) As patientName,"
+					+ "FROM person_name where person_id = ob.person_id && (preferred = 1 || preferred = 0) Limit 1) As patientName,"
 							+ "encounter.encounter_datetime AS EncounterDateTime, "
 					+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && "
-							+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 group by name) AS Question,"
+							+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 group by name Limit 1) AS Question,"
 					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && "
-						+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 group by name) AS Answer"
+						+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 group by name Limit 1) AS Answer"
 						+ "  FROM obs AS ob LEFt JOIN encounter "
 					+ "on ob.encounter_id = encounter.encounter_id where "
 					+ "ob.value_coded = "+allRegimenComboBox.getSelectionModel().getSelectedItem().getConceptID()
@@ -805,7 +907,6 @@ public class OpenmrsCleanupController {
 			ex.printStackTrace();
 		}
 	}
-
 
 	@FXML
 	private void getLastEncounter(){
@@ -957,10 +1058,12 @@ public class OpenmrsCleanupController {
 				try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);) {
 					logToConsole("\n Creating Encounter! \n");
 					try {
-
-						stmt1.setInt(1, 7);
+						if(loc == "Pharm")
+							stmt1.setInt(1, 7);
+						else if(loc == "Care")
+							stmt1.setInt(1, 12);
 						stmt1.setInt(2, loadCF.getPatientID());
-						stmt1.setInt(3, 42);
+						stmt1.setInt(3, locationComboBox.getSelectionModel().getSelectedItem().getLocationID());
 						if(loc.equals("Pharm"))
 							stmt1.setInt(4, loadCF.getPatientAge() >= 15 ? 46 : 53);
 						else
@@ -1021,7 +1124,9 @@ public class OpenmrsCleanupController {
 							else
 								stmt1.setString(24, null);
 							stmt1.setInt(1, module.getPerson_id());
+
 							stmt1.setInt(2, module.getConcept_id());
+
 							stmt1.setInt(3, encounterID);
 							if(module.getOrder_id() != null)
 								stmt1.setInt(4, module.getOrder_id());
@@ -1056,8 +1161,12 @@ public class OpenmrsCleanupController {
 								stmt1.setInt(11, module.getValue_drug());
 							else
 								stmt1.setString(11, null);
-							if (module.getValue_datetime() != null)
-								stmt1.setDate(12, new java.sql.Date(module.getValue_datetime().getTime()));
+							if (module.getValue_datetime() != null) {
+								if(module.getConcept_id() == 7777822)
+									stmt1.setDate(12, loadCF.getLastCareEncounterDate());
+								else
+									stmt1.setDate(12, new java.sql.Date(module.getValue_datetime().getTime()));
+							}
 							else
 								stmt1.setDate(12, null);
 							if(module.getValue_numeric() != null)
@@ -1225,6 +1334,73 @@ public class OpenmrsCleanupController {
 		return lastCarePharmacy;
 	}
 
+
+	private String hasSibblin( LastCarePharmacy ls, String loc){
+
+		appConsole.clear();
+		String res = "No";
+		logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+
+		Statement stmt = null;
+
+		try {
+			//STEP 2: Register JDBC driver
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (Exception exc) {
+			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+		}
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+
+			logToConsole("\n Source Database connection successful..");
+
+			stmt = conn.createStatement();
+
+			logToConsole("\nPatient ID:"+ls.getPatientID());
+
+			String sql = "SELECT encounter_id from encounter where encounter.patient_id = "+ls.getPatientID()
+							+ " AND encounter.encounter_datetime = '"+ls.getLastCareEncounterDate()+"' AND ";
+			if(loc.equals("pharm"))
+				sql += "encounter.form_id=56 and voided=0 order by encounter.encounter_datetime ASC Limit 1 ";
+			else
+				sql += "encounter.form_id IN (46,53) AND voided=0 order by encounter.encounter_datetime ASC Limit 1 ";
+			ResultSet rs = stmt.executeQuery(sql);
+
+			logToConsole("\nLast Pharmacy Date: "+ls.getLastCareEncounterDate());
+
+			//STEP 5: Extract data from result set
+			int count = 0;
+			while (rs.next()) {
+				res = "Yes";
+			}
+
+			rs.close();
+			//logToConsole("\n Done..");
+		} catch (SQLException e) {
+			logToConsole("\n Error: " + e.getMessage());
+			e.printStackTrace();
+		}catch (Exception e) {
+			logToConsole("\n Error: " + e.getMessage());
+			e.printStackTrace();
+		}finally {
+			//finally block used to close resources
+			try {
+				if (stmt != null);
+			} catch (Exception se) {
+			}// do nothing
+		}//end try
+//		try {
+//			if (pharDate == null) {
+//				logToConsole("\n No Record Found..");
+//			} else {
+//				return pharDate;
+//			}
+//		}catch (Exception ex){
+//			logToConsole("\n Error: " + ex.getMessage());
+//			ex.printStackTrace();
+//		}
+		return res;
+	}
+
 	@FXML
 	private void updateRegimens(){
 		//Set<PharmacyEncounter> selectedEncounters = new HashSet<>();
@@ -1337,6 +1513,9 @@ public class OpenmrsCleanupController {
 	}
 
 	private void partialGetLCE(){
+		Integer lim = Integer.parseInt(noPharm.getText());
+		if(lim == 0)
+			lim = 1000000;
 		ObservableList<LastCarePharmacy> lastCarePharmacyEncounters = FXCollections.observableArrayList();
 		appConsole.clear();
 		logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
@@ -1355,15 +1534,16 @@ public class OpenmrsCleanupController {
 
 			String sql = "SELECT pa.patient_id as patientID, enc.encounter_id as encounterID, DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
 					//+ "ob.obs_id AS obsID, "
-					+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4) AS pepfarID,"
-					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
+					+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4 Limit 1) AS pepfarID,"
+					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName "
+					+ "FROM person_name where person_id = pa.patient_id && (preferred = 1 || preferred = 0) Limit 1) As patientName,"
 					+ "enc.encounter_datetime AS LastCareEncounterDate, "
 					+ " ob.value_coded AS RegimenID , "
 					+ " (SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777821) Limit 1) AS NextAppointment,"
 					//								+ " (SELECT encounter_datetime from encounter where encounter.patient_id = enc.patient_id AND "
 					//								+ " encounter.encounter_datetime > enc.encounter_datetime AND "
 					//								+ "encounter.form_id IN (46,53) group by encounter.patient_id Limit 1) AS LastPharmacyEncounterDate,"
-					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS RegimenLine"
+					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1 Limit 1) AS RegimenLine"
 					//								+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1) AS Answer"
 					+ "  FROM encounter AS enc LEFt JOIN patient as pa "
 					+ "on pa.patient_id = enc.patient_id "
@@ -1378,7 +1558,7 @@ public class OpenmrsCleanupController {
 					+ " AND enc.encounter_datetime NOT IN (select encounter_datetime from encounter where patient_id = pa.patient_id AND encounter.form_id IN (46,53))"
 					//+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
 					//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
-					+ " order by enc.encounter_datetime DESC Limit 15";
+					+ " order by enc.encounter_datetime DESC Limit "+lim;
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
 			int tSum = 0;
@@ -1415,6 +1595,8 @@ public class OpenmrsCleanupController {
 				lastCarePharmacy.setLastPharmacyEncounterDate(lastCP.getLastPharmacyEncounterDate());
 
 				lastCarePharmacy.setLastPharmEncounterID(lastCP.getLastPharmEncounterID());
+
+				lastCarePharmacy.setHasSibblin(hasSibblin(lastCarePharmacy, "pharm"));
 
 				lastCarePharmacyEncounters.add(lastCarePharmacy);
 
@@ -1467,9 +1649,9 @@ public class OpenmrsCleanupController {
 			String sql = "SELECT pa.patient_id as patientID, enc.encounter_id as encounterID, "
 					+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
 					//+ "ob.obs_id AS obsID, "
-					+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4) AS pepfarID,"
+					+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4 Limit 1) AS pepfarID,"
 					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName "
-					+ "FROM person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
+					+ "FROM person_name where person_id = pa.patient_id && (preferred = 1 || preferred = 0) Limit 1) As patientName,"
 					+ "enc.encounter_datetime AS LastCareEncounterDate, "
 					+ " ob.value_coded AS RegimenID , "
 					+ " (SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777821 AND voided = 0) Limit 1) AS NextAppointment,"
@@ -1484,10 +1666,10 @@ public class OpenmrsCleanupController {
 					+ " where "
 					+ " enc.form_id = 56 "
 //					+ " AND enc.voided = 0"
-					+ " AND EXISTS (select encounter_id FROM obs WHERE encounter_id=enc.encounter_id AND person_id = pa.patient_id AND concept_id=7778111 AND voided = 0) "
-					+ " AND NOT EXISTS (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
-					+ " AND NOT EXISTS (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
-					+ " HAVING LastCareEncounterDate >= NextAppointmentDATE" //" OR (DATEDIFF(NextAppointmentDATE, STR_TO_DATE(LastCareEncounterDate, '%Y-%m-%d')) > 180)"
+					+ " AND EXISTS (select encounter_id FROM obs WHERE encounter_id=enc.encounter_id AND person_id = pa.patient_id AND concept_id=7778111 AND voided = 0 Limit 1) "
+					+ " AND NOT EXISTS (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0 Limit 1) "
+					+ " AND NOT EXISTS (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0 Limit 1) "
+					+ " HAVING (LastCareEncounterDate >= NextAppointmentDATE OR (DATEDIFF(NextAppointmentDATE, STR_TO_DATE(LastCareEncounterDate, '%Y-%m-%d')) > 180))"
 					+ " order by enc.encounter_datetime DESC Limit "+lim;
 
 			ResultSet rs = stmt.executeQuery(sql);
@@ -1587,9 +1769,12 @@ public class OpenmrsCleanupController {
 								+ " FROM patient as pa "
 			//					+ " LEFT JOIN person on person.person_id = pa.patient_id "
 								+ " LEFT JOIN patient_identifier on patient_identifier.patient_id = pa.patient_id && identifier_type = 4"
-								+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && person_name.preferred = 1"
+								+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && person_name.preferred = "
+								+ "( select MAX(preferred) from person_name where person_name.person_id = pa.patient_id)"
+								+ " LEFT JOIN patient_program on patient_program.patient_id = pa.patient_id"
 								+ " WHERE "
-								+ " pa.voided = 0 "
+								+ " program_id = 3 AND patient_program.voided=0"
+								+ " AND pa.voided = 0 "
 								+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
 								+ " AND pa.patient_id NOT IN (select person_id FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
 								+ " HAVING (ArtStartDate IS NULL || DateConfirmed IS NULL || DateConfirmed > ArtStartDate) "
@@ -1698,6 +1883,110 @@ public class OpenmrsCleanupController {
 						stmt.addBatch();
 					}
 				}
+				//execute batch
+				logToConsole("\n Updating Data....!\n");
+				stmt.executeBatch();
+				conn.commit();
+				logToConsole("Date Updated successfully.");
+			} catch (SQLException e) {
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}catch (Exception e){
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}
+		} catch (SQLException e) {
+			logToConsole("Error: "+e.getMessage());
+			e.printStackTrace();
+		}catch (Exception ex){
+			logToConsole("Error: "+ex.getMessage());
+			ex.printStackTrace();
+		}
+	}
+
+	@FXML
+	private void updateCareCardEncounterType(){
+
+		logToConsole("\n Initializing.!\n");
+
+		String INSERT_SQL = "UPDATE encounter SET encounter_type=? WHERE form_id=? AND encounter_type=?";
+
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+			Class.forName("com.mysql.jdbc.Driver");
+			logToConsole("\n Connecting..!\n");
+			conn.setAutoCommit(false);
+
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+
+						stmt.setInt(1, 12);
+						stmt.setInt(2, 56);
+						stmt.setInt(3, 7);
+						stmt.addBatch();
+
+
+				//execute batch
+				logToConsole("\n Updating Data....!\n");
+				stmt.executeBatch();
+				conn.commit();
+				logToConsole("Date Updated successfully.");
+			} catch (SQLException e) {
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}catch (Exception e){
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}
+		} catch (SQLException e) {
+			logToConsole("Error: "+e.getMessage());
+			e.printStackTrace();
+		}catch (Exception ex){
+			logToConsole("Error: "+ex.getMessage());
+			ex.printStackTrace();
+		}
+	}
+
+	@FXML
+	private void updatePharmEncounterDate(){
+
+		updateEncounterDate("Pharm");
+	}
+
+	@FXML
+	private void updateCareEncounterDate(){
+
+		updateEncounterDate("Care");
+	}
+
+	private void updateEncounterDate( String loc){
+
+		logToConsole("\n Initializing.!\n");
+
+		String INSERT_SQL = "UPDATE encounter SET encounter_datetime=? WHERE encounter_id=?";
+
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+			Class.forName("com.mysql.jdbc.Driver");
+			logToConsole("\n Connecting..!\n");
+			conn.setAutoCommit(false);
+
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+				if(loc == "Phram") {
+					for (LastCarePharmacy lCF : lastCarePharmacyEncounterTable.getSelectionModel().getSelectedItems()) {
+						stmt.setDate(1,
+								lCF.getLastCareEncounterDate());
+						stmt.setInt(2,
+								lCF.getLastPharmEncounterID());
+						stmt.addBatch();
+					}
+				}else if(loc == "Care"){
+					for (LastCarePharmacy lCF : lastPharmacyEncounterTable.getSelectionModel().getSelectedItems()) {
+						stmt.setDate(1,
+								lCF.getLastCareEncounterDate());
+						stmt.setInt(2,
+								lCF.getLastPharmEncounterID());
+						stmt.addBatch();
+					}
+				}
+
 				//execute batch
 				logToConsole("\n Updating Data....!\n");
 				stmt.executeBatch();
@@ -1941,7 +2230,76 @@ public class OpenmrsCleanupController {
 
 	}
 
-	private void fetchPatientStatus(){
+	@FXML
+	private void initialToExcel() throws IOException {
+
+		TableView<PatientStatus> table = noInitialTableView;
+
+		Workbook workbook = new HSSFWorkbook();
+		Sheet spreadsheet = workbook.createSheet("Export");
+
+		Row row = spreadsheet.createRow(0);
+
+		for (int j = 0; j < table.getColumns().size(); j++) {
+			row.createCell(j).setCellValue(table.getColumns().get(j).getText());
+		}
+
+		for (int i = 0; i < table.getItems().size(); i++) {
+			row = spreadsheet.createRow(i + 1);
+			for (int j = 0; j < table.getColumns().size(); j++) {
+				if(table.getColumns().get(j).getCellData(i) != null) {
+					row.createCell(j).setCellValue(table.getColumns().get(j).getCellData(i).toString());
+				}
+				else {
+					row.createCell(j).setCellValue("");
+				}
+			}
+		}
+
+		FileOutputStream fileOut = new FileOutputStream("No_Initial_"+LocalDateTime.now().toString()+".xls");
+		workbook.write(fileOut);
+		fileOut.close();
+
+		//		Platform.exit();
+
+	}
+
+	@FXML
+	private void addressToExcel() throws IOException {
+
+		TableView<Address> table = addressTableView;
+
+		Workbook workbook = new HSSFWorkbook();
+		Sheet spreadsheet = workbook.createSheet("Export");
+
+		Row row = spreadsheet.createRow(0);
+
+		for (int j = 0; j < table.getColumns().size(); j++) {
+			row.createCell(j).setCellValue(table.getColumns().get(j).getText());
+		}
+
+		for (int i = 0; i < table.getItems().size(); i++) {
+			row = spreadsheet.createRow(i + 1);
+			for (int j = 0; j < table.getColumns().size(); j++) {
+				if(table.getColumns().get(j).getCellData(i) != null) {
+					row.createCell(j).setCellValue(table.getColumns().get(j).getCellData(i).toString());
+				}
+				else {
+					row.createCell(j).setCellValue("");
+				}
+			}
+		}
+
+		FileOutputStream fileOut = new FileOutputStream("No_Address_"+LocalDateTime.now().toString()+".xls");
+		workbook.write(fileOut);
+		fileOut.close();
+
+		//		Platform.exit();
+
+	}
+
+	private void fetchPatientStatus(int form_id, int concept_id, int lim){
+
 		appConsole.clear();
 		patientStatusTask = new Task<ObservableList<PatientStatus>>(){
 
@@ -1952,8 +2310,8 @@ public class OpenmrsCleanupController {
 						+ "patient_identifier.identifier AS pepfarID,"
 						+ "CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName ,"
 						+ "(SELECT value_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id "
-						+ "where encounter.form_id=1 AND encounter.patient_id=pa.patient_id AND obs.concept_id=863 "
-						+ "AND obs.voided = 0 order by obs.obs_id ASC Limit 1) AS ArtStartDate, "
+						+ "where encounter.form_id=1 AND encounter.patient_id=pa.patient_id AND obs.concept_id= "+concept_id
+						+ " AND obs.voided = 0 order by obs.obs_id ASC Limit 1) AS ArtStartDate, "
 						+ "(SELECT value_datetime from encounter Left join obs on encounter.encounter_id = obs.encounter_id where "
 						+ "obs.concept_id=7777822 AND encounter.form_id=56 AND obs.voided = 0 AND encounter.voided=0 "
 						+ "AND encounter.patient_id=pa.patient_id order by obs.obs_id DESC Limit 1) AS NextAppointmentDATE, "
@@ -1964,15 +2322,26 @@ public class OpenmrsCleanupController {
 						+ "AND concept_name.locale_preferred = 1 order by value_coded DESC Limit 1) AS Exited, "
 						+ "(SELECT encounter_datetime from encounter Left join obs on encounter.encounter_id = obs.encounter_id where "
 						+ "obs.concept_id=7777822 AND encounter.form_id=56 AND obs.voided = 0 AND encounter.voided=0 "
-						+ "AND encounter.patient_id=pa.patient_id order by obs.obs_id DESC Limit 1) AS LastDrugPickUpDate "
+						+ "AND encounter.patient_id=pa.patient_id order by obs.obs_id DESC Limit 1) AS LastDrugPickUpDate, "
+
+						+ "(SELECT encounter_id from encounter where form_id = "+form_id+" and patient_id = pa.patient_id Limit 1) AS formEncounter,"
+
+						+ "(SELECT Max(encounter_datetime) from encounter where form_id ="+form_id+" and patient_id = pa.patient_id Limit 1) AS formEncounterDate,"
+
+						+ "(SELECT encounter_id from encounter where form_id ="+form_id+" and patient_id = pa.patient_id AND voided = 1 Limit 1) AS voided,"
+
+						+ "(SELECT Min(encounter_datetime) from encounter where patient_id = pa.patient_id Limit 1) AS firstEncounterDate"
 						+ " FROM patient as pa "
 						+ " LEFT JOIN patient_identifier on patient_identifier.patient_id = pa.patient_id && identifier_type = 4"
-						+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && person_name.preferred = 1 "
+						+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && person_name.preferred = "
+						+ "( select MAX(preferred) from person_name where person_name.person_id = pa.patient_id)"
 						+ " LEFT JOIN patient_program on patient_program.patient_id = pa.patient_id"
 						+ " WHERE "
 						+ " program_id = 3 AND patient_program.voided=0"
-						+ " AND NOT EXISTS (SELECT * from encounter where form_id = 1 and patient_id = pa.patient_id)"
-						+ " order by pa.patient_id DESC ";
+						+ " AND NOT EXISTS (SELECT value_datetime from obs left join encounter on obs.encounter_id = encounter.encounter_id "
+						+ "where encounter.form_id="+form_id+" AND encounter.patient_id=pa.patient_id AND obs.concept_id= "+concept_id
+						+ " AND obs.voided = 0 order by obs.obs_id ASC Limit 1) "
+						+ " order by pa.patient_id DESC Limit "+lim;
 
 //				Controller ctrl = new Controller();
 				ObservableList<PatientStatus> patientStatuses = FXCollections.observableArrayList();
@@ -1989,7 +2358,7 @@ public class OpenmrsCleanupController {
 				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
 					logToConsole("\n Destination Database connection successful..");
 
-					logToConsole("\n Fetching Appointment List Please wait...");
+					logToConsole("\n Fetching List Please wait...");
 
 					stmt = conn.createStatement();
 
@@ -2013,6 +2382,17 @@ public class OpenmrsCleanupController {
 						if(rs.getDate("LastDrugPickUpDate") != null) {
 							patientStatus.setLastARVDate(rs.getDate("LastDrugPickUpDate"));
 						}
+						if(rs.getDate("ArtStartDate") != null) {
+							patientStatus.setArtStartDate(rs.getDate("ArtStartDate"));
+						}
+
+						if(rs.getDate("formEncounterDate") != null) {
+							patientStatus.setFormEncounterDate(rs.getDate("formEncounterDate"));
+							logToConsole("\n Form Encounter Date Yes: "+rs.getDate("formEncounterDate"));
+						}else{
+							logToConsole("\n Form Encounter Date No: "+rs.getDate("formEncounterDate"));
+						}
+
 						if(rs.getString("Exited") != null) {
 							patientStatus.setStatus(rs.getString("Exited"));
 						}else{
@@ -2027,6 +2407,20 @@ public class OpenmrsCleanupController {
 							}
 						}
 						patientStatus.setPatientPhoneNumber(rs.getString("PhoneNumber"));
+
+						if(rs.getInt("formEncounter") > 0){
+							patientStatus.setFormEncounter(rs.getInt("formEncounter"));
+							if(rs.getInt("voided") > 0)
+								patientStatus.setFormExists("Yes - But Deleted");
+							else
+								patientStatus.setFormExists("Yes");
+							logToConsole("\n Form Encounter Yes: "+rs.getInt("formEncounter"));
+						}else{
+							patientStatus.setFormEncounter(0);
+							patientStatus.setFormExists("No");
+							logToConsole("\n Form Encounter No: "+rs.getInt("formEncounter"));
+						}
+						patientStatus.setFirstEncounterDate(rs.getDate("firstEncounterDate"));
 
 						patientStatuses.add(patientStatus);
 						logToConsole(patientStatus.toString()+"\n");
@@ -2047,9 +2441,15 @@ public class OpenmrsCleanupController {
 					if (patientStatuses.isEmpty()) {
 						logToConsole("\n No Record Found..");
 					} else {
-						Platform.runLater(() -> {
+						if(form_id == 1) {
+							Platform.runLater(() -> {
 								noCommencementTableView.setItems(patientStatuses);
-						});
+							});
+						}else{
+							Platform.runLater(() -> {
+								noInitialTableView.setItems(patientStatuses);
+							});
+						}
 					}
 				}catch (Exception ex){
 					logToConsole("\n Error: " + ex.getMessage());
@@ -2070,16 +2470,18 @@ public class OpenmrsCleanupController {
 				addressTableView.getItems().removeAll();
 
 				String sql = "SELECT pa.patient_id as patientID, "
-						+ "(SELECT state_province From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1) AS stateProvince, "
-						+ "(SELECT city_village From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1) AS cityVillage, "
-						+ "(SELECT address1 From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1) AS Address1, "
-						+ "(SELECT address2 From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1) AS Address2, "						+ "patient_identifier.identifier AS pepfarID,"
+						+ "(SELECT state_province From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1 Limit 1) AS stateProvince, "
+						+ "(SELECT city_village From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1 Limit 1) AS cityVillage, "
+						+ "(SELECT address1 From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1 Limit 1) AS Address1, "
+						+ "(SELECT address2 From person_address where person_address.person_id = pa.patient_id && person_address.preferred = 1 Limit 1) AS Address2, "
+						+ "patient_identifier.identifier AS pepfarID,"
 						+ "CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName ,"
 						+ "(SELECT value_text from obs where "
 						+ "(obs.concept_id=7778430 || obs.concept_id=891) AND voided = 0 AND obs.person_id=pa.patient_id order by obs.obs_id DESC Limit 1) AS PhoneNumber "
 						+ " FROM patient as pa "
 						+ " LEFT JOIN patient_identifier on patient_identifier.patient_id = pa.patient_id && identifier_type = 4"
-						+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && person_name.preferred = 1 "
+						+ " LEFT JOIN person_name on person_name.person_id = pa.patient_id && person_name.preferred = "
+						+ "( select MAX(preferred) from person_name where person_name.person_id = pa.patient_id Limit 1)"
 //						+ " LEFT JOIN person_address on person_address.person_id = pa.patient_id && person_address.preferred = 1 "
 //						+ " WHERE NOT EXISTS (select * from person_address where person_id=pa.patient_id) "
 //						+ " HAVING stateProvince = ''"
@@ -2204,7 +2606,7 @@ public class OpenmrsCleanupController {
 							+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
 							+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4) AS pepfarID,"
 							+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName "
-							+ "FROM person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
+							+ "FROM person_name where person_id = pa.patient_id && (preferred = 1 || preferred = 0 ) Limit 1) As patientName,"
 							+ "enc.encounter_datetime AS LastCareEncounterDate, "
 							+ " ob.value_numeric AS Answer , "
 							+ "ob.obs_id As ObsID ,"
@@ -2348,12 +2750,26 @@ public class OpenmrsCleanupController {
 
 	@FXML
 	private void fetchNoArtCommencement(){
-		fetchPatientStatus();
+		int lim = Integer.parseInt(noArtStart.getText());
+		if(lim == 0)
+			lim = 1000000;
+		fetchPatientStatus(1, 863, lim);
+		new Thread(patientStatusTask).start();
+	}
+
+	@FXML
+	private void fetchNoInitial(){
+		int lim = Integer.parseInt(noHivConf.getText());
+		if(lim == 0)
+			lim = 1000000;
+		fetchPatientStatus(65, 859, lim);
 		new Thread(patientStatusTask).start();
 	}
 
 	private void fetchCareWOPharmacy(){
-
+		Integer lim = Integer.parseInt(noCare.getText());
+		if(lim == 0)
+			lim = 1000000;
 		appConsole.clear();
 		logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
 
@@ -2378,14 +2794,14 @@ public class OpenmrsCleanupController {
 					String sql = "SELECT pa.patient_id as patientID, enc.encounter_id as encounterID, "
 							+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 AS birthdate, "
 							//+ "ob.obs_id AS obsID, "
-							+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4) AS pepfarID,"
+							+ "(Select identifier FROM patient_identifier where patient_id = pa.patient_id && identifier_type = 4 Limit 1) AS pepfarID,"
 							+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM "
-							+ "person_name where person_id = pa.patient_id && preferred = 1) As patientName,"
+							+ "person_name where person_id = pa.patient_id && (preferred = 1 || preferred = 0) Limit 1) As patientName,"
 							+ "enc.encounter_datetime AS LastCareEncounterDate, "
 							+ " ob.value_coded AS RegimenID , "
 							+ " (SELECT value_coded from obs where (obs.encounter_id = enc.encounter_id AND obs.concept_id=7777821) Limit 1) AS NextAppointment,"
 							+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' "
-							+ "&& concept_name.locale_preferred = 1) AS RegimenLine"
+							+ "&& concept_name.locale_preferred = 1 Limit 1) AS RegimenLine"
 							+ "  FROM encounter AS enc LEFt JOIN patient as pa "
 							+ "on pa.patient_id = enc.patient_id "
 							+ " LEFT JOIN obs as ob on ob.encounter_id = enc.encounter_id"
@@ -2394,10 +2810,11 @@ public class OpenmrsCleanupController {
 							+ " enc.form_id IN (46,53) "
 							+ " AND ob.concept_id = 7778111"
 							+ " AND enc.voided = 0"
-							+ " AND NOT EXISTS (select * FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0) "
-							+ " AND NOT EXISTS (select * FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0) "
-							+ " AND NOT EXISTS (select encounter_datetime from encounter where encounter_datetime= enc.encounter_datetime AND patient_id = pa.patient_id AND encounter.form_id = 56)"
-							+ " order by enc.encounter_datetime DESC Limit 15";
+							+ " AND NOT EXISTS (select * FROM obs WHERE person_id = pa.patient_id AND concept_id=1737 AND voided = 0 Limit 1) "
+							+ " AND NOT EXISTS (select * FROM obs WHERE person_id = pa.patient_id AND concept_id=977 AND voided = 0 Limit 1) "
+							+ " AND NOT EXISTS (select encounter_datetime from encounter where encounter_datetime= enc.encounter_datetime "
+							+ "AND patient_id = pa.patient_id AND encounter.form_id = 56 Limit 1)"
+							+ " order by enc.encounter_datetime DESC Limit "+lim;
 					ResultSet rs = stmt.executeQuery(sql);
 					//STEP 5: Extract data from result set
 					int tSum = 0;
@@ -2435,6 +2852,7 @@ public class OpenmrsCleanupController {
 
 							lastCarePharmacy.setLastPharmEncounterID(lastCP.getLastPharmEncounterID());
 						}
+						lastCarePharmacy.setHasSibblin(hasSibblin(lastCarePharmacy, "care"));
 						lastCarePharmacyEncounters.add(lastCarePharmacy);
 
 						//logToConsole(lastCarePharmacy.toString()+"\n");
@@ -2477,5 +2895,345 @@ public class OpenmrsCleanupController {
 	private void getCareWOPharmacy(){
 		fetchCareWOPharmacy();
 //		new Thread(lastPharmacyTask).start();
+	}
+
+	@FXML
+	private void updateCommencementForm() {
+		PatientStatus loadCF = noCommencementTableView.getSelectionModel().getSelectedItem();
+		updateForm(loadCF, daysPlus.getText());
+	}
+
+	@FXML
+	private void updateInitialForm() {
+		PatientStatus loadCF = noInitialTableView.getSelectionModel().getSelectedItem();
+		updateForm(loadCF, "0");
+	}
+
+	private void updateForm(PatientStatus loadCF,String days){
+
+		logToConsole("\n Initializing.!\n");
+		try (Connection conn1 = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+			conn1.setAutoCommit(false);
+			String INSERT_SQL2 = "INSERT INTO obs"
+				+ "(person_id,"
+				+ " concept_id, "
+				+ "encounter_id, "
+				+ "order_id, "
+				+ "obs_datetime, "
+				+ "location_id," +
+				"accession_number, "
+				+ "value_group_id,"
+				+ " value_coded, "
+				+ "value_coded_name_id, "
+				+ "value_drug, "
+				+ "value_datetime, " +
+				"value_numeric, "
+				+ "value_modifier, "
+				+ "value_text, "
+				+ "value_complex,"
+				+ " comments," +
+				"creator, "
+				+ "date_created,"
+				+ " voided, "
+				+ "date_voided,"
+				+ " void_reason, "
+				+ "uuid, "
+				+ "obs_group_id) " +
+				"VALUES (?,?,?,?,?,?,?,?,?,?,?,DATE_ADD(?,INTERVAL "+Integer.parseInt(days)+" DAY),?,?,?,?,?,?,?,?,?,?,?,?)";
+
+				try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL2);) {
+					logToConsole("\n Connecting Obs! \n");
+					///try {
+					//							stmt1.setInt(26, module.getObs_id());
+					//					if(module.getObs_group_id() != null)
+					//						stmt1.setInt(24, module.getObs_group_id());
+					//					else
+					stmt1.setString(24, null);
+					stmt1.setInt(1, loadCF.getPatientID());
+					stmt1.setInt(2, 859);
+					stmt1.setInt(3, loadCF.getFormEncounter());
+
+					stmt1.setString(4, null);
+					stmt1.setDate(5, loadCF.getFormEncounterDate());
+
+					stmt1.setInt(6, locationComboBox.getSelectionModel().getSelectedItem().getLocationID());
+
+					stmt1.setString(7, null);
+
+					stmt1.setString(8, null);
+					//logToConsole("\nValue Coded: "+module.getValue_coded());
+
+					stmt1.setString(9, null);
+
+					stmt1.setString(10, null);
+
+					stmt1.setString(11, null);
+					stmt1.setDate(12, loadCF.getFormEncounterDate());
+
+					stmt1.setString(13, null);
+
+					stmt1.setString(14, null);
+
+					stmt1.setString(15, null);
+
+					stmt1.setString(16, null);
+
+					stmt1.setString(17, null);
+					stmt1.setInt(18, 1);
+
+					stmt1.setDate(19, loadCF.getFormEncounterDate());
+
+					stmt1.setBoolean(20, false);
+
+					stmt1.setDate(21, null);
+
+					stmt1.setString(22, null);
+					stmt1.setString(23, UUID.randomUUID().toString());
+					//stmt1.setInt(24, module.getPrevious_version());
+					//							if(module.getForm_namespace_and_path() != null)
+					//								stmt1.setString(24, module.getForm_namespace_and_path());
+					//							else
+					//								stmt1.setString(24, null);
+					//Add statement to batch
+					stmt1.addBatch();
+
+					//execute batch
+					stmt1.executeBatch();
+					logToConsole("\nTransaction is updated successfully.");
+				} catch (SQLException e) {
+					logToConsole(e.getMessage());
+					e.printStackTrace();
+					rollbackTransaction(conn1, e);
+				}
+			try {
+
+				conn1.commit();
+				getLastEncounter();
+			}
+			catch (Exception ex) {
+				logToConsole("\nError in batch update: " + ex.getMessage());
+
+			}
+		}
+		catch (SQLException e) {
+			logToConsole("\nError Establishing connection: " + e.getMessage());
+			e.printStackTrace();
+
+		}catch (Exception ex){
+			logToConsole("\n Error: "+ex.getMessage());
+			ex.printStackTrace();
+		}
+
+	}
+
+	@FXML
+	private void createCommencementForm(){
+		createCommencementForm(noCommencementTableView.getSelectionModel().getSelectedItem(),"com", daysPlus.getText());
+	}
+
+	@FXML
+	private void createInitialForm(){
+		createCommencementForm(noInitialTableView.getSelectionModel().getSelectedItem(),"init", "0");
+	}
+
+	@FXML
+	private void createCommencementForm(PatientStatus loadCF, String loc, String days){
+
+//		if(valueToAdd.getText() == null) {
+//			logToConsole("\n Can not Add Empty Value");
+//			return;
+//		}else if(Integer.parseInt(valueToAdd.getText()) < 1 || Integer.parseInt(valueToAdd.getText()) > 200){
+//			logToConsole("\n Value is out of Range");
+//			return;
+//		}
+
+//		PatientStatus loadCF = noCommencementTableView.getSelectionModel().getSelectedItem();
+
+		if(loadCF == null){
+			return;
+		}
+
+		logToConsole("\n Initializing.!\n");
+
+		String INSERT_SQL = "INSERT INTO encounter"
+				+ "(encounter_id, encounter_type, patient_id, location_id, form_id, encounter_datetime, creator, date_created, "
+				+ "date_changed, voided, date_voided, void_reason, uuid,provider_id) "
+				+ "VALUES ( NULL,?,?,?,?,DATE_ADD(?, INTERVAL "+Integer.parseInt(days)+" DAY),?,?,?,?,?,?,?,?)";
+
+		logToConsole("\n Connecting Encounter! \n");
+		int encounterID = 0;
+		try (Connection conn1 = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+			conn1.setAutoCommit(false);
+			try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);) {
+				logToConsole("\n Creating Encounter! \n");
+				try {
+					if(loc == "init")
+						stmt1.setInt(1, 15);
+					else if(loc == "com")
+						stmt1.setInt(1, 12);
+					stmt1.setInt(2, loadCF.getPatientID());
+					stmt1.setInt(3, locationComboBox.getSelectionModel().getSelectedItem().getLocationID());
+					if(loc.equals("com"))
+						stmt1.setInt(4, 1);
+					else
+						stmt1.setInt(4, 65);
+					stmt1.setDate(5, loadCF.getFirstEncounterDate());
+					stmt1.setInt(6, 1);
+					stmt1.setDate(7, loadCF.getFirstEncounterDate());
+					stmt1.setDate(8, null);
+					stmt1.setBoolean(9, false);
+					stmt1.setDate(10, null);
+					stmt1.setString(11, null);
+					stmt1.setString(12, UUID.randomUUID().toString());
+					stmt1.setInt(13, 1);
+
+					//Add statement to batch
+					stmt1.addBatch();
+
+					stmt1.executeBatch();
+					ResultSet rs1 = stmt1.getGeneratedKeys();
+					while (rs1.next()){
+						encounterID = rs1.getInt(1);
+					}
+
+
+					logToConsole("\n Connected Encounter with ID: "+encounterID);
+
+					//######################
+
+					//######################
+				}
+				catch (Exception ex) {
+					logToConsole(ex.getMessage());
+					ex.printStackTrace();
+				}
+
+			}
+			catch (SQLException e) {
+				logToConsole("\nError running Insert statement: " + e.getMessage());
+				e.printStackTrace();
+				rollbackTransaction(conn1, e);
+			}
+
+			String INSERT_SQL2 = "INSERT INTO obs"
+					+ "(person_id,"
+					+ " concept_id, "
+					+ "encounter_id, "
+					+ "order_id, "
+					+ "obs_datetime, "
+					+ "location_id," +
+					"accession_number, "
+					+ "value_group_id,"
+					+ " value_coded, "
+					+ "value_coded_name_id, "
+					+ "value_drug, "
+					+ "value_datetime, " +
+					"value_numeric, "
+					+ "value_modifier, "
+					+ "value_text, "
+					+ "value_complex,"
+					+ " comments," +
+					"creator, "
+					+ "date_created,"
+					+ " voided, "
+					+ "date_voided,"
+					+ " void_reason, "
+					+ "uuid, "
+					+ "obs_group_id) " +
+					"VALUES (?,?,?,?,?,?,?,?,?,?,?,DATE_ADD(?,INTERVAL "+Integer.parseInt(daysPlus.getText())+" DAY),?,?,?,?,?,?,?,?,?,?,?,?)";
+
+			try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL2);) {
+				logToConsole("\n Connecting Obs! \n");
+					///try {
+					//							stmt1.setInt(26, module.getObs_id());
+//					if(module.getObs_group_id() != null)
+//						stmt1.setInt(24, module.getObs_group_id());
+//					else
+						stmt1.setString(24, null);
+						stmt1.setInt(1, loadCF.getPatientID());
+
+						if(loc == "com")
+							stmt1.setInt(2, 863);
+						else
+							stmt1.setInt(2, 859);
+
+						stmt1.setInt(3, encounterID);
+
+						stmt1.setString(4, null);
+						stmt1.setDate(5, new java.sql.Date(loadCF.getFirstEncounterDate().getTime()));
+
+						stmt1.setInt(6, locationComboBox.getSelectionModel().getSelectedItem().getLocationID());
+
+						stmt1.setString(7, null);
+
+						stmt1.setString(8, null);
+
+						//logToConsole("\nValue Coded: "+module.getValue_coded());
+
+						stmt1.setString(9, null);
+
+						stmt1.setString(10, null);
+
+						stmt1.setString(11, null);
+						stmt1.setDate(12, new java.sql.Date(loadCF.getFirstEncounterDate().getTime()));
+
+						stmt1.setString(13, null);
+
+						stmt1.setString(14, null);
+
+						stmt1.setString(15, null);
+
+						stmt1.setString(16, null);
+
+						stmt1.setString(17, null);
+						stmt1.setInt(18, 1);
+
+						stmt1.setDate(19, new java.sql.Date(loadCF.getFirstEncounterDate().getTime()));
+
+						stmt1.setBoolean(20, false);
+
+						stmt1.setDate(21, null);
+
+						stmt1.setString(22, null);
+					stmt1.setString(23, UUID.randomUUID().toString());
+					//stmt1.setInt(24, module.getPrevious_version());
+					//							if(module.getForm_namespace_and_path() != null)
+					//								stmt1.setString(24, module.getForm_namespace_and_path());
+					//							else
+					//								stmt1.setString(24, null);
+					//Add statement to batch
+					stmt1.addBatch();
+
+				//execute batch
+				stmt1.executeBatch();
+				logToConsole("\nTransaction is committed successfully.");
+			} catch (SQLException e) {
+				logToConsole(e.getMessage());
+				e.printStackTrace();
+				rollbackTransaction(conn1, e);
+			}
+
+			//execute batch
+			try {
+
+				conn1.commit();
+				getLastEncounter();
+			}
+			catch (Exception ex) {
+				logToConsole("\nError in batch insert: " + ex.getMessage());
+
+			}
+		}
+		catch (SQLException e) {
+			logToConsole("\nError Establishing connection: " + e.getMessage());
+			e.printStackTrace();
+
+		}catch (Exception ex){
+			logToConsole("Error: "+ex.getMessage());
+			ex.printStackTrace();
+		}
+//
+//		getExcess();
+//		new Thread(weightHeightTask).start();
 	}
 }

@@ -22,13 +22,23 @@
                                  <children>
                                     <VBox prefHeight="473.0" prefWidth="215.0">
                                        <children>
-                                          <Label layoutX="10.0" layoutY="89.0" prefHeight="33.0" prefWidth="215.0" style="-fx-background-color: #336699;" text="Create DTG" textFill="#fffefe">
+                                          <Label layoutX="10.0" layoutY="89.0" prefHeight="33.0" prefWidth="215.0" style="-fx-background-color: #336699;" text="Select your Facility" textFill="#fffefe">
                                              <font>
                                                 <Font name="System Bold" size="18.0" />
                                              </font>
                                              <VBox.margin>
                                                 <Insets />
                                              </VBox.margin>
+                                          </Label>
+                                          <ComboBox fx:id="locationComboBox" prefHeight="27.0" prefWidth="247.0" promptText="Select Your Facility">
+                                             <VBox.margin>
+                                                <Insets bottom="20.0" />
+                                             </VBox.margin>
+                                          </ComboBox>
+                                          <Label layoutX="10.0" layoutY="10.0" prefHeight="33.0" prefWidth="215.0" style="-fx-background-color: #336699;" text="Create DTG" textFill="#fffefe">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
                                           </Label>
                                           <Button fx:id="createDTG" layoutX="10.0" layoutY="169.0" mnemonicParsing="false" onAction="#createDTG" prefHeight="27.0" prefWidth="190.0" style="-fx-background-color: darkgreen;" text="Create DTG" textFill="#f8f7f7" wrapText="true">
                                              <VBox.margin>
@@ -140,7 +150,11 @@
                            <children>
                               <VBox layoutX="-2.0" prefHeight="472.0" prefWidth="246.0">
                                  <children>
-                                    <Button layoutX="20.0" layoutY="63.0" mnemonicParsing="false" onAction="#getLastEncounter" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Reload" textFill="#f8f7f7" wrapText="true" />
+                                    <TextField fx:id="noPharm" promptText="Limit" />
+                                    <Button layoutX="20.0" layoutY="63.0" mnemonicParsing="false" onAction="#getLastEncounter" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Load" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin></Button>
                                     <Label prefHeight="33.0" prefWidth="250.0" style="-fx-background-color: #336699;" text="Create Pharmacy Form" textFill="#fffefe">
                                        <font>
                                           <Font name="System Bold" size="18.0" />
@@ -152,9 +166,14 @@
                                           <Insets top="20.0" />
                                        </VBox.margin>
                                     </Label>
-                                    <Button mnemonicParsing="false" onAction="#createPharmForm" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: darkgreen;" text="Create" textFill="#f8f7f7" wrapText="true">
+                                    <Button mnemonicParsing="false" onAction="#createPharmForm" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: darkgreen;" text="Copy" textFill="#f8f7f7" wrapText="true">
                                        <VBox.margin>
                                           <Insets left="10.0" right="10.0" top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button layoutX="20.0" layoutY="110.0" mnemonicParsing="false" onAction="#updatePharmEncounterDate" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: darkgreen;" text="Update" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
                                        </VBox.margin>
                                     </Button>
                                     <Button layoutX="20.0" layoutY="110.0" mnemonicParsing="false" onAction="#exportToExcel" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Export Table" textFill="#f8f7f7" wrapText="true">
@@ -206,6 +225,11 @@
                                              <PropertyValueFactory property="lastPharmacyEncounterDate" />
                                          </cellValueFactory>
                                      </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Has Care Card">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="hasSibblin" />
+                                       </cellValueFactory>
+                                    </TableColumn>
                                  </columns>
                               </TableView>
                            </children></AnchorPane>
@@ -217,7 +241,11 @@
                            <children>
                               <VBox layoutX="-2.0" prefHeight="472.0" prefWidth="246.0">
                                  <children>
-                                    <Button layoutX="20.0" layoutY="63.0" mnemonicParsing="false" onAction="#getCareWOPharmacy" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Reload" textFill="#f8f7f7" wrapText="true" />
+                                    <TextField fx:id="noCare" promptText="Limit" />
+                                    <Button layoutX="20.0" layoutY="63.0" mnemonicParsing="false" onAction="#getCareWOPharmacy" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Load" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin></Button>
                                     <Label prefHeight="33.0" prefWidth="250.0" style="-fx-background-color: #336699;" text="Create Care Card Form" textFill="#fffefe">
                                        <font>
                                           <Font name="System Bold" size="18.0" />
@@ -229,12 +257,27 @@
                                           <Insets top="20.0" />
                                        </VBox.margin>
                                     </Label>
-                                    <Button mnemonicParsing="false" onAction="#createCareForm" prefHeight="27.0" prefWidth="236.0" style="-fx-background-color: darkgreen;" text="Create" textFill="#f8f7f7" wrapText="true">
+                                    <Button mnemonicParsing="false" onAction="#createCareForm" prefHeight="27.0" prefWidth="236.0" style="-fx-background-color: darkgreen;" text="Copy" textFill="#f8f7f7" wrapText="true">
                                        <VBox.margin>
                                           <Insets left="10.0" right="10.0" top="20.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button layoutX="20.0" layoutY="110.0" mnemonicParsing="false" onAction="#exportPharmToExcel" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Export Table" textFill="#f8f7f7" wrapText="true">
+                                    <Button mnemonicParsing="false" onAction="#updateCareEncounterDate" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: darkgreen;" text="Update" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button layoutX="10.0" layoutY="157.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: brown;" text="Delete" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button layoutX="20.0" layoutY="110.0" mnemonicParsing="false" onAction="#updateCareCardEncounterType" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Update Encounter Type" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button layoutX="10.0" layoutY="157.0" mnemonicParsing="false" onAction="#exportPharmToExcel" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Export Table" textFill="#f8f7f7" wrapText="true">
                                        <VBox.margin>
                                           <Insets top="20.0" />
                                        </VBox.margin>
@@ -282,6 +325,11 @@
                                     <TableColumn prefWidth="134.0" text="Nearest Care Card Entry">
                                        <cellValueFactory>
                                           <PropertyValueFactory property="lastPharmacyEncounterDate" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="134.0" text="Has Pharmacy Form">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="hasSibblin" />
                                        </cellValueFactory>
                                     </TableColumn>
                                  </columns>
@@ -558,14 +606,44 @@
                         </AnchorPane>
                     </content>
                   </Tab>
-                  <Tab text="No ART Commencement">
+                  <Tab text="No ART Start Date">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
                               <VBox prefHeight="473.0" prefWidth="230.0">
                                  <children>
-                                    <Button mnemonicParsing="false" onAction="#fetchNoArtCommencement" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Load" textFill="#f8f7f7" wrapText="true" />
-                                    <Button mnemonicParsing="false" onAction="#coCommencementToExcel" prefHeight="32.0" prefWidth="227.0" text="Export" />
+                                    <TextField fx:id="noArtStart" promptText="Limit" />
+                                    <Button mnemonicParsing="false" onAction="#fetchNoArtCommencement" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Load" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin></Button>
+                                    <Button mnemonicParsing="false" onAction="#coCommencementToExcel" prefHeight="32.0" prefWidth="227.0" text="Export">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin></Button>
+                                    <TextField fx:id="daysPlus" promptText="Days">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </TextField>
+                                    <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#createCommencementForm" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Create" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button layoutX="10.0" layoutY="69.0" mnemonicParsing="false" onAction="#updateCommencementForm" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Update" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Label fx:id="noComStatus" prefHeight="32.0" prefWidth="227.0" textFill="#110000">
+                                       <padding>
+                                          <Insets left="10.0" />
+                                       </padding>
+                                       <font>
+                                          <Font name="System Bold Italic" size="13.0" />
+                                       </font>
+                                    </Label>
                                  </children>
                               </VBox>
                               <VBox layoutX="230.0" prefHeight="472.0" prefWidth="1036.0" />
@@ -596,6 +674,11 @@
                                           <PropertyValueFactory property="lastARVDate" />
                                        </cellValueFactory>
                                     </TableColumn>
+                                     <TableColumn prefWidth="166.0" text="Art Start Date">
+                                         <cellValueFactory>
+                                             <PropertyValueFactory property="artStartDate" />
+                                         </cellValueFactory>
+                                     </TableColumn>
                                     <TableColumn prefWidth="166.0" text="Days">
                                        <cellValueFactory>
                                           <PropertyValueFactory property="drugDuration" />
@@ -606,9 +689,14 @@
                                           <PropertyValueFactory property="nextAppointmentDate" />
                                        </cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn prefWidth="166.0" text="Status">
+                                    <TableColumn prefWidth="166.0" text="Form Exists">
                                        <cellValueFactory>
-                                          <PropertyValueFactory property="status" />
+                                          <PropertyValueFactory property="formExists" />
+                                       </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="166.0" text="First Encounter">
+                                       <cellValueFactory>
+                                          <PropertyValueFactory property="firstEncounterDate" />
                                        </cellValueFactory>
                                     </TableColumn>
                                  </columns>
@@ -616,6 +704,96 @@
                            </children></AnchorPane>
                     </content>
                   </Tab>
+				  <Tab text="No HIV Confirmed Date">
+					  <content>
+						  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+							  <children>
+								  <VBox prefHeight="473.0" prefWidth="230.0">
+									  <children>
+                                    <TextField fx:id="noHivConf" promptText="Limit" />
+										  <Button mnemonicParsing="false" onAction="#fetchNoInitial" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Load" textFill="#f8f7f7" wrapText="true">
+                                       <VBox.margin>
+                                          <Insets top="20.0" />
+                                       </VBox.margin></Button>
+										  <Button mnemonicParsing="false" onAction="#initialToExcel" prefHeight="32.0" prefWidth="227.0" text="Export">
+											  <VBox.margin>
+												  <Insets top="20.0" />
+											  </VBox.margin></Button>
+										  <TextField fx:id="daysPlusI" promptText="Days">
+											  <VBox.margin>
+												  <Insets top="20.0" />
+											  </VBox.margin>
+										  </TextField>
+										  <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#createInitialForm" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Create" textFill="#f8f7f7" wrapText="true">
+											  <VBox.margin>
+												  <Insets top="20.0" />
+											  </VBox.margin>
+										  </Button>
+										  <Button layoutX="10.0" layoutY="69.0" mnemonicParsing="false" onAction="#updateInitialForm" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Update" textFill="#f8f7f7" wrapText="true">
+											  <VBox.margin>
+												  <Insets top="20.0" />
+											  </VBox.margin>
+										  </Button>
+									  </children>
+								  </VBox>
+								  <VBox layoutX="230.0" prefHeight="472.0" prefWidth="1036.0" />
+								  <TableView fx:id="noInitialTableView" layoutX="227.0" prefHeight="484.0" prefWidth="1049.0">
+									  <columns>
+										  <TableColumn prefWidth="97.0" text="Patient ID">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="PatientID" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="133.0" text="PepFar ID">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="PepfarID" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="173.0" text="Patient Name">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="PatientName" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="166.0" text="Phone Number">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="patientPhoneNumber" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="166.0" text="Last ARV Pick-Up Date">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="lastARVDate" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="166.0" text="Date Confirmed">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="artStartDate" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="166.0" text="Days">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="drugDuration" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="166.0" text="Next Appointment Date">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="nextAppointmentDate" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="166.0" text="Form Exists">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="formExists" />
+											  </cellValueFactory>
+										  </TableColumn>
+										  <TableColumn prefWidth="166.0" text="First Encounter">
+											  <cellValueFactory>
+												  <PropertyValueFactory property="firstEncounterDate" />
+											  </cellValueFactory>
+										  </TableColumn>
+									  </columns>
+								  </TableView>
+							  </children></AnchorPane>
+					  </content>
+				  </Tab>
                   <Tab text="Address Issue">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -623,7 +801,7 @@
                               <VBox prefHeight="472.0" prefWidth="199.0">
                                  <children>
                                     <Button mnemonicParsing="false" onAction="#getPatientAddress" prefHeight="27.0" prefWidth="246.0" style="-fx-background-color: gray;" text="Load" textFill="#f8f7f7" wrapText="true" />
-                                    <Button mnemonicParsing="false" onAction="#coCommencementToExcel" prefHeight="32.0" prefWidth="227.0" text="Export" />
+                                    <Button mnemonicParsing="false" onAction="#addressToExcel" prefHeight="32.0" prefWidth="227.0" text="Export" />
                                  </children>
                               </VBox>
                               <VBox layoutX="199.0" prefHeight="473.0" prefWidth="1069.0">

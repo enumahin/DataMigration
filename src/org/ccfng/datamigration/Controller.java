@@ -4718,4 +4718,31 @@ public class Controller {
             ex.printStackTrace();
         }
     }
+
+    @FXML
+    private void lineList(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/linelist/linelist.fxml").openStream());
+
+            org.ccfng.linelist.Controller controller = (org.ccfng.linelist.Controller) fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("Line List");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
 }

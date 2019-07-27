@@ -18,6 +18,14 @@ public class Demographics{
 
 	private String patientPhoneNumber;
 
+	private String address;
+
+	private String hospitalNumber;
+
+	private String sex;
+
+
+
 	public Demographics() {
 	}
 
@@ -95,4 +103,27 @@ public class Demographics{
 		this.patientPhoneNumber = patientPhoneNumber;
 	}
 
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getHospitalNumber() {
+		return hospitalNumber;
+	}
+
+	public void setHospitalNumber(String hospitalNumber) {
+		this.hospitalNumber = hospitalNumber;
+	}
+
+	public String getSex() {
+		return sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
 }

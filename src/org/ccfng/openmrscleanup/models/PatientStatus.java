@@ -15,6 +15,16 @@ public class PatientStatus extends Demographics {
 
 	private String reason;
 
+	private Integer formEncounter;
+
+	private Date formEncounterDate;
+
+	private String formExists;
+
+	private Date firstEncounterDate;
+
+	private Date artStartDate;
+
 	public PatientStatus() {
 	}
 
@@ -76,6 +86,46 @@ public class PatientStatus extends Demographics {
 
 	public void setReason(String reason) {
 		this.reason = reason;
+	}
+
+	public Integer getFormEncounter() {
+		return formEncounter;
+	}
+
+	public void setFormEncounter(Integer formEncounter) {
+		this.formEncounter = formEncounter;
+	}
+
+	public String getFormExists() {
+		return formExists;
+	}
+
+	public void setFormExists(String formExists) {
+		this.formExists = formExists;
+	}
+
+	public Date getFirstEncounterDate() {
+		return firstEncounterDate;
+	}
+
+	public void setFirstEncounterDate(Date firstEncounterDate) {
+		this.firstEncounterDate = firstEncounterDate;
+	}
+
+	public Date getArtStartDate() {
+		return artStartDate;
+	}
+
+	public void setArtStartDate(Date artStartDate) {
+		this.artStartDate = artStartDate;
+	}
+
+	public Date getFormEncounterDate() {
+		return formEncounterDate;
+	}
+
+	public void setFormEncounterDate(Date formEncounterDate) {
+		this.formEncounterDate = formEncounterDate;
 	}
 
 	@Override

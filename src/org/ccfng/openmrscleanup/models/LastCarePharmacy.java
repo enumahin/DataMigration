@@ -37,6 +37,8 @@ public class LastCarePharmacy extends Demographics {
 
 	private Date nextAppointmentDate;
 
+	private String hasSibblin;
+
 	public LastCarePharmacy() {
 	}
 
@@ -209,6 +211,14 @@ public class LastCarePharmacy extends Demographics {
 
 	public void setLastPharmEncounterID(Integer lastPharmEncounterID) {
 		this.lastPharmEncounterID = lastPharmEncounterID;
+	}
+
+	public String getHasSibblin() {
+		return hasSibblin;
+	}
+
+	public void setHasSibblin(String hasSibblin) {
+		this.hasSibblin = hasSibblin;
 	}
 
 	@Override

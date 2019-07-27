@@ -17,6 +17,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+
 <AnchorPane fx:id="mainLayer" maxHeight="800.0" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="641.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ccfng.datamigration.Controller">
     <children>
         <HBox prefHeight="38.0" prefWidth="800.0" style="-fx-background-color: #336699;">
@@ -47,7 +48,7 @@
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#vlEligibility" text="Viral Load Eligibility" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Line List" />
+                        <MenuItem mnemonicParsing="false" onAction="#lineList" text="Line List" />
                             </items>
                         </Menu>
                   <Menu mnemonicParsing="false" text="Help">
