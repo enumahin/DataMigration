@@ -4,9 +4,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -146,7 +146,7 @@ public class Controller {
 				appConsole.clear();
 				logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
 
-				Statement stmt = null;
+				PreparedStatement stmt = null;
 				try {
 					//STEP 2: Register JDBC driver
 					Class.forName("com.mysql.jdbc.Driver");
@@ -157,396 +157,331 @@ public class Controller {
 						.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());) {
 					logToConsole("\n Source Database connection successful..");
 
-					logToConsole("\n Fetching Eligibility List Please wait...");
+					logToConsole("\n Fetching Line List Please wait...");
 
-					stmt = conn.createStatement();
+					stmt = conn.prepareStatement(sql);
 					stmt.setFetchSize(500);
 					logToConsole("\n Query Created, Please wait...");
 					logToConsole("\n Fetching Data Please wait...");
 					ResultSet rs = stmt.executeQuery(sql);
+					rs.setFetchSize(10);
 					logToConsole("\n Raw Data Fetched...");
 					logToConsole("\n Processing data, Please wait...");
 					//STEP 5: Extract data from result set
 					while (rs.next()) {
-//						if(rs.getDate("ArtStartDate") != null) {
-							if(Duration.between(
-									LocalDate.parse(rs.getDate("ArtStartDate").toString(),
-											cc.getFormatter())
-											.atStartOfDay(),
-									LocalDate.now().atStartOfDay()
-							).toDays() >= 180) {
-								LineList lL = new LineList();
-								if ( rs.getDate("LastVLDATE") == null || rs.getInt("LastVLCount") == 0){
-									//									logToConsole( "\n 1-"+rs.getDate("LastVLDATE"));
-									//									logToConsole( "\n 1-"+rs.getDate("ArtStartDate"));
+						//						if(rs.getDate("ArtStartDate") != null) {
+						LineList lL = new LineList();
+						lL.setPatientID(rs.getInt("patientID"));
+						lL.setPepfarID(rs.getString("pepfarID"));
+						lL.setPatientName(rs.getString("patientName"));
+						lL.setPatientPhoneNumber(rs.getString("PhoneNumber"));
+						lL.setCurrentViralLoad(rs.getInt("LastVLCount"));
+						if (rs.getString("Address1") != null)
+							lL.setAddress(rs.getString("Address1"));
+						else
+							lL.setAddress(rs.getString("Address2"));
+						lL.setHospitalNumber(rs.getString("hospitalNumber"));
+						lL.setSex(rs.getString("Sex"));
+						lL.setPatientAge(rs.getInt("birthdate"));
 
-									lL.setPatientID(rs.getInt("patientID"));
-									lL.setPepfarID(rs.getString("pepfarID"));
-									lL.setPatientName(rs.getString("patientName"));
-									lL.setPatientPhoneNumber(rs.getString("PhoneNumber"));
-
-									lL.setCurrentViralLoad(rs.getInt("LastVLCount"));
-									if(rs.getString("Address1") != null)
-										lL.setAddress(rs.getString("Address1"));
-									else
-										lL.setAddress(rs.getString("Address2"));
-									lL.setHospitalNumber(rs.getString("hospitalNumber"));
-									lL.setSex(rs.getString("Sex"));
-									lL.setPatientAge(rs.getInt("birthdate"));
-//
-									if(rs.getDate("LastVLDATE") != null){
-										lL.setDateOfCurrentViralLoad(rs.getDate("LastVLDATE"));
-									}
-
-									if(rs.getDate("ArtStartDate") != null){
-										lL.setArtStartDate(rs.getDate("ArtStartDate"));
-									}
-
-									if(rs.getDate("ArtStartDate") != null) {
-										lL.setAgeAtArtStart(rs.getLong("ageAtArtStart"));
-									}
-									if(rs.getDate("LastArtPickUp") != null){
-										lL.setLastPickUpDate(rs.getDate("LastArtPickUp"));
-									}
-
-									if(rs.getDate("NextAppointmentDATE") != null) {
-										lL.setNextAppointmentDate(rs.getDate("NextAppointmentDATE"));
-
-										lL.setNumberOfDaysMissedAppointment(Duration.between(
-												LocalDate.now().atStartOfDay(),
-												LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(), cc.getFormatter())
-														.atStartOfDay()
-										).toDays());
-									}
-
-									if(rs.getDate("LastArtPickUp") != null && rs.getDate("NextAppointmentDATE") != null) {
-										lL.setDaysOfArtRefill(
-												Duration.between(
-														LocalDate.parse(rs.getDate("LastArtPickUp").toString(),
-																cc.getFormatter()).atStartOfDay(),
-														LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(),
-																cc.getFormatter()).atStartOfDay()
-												).toDays()
-										);
-
-
-									}
-									lL.setRegimenLineAtStart(rs.getString("RegimenLineAtStart"));
-									lL.setRegimenAtStart(rs.getString("RegimenAtStart"));
-									lL.setCurrentRegimenLine(rs.getString("CurrentRegimenLine"));
-									lL.setCurrentRegimen(rs.getString("CurrentRegimen"));
-									lL.setPregnancyStatus(rs.getString("Pregnant"));
-									lL.setViralLoadIndication(rs.getString("ViralLoadIndication"));
-									if (rs.getString("Exited") != null) {
-										lL.setCurrentArtStatus(rs.getString("Exited"));
-									} else {
-										if (lL.getNumberOfDaysMissedAppointment() != null) {
-											if (lL.getNumberOfDaysMissedAppointment() >= 0) {
-												lL.setCurrentArtStatus("Active");
-											} else if (lL.getNumberOfDaysMissedAppointment() >= -28) {
-												lL.setCurrentArtStatus("Missed Appointment");
-											} else {
-												lL.setCurrentArtStatus("InActive");
-											}
-
-										}
-									}
-									if(lL.getNumberOfDaysMissedAppointment() != null) {
-										if (lL.getNumberOfDaysMissedAppointment() >= -28) {
-											lL.setActiveBy28("Active");
-										} else {
-											lL.setActiveBy28("InActive");
-										}
-
-										if (lL.getNumberOfDaysMissedAppointment() >= -90) {
-											lL.setActiveBy90("Active");
-										} else {
-											lL.setActiveBy90("InActive");
-										}
-									}
-									vls.add(lL);
-								}
-								else if(
-
-										Duration.between(
-												LocalDate.parse(rs.getDate("LastVLDATE").toString(),
-														cc.getFormatter()).atStartOfDay(),
-												LocalDate.now().atStartOfDay()
-										).toDays() >= 90 && rs.getInt("LastVLCount") > 999
-										)
-								{
-
-									lL.setPatientID(rs.getInt("patientID"));
-									lL.setPepfarID(rs.getString("pepfarID"));
-									lL.setPatientName(rs.getString("patientName"));
-									lL.setPatientPhoneNumber(rs.getString("PhoneNumber"));
-									lL.setCurrentViralLoad(rs.getInt("LastVLCount"));
-									if(rs.getString("Address1") != null)
-										lL.setAddress(rs.getString("Address1"));
-									else
-										lL.setAddress(rs.getString("Address2"));
-									lL.setHospitalNumber(rs.getString("hospitalNumber"));
-									lL.setSex(rs.getString("Sex"));
-									lL.setPatientAge(rs.getInt("birthdate"));
-
-									if(rs.getDate("LastVLDATE") != null){
-										lL.setDateOfCurrentViralLoad(rs.getDate("LastVLDATE"));
-									}
-
-									if(rs.getDate("ArtStartDate") != null){
-										lL.setArtStartDate(rs.getDate("ArtStartDate"));
-									}
-
-									if(rs.getDate("ArtStartDate") != null) {
-										lL.setAgeAtArtStart(rs.getLong("ageAtArtStart"));
-									}
-									if(rs.getDate("LastArtPickUp") != null){
-										lL.setLastPickUpDate(rs.getDate("LastArtPickUp"));
-									}
-
-									if(rs.getDate("NextAppointmentDATE") != null) {
-										lL.setNextAppointmentDate(rs.getDate("NextAppointmentDATE"));
-
-										lL.setNumberOfDaysMissedAppointment(Duration.between(
-												LocalDate.now().atStartOfDay(),
-												LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(), cc.getFormatter())
-														.atStartOfDay()
-										).toDays());
-									}
-
-									if(rs.getDate("LastArtPickUp") != null && rs.getDate("NextAppointmentDATE") != null) {
-										lL.setDaysOfArtRefill(
-												Duration.between(
-														LocalDate.parse(rs.getDate("LastArtPickUp").toString(),
-																cc.getFormatter()).atStartOfDay(),
-														LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(),
-																cc.getFormatter()).atStartOfDay()
-												).toDays()
-										);
-
-									}
-									lL.setRegimenLineAtStart(rs.getString("RegimenLineAtStart"));
-									lL.setRegimenAtStart(rs.getString("RegimenAtStart"));
-									lL.setCurrentRegimenLine(rs.getString("CurrentRegimenLine"));
-									lL.setCurrentRegimen(rs.getString("CurrentRegimen"));
-									lL.setPregnancyStatus(rs.getString("Pregnant"));
-									lL.setViralLoadIndication(rs.getString("ViralLoadIndication"));
-									if (rs.getString("Exited") != null) {
-										lL.setCurrentArtStatus(rs.getString("Exited"));
-									} else {
-										if (lL.getNumberOfDaysMissedAppointment() != null) {
-											if (lL.getNumberOfDaysMissedAppointment() >= 0) {
-												lL.setCurrentArtStatus("Active");
-											} else if (lL.getNumberOfDaysMissedAppointment() >= -28) {
-												lL.setCurrentArtStatus("Missed Appointment");
-											} else {
-												lL.setCurrentArtStatus("InActive");
-											}
-
-										}
-									}
-									if(lL.getNumberOfDaysMissedAppointment() != null) {
-										if (lL.getNumberOfDaysMissedAppointment() >= -28) {
-											lL.setActiveBy28("Active");
-										} else {
-											lL.setActiveBy28("InActive");
-										}
-
-										if (lL.getNumberOfDaysMissedAppointment() >= -90) {
-											lL.setActiveBy90("Active");
-										} else {
-											lL.setActiveBy90("InActive");
-										}
-									}
-									vls.add(lL);
-
-								}else if(
-										Duration.between(
-												LocalDate.parse(rs.getDate("LastVLDATE").toString(),
-														cc.getFormatter()).atStartOfDay(),
-												LocalDate.now().atStartOfDay()
-										).toDays() >= 365 && rs.getInt("LastVLCount") < 1000
-
-										) {
-
-									lL.setPatientID(rs.getInt("patientID"));
-									lL.setPepfarID(rs.getString("pepfarID"));
-									lL.setPatientName(rs.getString("patientName"));
-									lL.setPatientPhoneNumber(rs.getString("PhoneNumber"));
-
-									lL.setCurrentViralLoad(rs.getInt("LastVLCount"));
-									if(rs.getString("Address1") != null)
-										lL.setAddress(rs.getString("Address1"));
-									else
-										lL.setAddress(rs.getString("Address2"));
-									lL.setHospitalNumber(rs.getString("hospitalNumber"));
-									lL.setSex(rs.getString("Sex"));
-									lL.setPatientAge(rs.getInt("birthdate"));
-
-									if(rs.getDate("LastVLDATE") != null){
-										lL.setDateOfCurrentViralLoad(rs.getDate("LastVLDATE"));
-									}
-
-									if(rs.getDate("ArtStartDate") != null){
-										lL.setArtStartDate(rs.getDate("ArtStartDate"));
-									}
-
-									if(rs.getDate("ArtStartDate") != null) {
-										lL.setAgeAtArtStart(rs.getLong("ageAtArtStart"));
-									}
-									if(rs.getDate("LastArtPickUp") != null){
-										lL.setLastPickUpDate(rs.getDate("LastArtPickUp"));
-									}
-
-									if(rs.getDate("NextAppointmentDATE") != null) {
-										lL.setNextAppointmentDate(rs.getDate("NextAppointmentDATE"));
-
-										lL.setNumberOfDaysMissedAppointment(Duration.between(
-												LocalDate.now().atStartOfDay(),
-												LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(), cc.getFormatter())
-														.atStartOfDay()
-										).toDays());
-									}
-
-									if(rs.getDate("LastArtPickUp") != null && rs.getDate("NextAppointmentDATE") != null) {
-										lL.setDaysOfArtRefill(
-												Duration.between(
-														LocalDate.parse(rs.getDate("LastArtPickUp").toString(),
-																cc.getFormatter()).atStartOfDay(),
-														LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(),
-																cc.getFormatter()).atStartOfDay()
-												).toDays()
-										);
-									}
-									lL.setRegimenLineAtStart(rs.getString("RegimenLineAtStart"));
-									lL.setRegimenAtStart(rs.getString("RegimenAtStart"));
-									lL.setCurrentRegimenLine(rs.getString("CurrentRegimenLine"));
-									lL.setCurrentRegimen(rs.getString("CurrentRegimen"));
-									lL.setPregnancyStatus(rs.getString("Pregnant"));
-									lL.setViralLoadIndication(rs.getString("ViralLoadIndication"));
-									if (rs.getString("Exited") != null) {
-										lL.setCurrentArtStatus(rs.getString("Exited"));
-									} else {
-										if (lL.getNumberOfDaysMissedAppointment() != null) {
-											if (lL.getNumberOfDaysMissedAppointment() >= 0) {
-												lL.setCurrentArtStatus("Active");
-											} else if (lL.getNumberOfDaysMissedAppointment() >= -28) {
-												lL.setCurrentArtStatus("Missed Appointment");
-											} else {
-												lL.setCurrentArtStatus("InActive");
-											}
-
-										}
-									}
-									if(lL.getNumberOfDaysMissedAppointment() != null) {
-										if (lL.getNumberOfDaysMissedAppointment() >= -28) {
-											lL.setActiveBy28("Active");
-										} else {
-											lL.setActiveBy28("InActive");
-										}
-
-										if (lL.getNumberOfDaysMissedAppointment() >= -90) {
-											lL.setActiveBy90("Active");
-										} else {
-											lL.setActiveBy90("InActive");
-										}
-									}
-									vls.add(lL);
-									//logToConsole(patientStatus.toString() + "\n");
-								}
-								//								logToConsole("\nVl Due Date: "+vl.getVlduedate());
-							}else{
-								LineList lL = new LineList();
-
-								lL.setPatientID(rs.getInt("patientID"));
-									lL.setPepfarID(rs.getString("pepfarID"));
-									lL.setPatientName(rs.getString("patientName"));
-									lL.setPatientPhoneNumber(rs.getString("PhoneNumber"));
-
-									lL.setCurrentViralLoad(rs.getInt("LastVLCount"));
-									if(rs.getString("Address1") != null)
-										lL.setAddress(rs.getString("Address1"));
-									else
-										lL.setAddress(rs.getString("Address2"));
-									lL.setHospitalNumber(rs.getString("hospitalNumber"));
-									lL.setSex(rs.getString("Sex"));
-									lL.setPatientAge(rs.getInt("birthdate"));
-									//
-									if(rs.getDate("LastVLDATE") != null){
-										lL.setDateOfCurrentViralLoad(rs.getDate("LastVLDATE"));
-									}
-
-									if(rs.getDate("ArtStartDate") != null){
-										lL.setArtStartDate(rs.getDate("ArtStartDate"));
-									}
-
-									if(rs.getDate("ArtStartDate") != null) {
-										lL.setAgeAtArtStart(rs.getLong("ageAtArtStart"));
-									}
-									if(rs.getDate("LastArtPickUp") != null){
-										lL.setLastPickUpDate(rs.getDate("LastArtPickUp"));
-									}
-
-									if(rs.getDate("NextAppointmentDATE") != null) {
-										lL.setNextAppointmentDate(rs.getDate("NextAppointmentDATE"));
-
-										lL.setNumberOfDaysMissedAppointment(Duration.between(
-												LocalDate.now().atStartOfDay(),
-												LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(), cc.getFormatter())
-														.atStartOfDay()
-										).toDays());
-									}
-
-									if(rs.getDate("LastArtPickUp") != null && rs.getDate("NextAppointmentDATE") != null) {
-										lL.setDaysOfArtRefill(
-												Duration.between(
-														LocalDate.parse(rs.getDate("LastArtPickUp").toString(),
-																cc.getFormatter()).atStartOfDay(),
-														LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(),
-																cc.getFormatter()).atStartOfDay()
-												).toDays()
-										);
-
-
-									}
-									lL.setRegimenLineAtStart(rs.getString("RegimenLineAtStart"));
-									lL.setRegimenAtStart(rs.getString("RegimenAtStart"));
-									lL.setCurrentRegimenLine(rs.getString("CurrentRegimenLine"));
-									lL.setCurrentRegimen(rs.getString("CurrentRegimen"));
-									lL.setPregnancyStatus(rs.getString("Pregnant"));
-									lL.setViralLoadIndication(rs.getString("ViralLoadIndication"));
-									if (rs.getString("Exited") != null) {
-										lL.setCurrentArtStatus(rs.getString("Exited"));
-									} else {
-										if (lL.getNumberOfDaysMissedAppointment() != null) {
-											if (lL.getNumberOfDaysMissedAppointment() >= 0) {
-												lL.setCurrentArtStatus("Active");
-											} else if (lL.getNumberOfDaysMissedAppointment() >= -28) {
-												lL.setCurrentArtStatus("Missed Appointment");
-											} else {
-												lL.setCurrentArtStatus("InActive");
-											}
-
-										}
-									}
-									if(lL.getNumberOfDaysMissedAppointment() != null) {
-										if (lL.getNumberOfDaysMissedAppointment() >= -28) {
-											lL.setActiveBy28("Active");
-										} else {
-											lL.setActiveBy28("InActive");
-										}
-
-										if (lL.getNumberOfDaysMissedAppointment() >= -90) {
-											lL.setActiveBy90("Active");
-										} else {
-											lL.setActiveBy90("InActive");
-										}
-									}
-									vls.add(lL);
-							//							logToConsole( "\n"+rs.getDate("LastVLDATE"));
-							//							logToConsole( "\n"+rs.getDate("ArtStartDate"));
+						if (rs.getDate("ArtStartDate") != null) {
+							lL.setArtStartDate(rs.getDate("ArtStartDate"));
+							lL.setAgeAtArtStart(rs.getLong("ageAtArtStart"));
 						}
-					}
+						if (rs.getDate("LastArtPickUp") != null) {
+							lL.setLastPickUpDate(rs.getDate("LastArtPickUp"));
+						}
+
+						if (rs.getDate("NextAppointmentDATE") != null) {
+							lL.setNextAppointmentDate(rs.getDate("NextAppointmentDATE"));
+
+							lL.setNumberOfDaysMissedAppointment(Duration.between(
+									LocalDate.now().atStartOfDay(),
+									LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(), cc.getFormatter())
+											.atStartOfDay()
+							).toDays());
+						}
+
+						if (rs.getDate("LastArtPickUp") != null && rs.getDate("NextAppointmentDATE") != null) {
+							lL.setDaysOfArtRefill(
+									Duration.between(
+											LocalDate.parse(rs.getDate("LastArtPickUp").toString(),
+													cc.getFormatter()).atStartOfDay(),
+											LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(),
+													cc.getFormatter()).atStartOfDay()
+									).toDays()
+							);
+
+						}
+						if (rs.getDate("LastVLDATE") != null) {
+							lL.setDateOfCurrentViralLoad(rs.getDate("LastVLDATE"));
+						}
+						lL.setRegimenLineAtStart(rs.getString("RegimenLineAtStart"));
+						lL.setRegimenAtStart(rs.getString("RegimenAtStart"));
+						lL.setCurrentRegimenLine(rs.getString("CurrentRegimenLine"));
+						lL.setCurrentRegimen(rs.getString("CurrentRegimen"));
+						lL.setPregnancyStatus(rs.getString("Pregnant"));
+						lL.setViralLoadIndication(rs.getString("ViralLoadIndication"));
+						if (rs.getString("Exited") != null) {
+							lL.setCurrentArtStatus(rs.getString("Exited"));
+						} else {
+							if (lL.getNumberOfDaysMissedAppointment() != null) {
+								if (lL.getNumberOfDaysMissedAppointment() >= 0) {
+									lL.setCurrentArtStatus("Active");
+								} else if (lL.getNumberOfDaysMissedAppointment() >= -28) {
+									lL.setCurrentArtStatus("Missed Appointment");
+								} else {
+									lL.setCurrentArtStatus("InActive");
+								}
+
+							}
+						}
+						if (lL.getNumberOfDaysMissedAppointment() != null) {
+							if (lL.getNumberOfDaysMissedAppointment() >= -28) {
+								lL.setActiveBy28("Active");
+							} else {
+								lL.setActiveBy28("InActive");
+							}
+
+							if (lL.getNumberOfDaysMissedAppointment() >= -90) {
+								lL.setActiveBy90("Active");
+							} else {
+								lL.setActiveBy90("InActive");
+							}
+						}
+
+//						if (Duration.between(
+//								LocalDate.parse(rs.getDate("ArtStartDate").toString(),
+//										cc.getFormatter())
+//										.atStartOfDay(),
+//								LocalDate.now().atStartOfDay()
+//						).toDays() >= 180) {
+//							logToConsole("\n Old Patient.");
+//							if (rs.getDate("LastVLDATE") == null || rs.getInt("LastVLCount") == 0) {
+								//									logToConsole( "\n 1-"+rs.getDate("LastVLDATE"));
+								//									logToConsole( "\n 1-"+rs.getDate("ArtStartDate"));
+//								logToConsole("\n No VL.");
+								//									lL.setPatientID(rs.getInt("patientID"));
+								//									lL.setPepfarID(rs.getString("pepfarID"));
+								//									lL.setPatientName(rs.getString("patientName"));
+								//									lL.setPatientPhoneNumber(rs.getString("PhoneNumber"));
+								//
+								//									lL.setCurrentViralLoad(rs.getInt("LastVLCount"));
+								//									if(rs.getString("Address1") != null)
+								//										lL.setAddress(rs.getString("Address1"));
+								//									else
+								//										lL.setAddress(rs.getString("Address2"));
+								//									lL.setHospitalNumber(rs.getString("hospitalNumber"));
+								//									lL.setSex(rs.getString("Sex"));
+								//									lL.setPatientAge(rs.getInt("birthdate"));
+								//
+//								if (rs.getDate("LastVLDATE") != null) {
+//									lL.setDateOfCurrentViralLoad(rs.getDate("LastVLDATE"));
+//								}
+
+								//									vls.add(lL);
+//							}
+							//								else if(
+							//
+							//										Duration.between(
+							//												LocalDate.parse(rs.getDate("LastVLDATE").toString(),
+							//														cc.getFormatter()).atStartOfDay(),
+							//												LocalDate.now().atStartOfDay()
+							//										).toDays() >= 90 && rs.getInt("LastVLCount") > 999
+							//										)
+							//								{
+							//									logToConsole("\n Not suppressed.");
+							//
+							//
+							//									if(rs.getDate("LastVLDATE") != null){
+							//										lL.setDateOfCurrentViralLoad(rs.getDate("LastVLDATE"));
+							//									}
+							//
+							//								}else if(
+							//										Duration.between(
+							//												LocalDate.parse(rs.getDate("LastVLDATE").toString(),
+							//														cc.getFormatter()).atStartOfDay(),
+							//												LocalDate.now().atStartOfDay()
+							//										).toDays() >= 365 && rs.getInt("LastVLCount") < 1000
+							//
+							//										) {
+//							logToConsole("\n Suppressed.");
+							//									lL.setPatientID(rs.getInt("patientID"));
+							//									lL.setPepfarID(rs.getString("pepfarID"));
+							//									lL.setPatientName(rs.getString("patientName"));
+							//									lL.setPatientPhoneNumber(rs.getString("PhoneNumber"));
+							//
+							//									lL.setCurrentViralLoad(rs.getInt("LastVLCount"));
+							//									if(rs.getString("Address1") != null)
+							//										lL.setAddress(rs.getString("Address1"));
+							//									else
+							//										lL.setAddress(rs.getString("Address2"));
+							//									lL.setHospitalNumber(rs.getString("hospitalNumber"));
+							//									lL.setSex(rs.getString("Sex"));
+							//									lL.setPatientAge(rs.getInt("birthdate"));
+
+							//									if(rs.getDate("LastVLDATE") != null){
+							//										lL.setDateOfCurrentViralLoad(rs.getDate("LastVLDATE"));
+							//									}
+							//
+							//									if(rs.getDate("ArtStartDate") != null){
+							//										lL.setArtStartDate(rs.getDate("ArtStartDate"));
+							//										lL.setAgeAtArtStart(rs.getLong("ageAtArtStart"));
+							//									}
+							//									if(rs.getDate("LastArtPickUp") != null){
+							//										lL.setLastPickUpDate(rs.getDate("LastArtPickUp"));
+							//									}
+							//
+							//									if(rs.getDate("NextAppointmentDATE") != null) {
+							//										lL.setNextAppointmentDate(rs.getDate("NextAppointmentDATE"));
+							//
+							//										lL.setNumberOfDaysMissedAppointment(Duration.between(
+							//												LocalDate.now().atStartOfDay(),
+							//												LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(), cc.getFormatter())
+							//														.atStartOfDay()
+							//										).toDays());
+							//									}
+							//
+							//									if(rs.getDate("LastArtPickUp") != null && rs.getDate("NextAppointmentDATE") != null) {
+							//										lL.setDaysOfArtRefill(
+							//												Duration.between(
+							//														LocalDate.parse(rs.getDate("LastArtPickUp").toString(),
+							//																cc.getFormatter()).atStartOfDay(),
+							//														LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(),
+							//																cc.getFormatter()).atStartOfDay()
+							//												).toDays()
+							//										);
+							//									}
+							//									lL.setRegimenLineAtStart(rs.getString("RegimenLineAtStart"));
+							//									lL.setRegimenAtStart(rs.getString("RegimenAtStart"));
+							//									lL.setCurrentRegimenLine(rs.getString("CurrentRegimenLine"));
+							//									lL.setCurrentRegimen(rs.getString("CurrentRegimen"));
+							//									lL.setPregnancyStatus(rs.getString("Pregnant"));
+							//									lL.setViralLoadIndication(rs.getString("ViralLoadIndication"));
+							//									if (rs.getString("Exited") != null) {
+							//										lL.setCurrentArtStatus(rs.getString("Exited"));
+							//									} else {
+							//										if (lL.getNumberOfDaysMissedAppointment() != null) {
+							//											if (lL.getNumberOfDaysMissedAppointment() >= 0) {
+							//												lL.setCurrentArtStatus("Active");
+							//											} else if (lL.getNumberOfDaysMissedAppointment() >= -28) {
+							//												lL.setCurrentArtStatus("Missed Appointment");
+							//											} else {
+							//												lL.setCurrentArtStatus("InActive");
+							//											}
+							//
+							//										}
+							//									}
+							//									if(lL.getNumberOfDaysMissedAppointment() != null) {
+							//										if (lL.getNumberOfDaysMissedAppointment() >= -28) {
+							//											lL.setActiveBy28("Active");
+							//										} else {
+							//											lL.setActiveBy28("InActive");
+							//										}
+							//
+							//										if (lL.getNumberOfDaysMissedAppointment() >= -90) {
+							//											lL.setActiveBy90("Active");
+							//										} else {
+							//											lL.setActiveBy90("InActive");
+							//										}
+							//									}
+							vls.add(lL);
+							//logToConsole(patientStatus.toString() + "\n");
+						}
+						//								logToConsole("\nVl Due Date: "+vl.getVlduedate());
+//					}
+//					else{
+//						logToConsole("\n New Patient.");
+						//								lL.setPatientID(rs.getInt("patientID"));
+						//									lL.setPepfarID(rs.getString("pepfarID"));
+						//									lL.setPatientName(rs.getString("patientName"));
+						//									lL.setPatientPhoneNumber(rs.getString("PhoneNumber"));
+						//
+						//									lL.setCurrentViralLoad(rs.getInt("LastVLCount"));
+						//									if(rs.getString("Address1") != null)
+						//										lL.setAddress(rs.getString("Address1"));
+						//									else
+						//										lL.setAddress(rs.getString("Address2"));
+						//									lL.setHospitalNumber(rs.getString("hospitalNumber"));
+						//									lL.setSex(rs.getString("Sex"));
+						//									lL.setPatientAge(rs.getInt("birthdate"));
+						//
+						//									if(rs.getDate("LastVLDATE") != null){
+						//										lL.setDateOfCurrentViralLoad(rs.getDate("LastVLDATE"));
+						//									}
+						//
+						//									if(rs.getDate("ArtStartDate") != null){
+						//										lL.setArtStartDate(rs.getDate("ArtStartDate"));
+						//									}
+						//
+						//									if(rs.getDate("ArtStartDate") != null) {
+						//										lL.setAgeAtArtStart(rs.getLong("ageAtArtStart"));
+						//									}
+						//									if(rs.getDate("LastArtPickUp") != null){
+						//										lL.setLastPickUpDate(rs.getDate("LastArtPickUp"));
+						//									}
+						//
+						//									if(rs.getDate("NextAppointmentDATE") != null) {
+						//										lL.setNextAppointmentDate(rs.getDate("NextAppointmentDATE"));
+						//
+						//										lL.setNumberOfDaysMissedAppointment(Duration.between(
+						//												LocalDate.now().atStartOfDay(),
+						//												LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(), cc.getFormatter())
+						//														.atStartOfDay()
+						//										).toDays());
+						//									}
+
+						//									if(rs.getDate("LastArtPickUp") != null && rs.getDate("NextAppointmentDATE") != null) {
+						//										lL.setDaysOfArtRefill(
+						//												Duration.between(
+						//														LocalDate.parse(rs.getDate("LastArtPickUp").toString(),
+						//																cc.getFormatter()).atStartOfDay(),
+						//														LocalDate.parse(rs.getDate("NextAppointmentDATE").toString(),
+						//																cc.getFormatter()).atStartOfDay()
+						//												).toDays()
+						//										);
+						//
+						//
+						//									}
+						//									lL.setRegimenLineAtStart(rs.getString("RegimenLineAtStart"));
+						//									lL.setRegimenAtStart(rs.getString("RegimenAtStart"));
+						//									lL.setCurrentRegimenLine(rs.getString("CurrentRegimenLine"));
+						//									lL.setCurrentRegimen(rs.getString("CurrentRegimen"));
+						//									lL.setPregnancyStatus(rs.getString("Pregnant"));
+						//									lL.setViralLoadIndication(rs.getString("ViralLoadIndication"));
+						//									if (rs.getString("Exited") != null) {
+						//										lL.setCurrentArtStatus(rs.getString("Exited"));
+						//									} else {
+						//										if (lL.getNumberOfDaysMissedAppointment() != null) {
+						//											if (lL.getNumberOfDaysMissedAppointment() >= 0) {
+						//												lL.setCurrentArtStatus("Active");
+						//											} else if (lL.getNumberOfDaysMissedAppointment() >= -28) {
+						//												lL.setCurrentArtStatus("Missed Appointment");
+						//											} else {
+						//												lL.setCurrentArtStatus("InActive");
+						//											}
+						//
+						//										}
+						//									}
+						//									if(lL.getNumberOfDaysMissedAppointment() != null) {
+						//										if (lL.getNumberOfDaysMissedAppointment() >= -28) {
+						//											lL.setActiveBy28("Active");
+						//										} else {
+						//											lL.setActiveBy28("InActive");
+						//										}
+						//
+						//										if (lL.getNumberOfDaysMissedAppointment() >= -90) {
+						//											lL.setActiveBy90("Active");
+						//										} else {
+						//											lL.setActiveBy90("InActive");
+						//										}
+						//									}
+						//									vls.add(lL);
+						//							logToConsole( "\n"+rs.getDate("LastVLDATE"));
+						//							logToConsole( "\n"+rs.getDate("ArtStartDate"));
+//					}
+
+//					}
 					rs.close();
 					logToConsole("\n Done..");
 				} catch (SQLException e) {
