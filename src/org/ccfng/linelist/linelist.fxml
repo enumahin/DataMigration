@@ -131,7 +131,7 @@
 										<PropertyValueFactory property="currentArtStatus"/>
 									</cellValueFactory>
 								</TableColumn>
-								<TableColumn prefWidth="166.0" text="Number of Days Missed Appointment">
+								<TableColumn prefWidth="166.0" text="Days to Next Appointment">
 									<cellValueFactory>
 										<PropertyValueFactory property="numberOfDaysMissedAppointment"/>
 									</cellValueFactory>
