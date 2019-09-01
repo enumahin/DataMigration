@@ -26,6 +26,12 @@
                         <Menu mnemonicParsing="false" text="File">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#closeApp" text="Close" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#mobileData" text="Mobile Data" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#mappedData" text="Mapped Concept" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#apiPull" text="Api Test" />
                             </items>
                         </Menu>
                         <Menu mnemonicParsing="false" text="Maintenance">

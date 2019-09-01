@@ -49,6 +49,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.ccfng.datamigration.datamapping.ConceptmapController;
 import org.ccfng.datamigration.encounter.Encounter;
 import org.ccfng.datamigration.encounter.Encounters;
 import org.ccfng.datamigration.encounterprovider.EncounterProvider;
@@ -4737,6 +4738,87 @@ public class Controller {
 
             stage.setScene(scene);
             stage.setTitle("Line List");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void mobileData(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("mobiledata.fxml").openStream());
+
+            MobileDataController controller = (MobileDataController) fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("Mobile Data Migration");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void mappedData(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/datamigration/datamapping/conceptmap.fxml").openStream());
+
+            ConceptmapController controller = (org.ccfng.datamigration.datamapping.ConceptmapController) fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("Data Mapping!");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void apiPull(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/apibasedmigration/dashboard.fxml").openStream());
+
+            org.ccfng.apibasedmigration.Controller controller = (org.ccfng.apibasedmigration.Controller) fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("Api Mapping!");
             stage.setResizable(false);
             stage.alwaysOnTopProperty();
             stage.show();

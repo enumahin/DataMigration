@@ -9,6 +9,11 @@ public class Location {
 	public Location() {
 	}
 
+	public Location(Integer locationID, String location) {
+		this.locationID = locationID;
+		this.location = location;
+	}
+
 	public Integer getLocationID() {
 		return locationID;
 	}

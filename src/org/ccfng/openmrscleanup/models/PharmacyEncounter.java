@@ -127,7 +127,7 @@ public class PharmacyEncounter {
 				", EncounterID=" + EncounterID +
 				", ObsID=" + ObsID +
 				", PepfarID='" + PepfarID + '\'' +
-				", PatientName='" + PatientName + '\'' +
+				", Address='" + PatientName + '\'' +
 				", EncounterDateTime=" + EncounterDateTime +
 				", Question='" + Question + '\'' +
 				", Answer='" + Answer + '\'' +
