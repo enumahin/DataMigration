@@ -689,6 +689,11 @@ public class Controller {
         }
         return null;
     }
+
+    private Boolean isAdult(int pat){
+       return true;
+    }
+
     private void loadEncounter() {
 
         fetchedVisits = getVisits();
@@ -4566,9 +4571,7 @@ public class Controller {
         return getObs;
     }
 
-    private Boolean isAdult(int patientID){
-        return true;
-    }
+
 
     private Set<Visit> getVisits() {
         Set<Visit> visits = new HashSet<>();

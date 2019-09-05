@@ -167,6 +167,9 @@ public class OpenmrsCleanupController {
 
 	DateTimeFormatter formatter;
 
+	@FXML
+	public ComboBox<RegimenLine> regimenLines;
+
 	public void connectionSettings() {
 		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	}
@@ -181,9 +184,41 @@ public class OpenmrsCleanupController {
 		});
 	}
 
+	class RegimenLine{
+		private Integer id;
+		private String value;
+
+		public Integer getId() {
+			return id;
+		}
+
+		public void setId(Integer id) {
+			this.id = id;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public void setValue(String value) {
+			this.value = value;
+		}
+
+		public RegimenLine(Integer id, String value) {
+			this.id = id;
+			this.value = value;
+		}
+	}
+
 
 	public void initialize(){
 
+		ObservableList<RegimenLine> regimenL = FXCollections.observableArrayList();
+		regimenL.add(new RegimenLine(7778108, "First Line"));
+		regimenL.add(new RegimenLine(7778109, "Second Line"));
+		regimenL.add(new RegimenLine(7778410, "Other Non-Coded"));
+
+		regimenLines.setItems(regimenL);
 		getLocation();
 		new Thread(locationTask).start();
 
@@ -730,6 +765,9 @@ public class OpenmrsCleanupController {
 	private void getRegimens(){
 		allRegimenComboBox.getItems().removeAll();
 		newRegimenComboBox.getItems().removeAll();
+
+
+
 		//Controller ctrl = new Controller();
 		Set<Regimen> regimenSet = new HashSet<>();
 		connectionSettings();

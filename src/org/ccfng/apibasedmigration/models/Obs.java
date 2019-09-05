@@ -1,21 +1,51 @@
 package org.ccfng.apibasedmigration.models;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Obs {
 
+	private Integer obsID;
+
+	private Integer patientID;
+
+	private Integer ecounterID;
+
 	private Integer conceptId;
 
-	private String valueType;
+	private String valueTypeId;
 
 	private String value;
 
-	private Set<Obs> children = new HashSet<>();
+	private List<org.ccfng.apibasedmigration.models.external.Obs> obsChildren = new ArrayList<>();
 
-	private boolean isgroup;
+	private boolean parent;
+
+	private Integer obsGroupId;
 
 	public Obs() {
+	}
+
+	public Obs(Integer conceptId, String valueTypeId, String value) {
+		this.conceptId = conceptId;
+		this.valueTypeId = valueTypeId;
+		this.value = value;
+	}
+
+	public boolean isParent() {
+		return parent;
+	}
+
+	public void setParent(boolean parent) {
+		this.parent = parent;
+	}
+
+	public List<org.ccfng.apibasedmigration.models.external.Obs> getObsChildren() {
+		return obsChildren;
+	}
+
+	public void setObsChildren(List<org.ccfng.apibasedmigration.models.external.Obs> obsChildren) {
+		this.obsChildren = obsChildren;
 	}
 
 	public Integer getConceptId() {
@@ -26,12 +56,12 @@ public class Obs {
 		this.conceptId = conceptId;
 	}
 
-	public String getValueType() {
-		return valueType;
+	public String getValueTypeId() {
+		return valueTypeId;
 	}
 
-	public void setValueType(String valueType) {
-		this.valueType = valueType;
+	public void setValueTypeId(String valueTypeId) {
+		this.valueTypeId = valueTypeId;
 	}
 
 	public String getValue() {
@@ -42,30 +72,45 @@ public class Obs {
 		this.value = value;
 	}
 
-	public Set<Obs> getChildren() {
-		return children;
+	public Integer getEcounterID() {
+		return ecounterID;
 	}
 
-	public void setChildren(Set<Obs> children) {
-		this.children = children;
+	public void setEcounterID(Integer ecounterID) {
+		this.ecounterID = ecounterID;
 	}
 
-	public boolean isIsgroup() {
-		return isgroup;
+	public Integer getObsGroupId() {
+		return obsGroupId;
 	}
 
-	public void setIsgroup(boolean isgroup) {
-		this.isgroup = isgroup;
+	public void setObsGroupId(Integer obsGroupId) {
+		this.obsGroupId = obsGroupId;
+	}
+
+	public Integer getObsID() {
+		return obsID;
+	}
+
+	public void setObsID(Integer obsID) {
+		this.obsID = obsID;
+	}
+
+	public Integer getPatientID() {
+		return patientID;
+	}
+
+	public void setPatientID(Integer patientID) {
+		this.patientID = patientID;
 	}
 
 	@Override
 	public String toString() {
 		return "Obs{" +
 				"conceptId=" + conceptId +
-				", valueType='" + valueType + '\'' +
+				", valueTypeId='" + valueTypeId + '\'' +
 				", value='" + value + '\'' +
-				", children=" + children +
-				", isgroup=" + isgroup +
+				", obsChildren=" + obsChildren +
 				'}';
 	}
 }

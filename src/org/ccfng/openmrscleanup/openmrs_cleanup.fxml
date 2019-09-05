@@ -32,7 +32,12 @@
                                           </Label>
                                           <ComboBox fx:id="locationComboBox" prefHeight="27.0" prefWidth="247.0" promptText="Select Your Facility">
                                              <VBox.margin>
-                                                <Insets bottom="20.0" />
+                                                <Insets bottom="5.0" />
+                                             </VBox.margin>
+                                          </ComboBox>
+                                          <ComboBox fx:id="regimenLines" layoutX="10.0" layoutY="40.0" prefHeight="27.0" prefWidth="247.0" promptText="Select Regimen Line">
+                                             <VBox.margin>
+                                                <Insets bottom="5.0" />
                                              </VBox.margin>
                                           </ComboBox>
                                           <Label layoutX="10.0" layoutY="10.0" prefHeight="33.0" prefWidth="215.0" style="-fx-background-color: #336699;" text="Create DTG" textFill="#fffefe">

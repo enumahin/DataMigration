@@ -1,50 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.effect.Glow?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <AnchorPane prefHeight="597.0" prefWidth="806.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ccfng.apibasedmigration.Controller">
    <children>
-      <VBox prefHeight="45.0" prefWidth="806.0" style="-fx-background-color: #336699;" />
-      <VBox layoutY="45.0" prefHeight="552.0" prefWidth="212.0">
+      <VBox prefHeight="45.0" prefWidth="806.0" style="-fx-background-color: #336699;">
+         <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <Label fx:id="lblStatus" minHeight="-Infinity" prefHeight="45.0" prefWidth="215.0" text="Status" textFill="#fcfcfc">
+                  <font>
+                     <Font name="System Bold Italic" size="18.0" />
+                  </font>
+                  <HBox.margin>
+                     <Insets left="20.0" />
+                  </HBox.margin>
+               </Label>
+            </HBox>
+         </children>
+      </VBox>
+      <VBox layoutY="45.0" prefHeight="305.0" prefWidth="212.0">
          <children>
             <ComboBox fx:id="stateCombo" onAction="#getLgas" prefHeight="27.0" prefWidth="213.0" promptText="Select State">
                <VBox.margin>
-                  <Insets top="10.0" />
+                  <Insets left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
             </ComboBox>
             <ComboBox fx:id="lgaCombo" layoutX="10.0" layoutY="10.0" onAction="#getFacilities" prefHeight="27.0" prefWidth="213.0" promptText="Select LGA">
                <VBox.margin>
-                  <Insets top="10.0" />
+                  <Insets left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
             </ComboBox>
             <ComboBox fx:id="facilityCombo" layoutX="10.0" layoutY="37.0" prefHeight="27.0" prefWidth="213.0" promptText="Select Facility Name">
                <VBox.margin>
-                  <Insets top="10.0" />
+                  <Insets left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
             </ComboBox>
             <TextField fx:id="datimCode" promptText="Datim Code">
                <VBox.margin>
-                  <Insets top="10.0" />
+                  <Insets left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
             </TextField>
-            <Button mnemonicParsing="false" onAction="#buildData" prefHeight="27.0" prefWidth="212.0" text="Build Data">
+            <Button mnemonicParsing="false" onAction="#buildData" prefHeight="27.0" prefWidth="212.0" text="Fetch Data">
                <VBox.margin>
-                  <Insets top="10.0" />
+                  <Insets left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </Button>
+            <Button mnemonicParsing="false" onAction="#processJSON" prefHeight="27.0" prefWidth="212.0" text="Build Data">
+               <VBox.margin>
+                  <Insets left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </Button>
+            <Button mnemonicParsing="false" onAction="#migrate" prefHeight="27.0" prefWidth="215.0" text="Migrate">
+               <VBox.margin>
+                  <Insets left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </Button>
+            <Button layoutX="20.0" layoutY="242.0" mnemonicParsing="false" onAction="#stopMigration" prefHeight="27.0" prefWidth="215.0" text="Stop Migrate">
+               <VBox.margin>
+                  <Insets left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
             </Button>
          </children>
       </VBox>
-      <HBox layoutX="212.0" layoutY="45.0" prefHeight="552.0" prefWidth="594.0">
+      <HBox layoutX="212.0" layoutY="45.0" prefHeight="297.0" prefWidth="593.0">
          <children>
-            <TreeView fx:id="patientTree" prefHeight="552.0" prefWidth="599.0" />
+            <VBox prefHeight="268.0" prefWidth="357.0">
+               <children>
+                  <VBox prefHeight="298.0" prefWidth="352.0" />
+               </children>
+            </VBox>
+            <VBox prefHeight="268.0" prefWidth="239.0" style="-fx-background-color: #f2f7f9;">
+               <children>
+                  <ProgressBar fx:id="progressBar" prefHeight="20.0" prefWidth="241.0">
+                     <VBox.margin>
+                        <Insets left="10.0" right="10.0" top="30.0" />
+                     </VBox.margin>
+                     <cursor>
+                        <Cursor fx:constant="SW_RESIZE" />
+                     </cursor>
+                     <effect>
+                        <Glow />
+                     </effect>
+                  </ProgressBar>
+                  <ProgressIndicator fx:id="progressIndicator" minWidth="-Infinity" prefHeight="55.0" prefWidth="241.0" progress="0.0">
+                     <VBox.margin>
+                        <Insets top="30.0" />
+                     </VBox.margin>
+                  </ProgressIndicator>
+               </children>
+            </VBox>
          </children>
       </HBox>
+      <VBox layoutX="11.0" layoutY="355.0" prefHeight="233.0" prefWidth="786.0">
+         <children>
+            <TextArea fx:id="console" prefHeight="280.0" prefWidth="786.0" />
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

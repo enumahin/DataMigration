@@ -1,41 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<AnchorPane prefHeight="400.0" prefWidth="825.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ccfng.datamigration.datamapping.ConceptmapController">
+<AnchorPane prefHeight="400.0" prefWidth="1175.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ccfng.datamigration.datamapping.ConceptmapController">
    <children>
-      <HBox prefHeight="39.0" prefWidth="825.0" style="-fx-background-color: #336699;" />
+      <HBox prefHeight="39.0" prefWidth="1175.0" style="-fx-background-color: #336699;" />
       <VBox layoutY="39.0" prefHeight="360.0" prefWidth="175.0" />
-      <HBox layoutX="175.0" layoutY="39.0" prefHeight="360.0" prefWidth="650.0">
+      <HBox layoutX="175.0" layoutY="39.0" prefHeight="360.0" prefWidth="1000.0">
          <children>
-            <TableView fx:id="tableView" prefHeight="360.0" prefWidth="651.0">
-              <columns>
-                <TableColumn prefWidth="88.0" text="OpenMRS ID">
-					<cellValueFactory>
-						<PropertyValueFactory property="openmrsId" />
-					</cellValueFactory>
-				</TableColumn>
-                <TableColumn prefWidth="268.0" text="OpenMRS Name">
-					<cellValueFactory>
-						<PropertyValueFactory property="openmrsName" />
-					</cellValueFactory>
-				</TableColumn>
-                  <TableColumn prefWidth="71.0" text="NMRS ID">
-					  <cellValueFactory>
-						  <PropertyValueFactory property="nmrsId" />
-					  </cellValueFactory>
-				  </TableColumn>
-                  <TableColumn prefWidth="223.0" text="NMRS Name">
-					  <cellValueFactory>
-						  <PropertyValueFactory property="nmrsName" />
-					  </cellValueFactory>
-				  </TableColumn>
-              </columns>
-            </TableView>
+			 <TabPane maxWidth="-Infinity" minWidth="-Infinity" prefHeight="505.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE">
+				 <tabs>
+					 <Tab text="Mapped Concepts">
+						<TableView fx:id="tableView" prefHeight="360.0" prefWidth="651.0">
+						  <columns>
+							<TableColumn prefWidth="140.0" text="OpenMRS ID">
+								<cellValueFactory>
+									<PropertyValueFactory property="openmrsId" />
+								</cellValueFactory>
+							</TableColumn>
+							<TableColumn prefWidth="241.0" text="OpenMRS Name">
+								<cellValueFactory>
+									<PropertyValueFactory property="openmrsName" />
+								</cellValueFactory>
+							</TableColumn>
+							  <TableColumn prefWidth="125.0" text="NMRS ID">
+								  <cellValueFactory>
+									  <PropertyValueFactory property="nmrsId" />
+								  </cellValueFactory>
+							  </TableColumn>
+							  <TableColumn prefWidth="241.0" text="NMRS Name">
+								  <cellValueFactory>
+									  <PropertyValueFactory property="nmrsName" />
+								  </cellValueFactory>
+							  </TableColumn>
+						  </columns>
+						</TableView>
+					 </Tab>
+                  <Tab text="Unmapped Concepts">
+                     <content>
+                        <TableView fx:id="tableView1" prefHeight="360.0" prefWidth="651.0">
+                           <columns>
+                              <TableColumn prefWidth="88.0" text="OpenMRS ID">
+                                 <cellValueFactory>
+                                    <PropertyValueFactory property="openmrsId" />
+                                 </cellValueFactory>
+                              </TableColumn>
+                              <TableColumn prefWidth="268.0" text="OpenMRS Name">
+                                 <cellValueFactory>
+                                    <PropertyValueFactory property="openmrsName" />
+                                 </cellValueFactory>
+                              </TableColumn>
+                              <TableColumn prefWidth="71.0" text="NMRS ID">
+                                 <cellValueFactory>
+                                    <PropertyValueFactory property="nmrsId" />
+                                 </cellValueFactory>
+                              </TableColumn>
+                              <TableColumn prefWidth="223.0" text="NMRS Name">
+                                 <cellValueFactory>
+                                    <PropertyValueFactory property="nmrsName" />
+                                 </cellValueFactory>
+                              </TableColumn>
+                           </columns>
+                        </TableView>
+                     </content>
+                  </Tab>
+				 </tabs>
+			 </TabPane>
          </children>
       </HBox>
    </children>

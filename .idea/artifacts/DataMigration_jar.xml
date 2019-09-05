@@ -20,7 +20,6 @@
       <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/jaxb-api-2.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/mysql-connector-java-5.1.40-bin.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/joda-time-2.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Downloads/couchbase-lite-java-core-1.4.4.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/poi-4.1.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/org.ektorp-1.4.4.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/httpclient-4.3.jar" path-in-jar="/" />
@@ -32,6 +31,9 @@
       <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/jackson-core-2.3.3.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/jackson-databind-2.3.3.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/org-apache-commons-logging.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/json-20190722.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/json-simple-1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/gson-2.8.2.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

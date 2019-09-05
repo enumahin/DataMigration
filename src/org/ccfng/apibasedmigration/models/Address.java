@@ -2,6 +2,8 @@ package org.ccfng.apibasedmigration.models;
 
 public class Address {
 
+	private Integer patientID;
+
 	private String country;
 
 	private String latitude;
@@ -20,9 +22,22 @@ public class Address {
 
 	private String postalCode;
 
-	private Boolean preferred;
+//	private Boolean preferred;
 
 	public Address() {
+	}
+
+	public Address(String country, String latitude, String longitude, String address1, String address2,
+			String address3, String cityVillage, String stateProvince, String postalCode) {
+		this.country = country;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.address1 = address1;
+		this.address2 = address2;
+		this.address3 = address3;
+		this.cityVillage = cityVillage;
+		this.stateProvince = stateProvince;
+		this.postalCode = postalCode;
 	}
 
 	public String getCountry() {
@@ -97,12 +112,20 @@ public class Address {
 		this.postalCode = postalCode;
 	}
 
-	public Boolean getPreferred() {
-		return preferred;
+//	public Boolean getPreferred() {
+//		return preferred;
+//	}
+//
+//	public void setPreferred(Boolean preferred) {
+//		this.preferred = preferred;
+//	}
+
+	public Integer getPatientID() {
+		return patientID;
 	}
 
-	public void setPreferred(Boolean preferred) {
-		this.preferred = preferred;
+	public void setPatientID(Integer patientID) {
+		this.patientID = patientID;
 	}
 
 	@Override
@@ -115,7 +138,7 @@ public class Address {
 				"\n address3='" + address3 +
 				"\n cityVillage='" + cityVillage +
 				"\n stateProvince='" + stateProvince +
-				"\n preferred='" + preferred +
+//				"\n preferred='" + preferred +
 				"\n postalCode='" + postalCode;
 	}
 }

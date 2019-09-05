@@ -1,6 +1,5 @@
 package org.ccfng.apibasedmigration.models;
 
-import java.sql.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,26 +9,42 @@ public class Patient {
 
 	private Integer creator;
 
-	private Date dateCreated;
+//	private Date dateCreated;
 
 	private String phone;
 
 	private String gender;
 
-	private Date birthDate;
+	private String birthDate;
 
-	private boolean birthdateEstimated;
+	private Boolean birthdateEstimated;
 
-	private boolean dead;
+	private Boolean dead;
 
-	private Date deathDate;
+	private String deathDate;
 
 	private String causeOfDeath;
 
-	private Set<Address> address = new HashSet<>();
+//	private Set<Address> address = new HashSet<>();
+//
+//	private Set<PatientName> patientname = new HashSet<>();
+//###########################################################
+	private Address address;
 
-	private Set<PatientName> patientname = new HashSet<>();
+//	private PatientName patientname;
 
+//	private boolean preferred;
+
+	private String prefix;
+
+	private String givenName;
+
+	private String middleName;
+
+	private String surname;
+
+	private String hospitalNo;
+//###########################################################
 	private Facility facility;
 
 	private Set<Identifier> identifiers = new HashSet<>();
@@ -47,13 +62,13 @@ public class Patient {
 		this.creator = creator;
 	}
 
-	public Date getDateCreated() {
-		return dateCreated;
-	}
-
-	public void setDateCreated(Date dateCreated) {
-		this.dateCreated = dateCreated;
-	}
+//	public Date getDateCreated() {
+//		return dateCreated;
+//	}
+//
+//	public void setDateCreated(Date dateCreated) {
+//		this.dateCreated = dateCreated;
+//	}
 
 	public String getPhone() {
 		return phone;
@@ -71,11 +86,11 @@ public class Patient {
 		this.gender = gender;
 	}
 
-	public Date getBirthDate() {
+	public String getBirthDate() {
 		return birthDate;
 	}
 
-	public void setBirthDate(Date birthDate) {
+	public void setBirthDate(String birthDate) {
 		this.birthDate = birthDate;
 	}
 
@@ -83,7 +98,7 @@ public class Patient {
 		return birthdateEstimated;
 	}
 
-	public void setBirthdateEstimated(boolean birthdateEstimated) {
+	public void setBirthdateEstimated(Boolean birthdateEstimated) {
 		this.birthdateEstimated = birthdateEstimated;
 	}
 
@@ -95,11 +110,11 @@ public class Patient {
 		this.dead = dead;
 	}
 
-	public Date getDeathDate() {
+	public String getDeathDate() {
 		return deathDate;
 	}
 
-	public void setDeathDate(Date deathDate) {
+	public void setDeathDate(String deathDate) {
 		this.deathDate = deathDate;
 	}
 
@@ -111,22 +126,87 @@ public class Patient {
 		this.causeOfDeath = causeOfDeath;
 	}
 
-	public Set<Address> getAddress() {
+//	public Set<Address> getAddress() {
+//		return address;
+//	}
+//
+//	public void setAddress(Set<Address> address) {
+//		this.address = address;
+//	}
+
+//	public Set<PatientName> getPatientname() {
+//		return patientname;
+//	}
+//
+//	public void setPatientname(Set<PatientName> patientname) {
+//		this.patientname = patientname;
+//	}
+//################################################################
+	public Address getAddress() {
 		return address;
 	}
 
-	public void setAddress(Set<Address> address) {
+	public void setAddress(Address address) {
 		this.address = address;
 	}
 
-	public Set<PatientName> getPatientname() {
-		return patientname;
+//	public PatientName getPatientname() {
+//		return patientname;
+//	}
+//
+//	public void setPatientname(PatientName patientname) {
+//		this.patientname = patientname;
+//	}
+
+//	public boolean isPreferred() {
+//		return preferred;
+//	}
+//
+//	public void setPreferred(Boolean preferred) {
+//		this.preferred = preferred;
+//	}
+
+	public String getPrefix() {
+		return prefix;
 	}
 
-	public void setPatientname(Set<PatientName> patientname) {
-		this.patientname = patientname;
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 
+	public String getGivenName() {
+		return givenName;
+	}
+
+	public void setGivenName(String givenName) {
+		this.givenName = givenName;
+	}
+
+	public String getMiddleName() {
+		return middleName;
+	}
+
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
+	}
+
+	public String getSurname() {
+		return surname;
+	}
+
+	public void setSurname(String surname) {
+		this.surname = surname;
+	}
+
+	public String getHospitalNo() {
+		return hospitalNo;
+	}
+
+	public void setHospitalNo(String hospitalNo) {
+		this.hospitalNo = hospitalNo;
+	}
+
+	//##################################################################
 	public Facility getFacility() {
 		return facility;
 	}
@@ -159,24 +239,29 @@ public class Patient {
 		this.patientID = patientID;
 	}
 
-	@Override
-	public String toString() {
-		return "Patient{" +
-				"patientID=" + patientID +
-				", creator=" + creator +
-				", dateCreated=" + dateCreated +
-				", phone='" + phone + '\'' +
-				", gender='" + gender + '\'' +
-				", birthDate=" + birthDate +
-				", birthdateEstimated=" + birthdateEstimated +
-				", dead=" + dead +
-				", deathDate=" + deathDate +
-				", causeOfDeath='" + causeOfDeath + '\'' +
-				", address=" + address +
-				", patientname=" + patientname +
-				", facility=" + facility +
-				", identifiers=" + identifiers +
-				", encounters=" + encounters +
-				'}'+"\n";
-	}
+//	@Override
+//	public String toString() {
+//		return "Patient{" +
+//				"patientID=" + patientID +
+//				", creator=" + creator +
+////				", dateCreated=" + dateCreated +
+//				", phone='" + phone + '\'' +
+//				", gender='" + gender + '\'' +
+//				", birthDate=" + birthDate +
+//				", birthdateEstimated=" + birthdateEstimated +
+//				", dead=" + dead +
+//				", deathDate=" + deathDate +
+//				", causeOfDeath='" + causeOfDeath + '\'' +
+//				", address=" + address +
+////				", preferred=" + preferred +
+//				", prefix='" + prefix + '\'' +
+//				", givenName='" + givenName + '\'' +
+//				", middleName='" + middleName + '\'' +
+//				", surname='" + surname + '\'' +
+//				", hospitalNo='" + hospitalNo + '\'' +
+//				", facility=" + facility +
+//				", identifiers=" + identifiers +
+//				", encounters=" + encounters +
+//				'}';
+//	}
 }

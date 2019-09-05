@@ -2,6 +2,8 @@ package org.ccfng.apibasedmigration.models;
 
 public class PatientName {
 
+	private Integer patientID;
+
 	private boolean preferred;
 
 	private String prefix;
@@ -53,5 +55,24 @@ public class PatientName {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+	public Integer getPatientID() {
+		return patientID;
+	}
+
+	public void setPatientID(Integer patientID) {
+		this.patientID = patientID;
+	}
+
+	@Override
+	public String toString() {
+		return "PatientName{" +
+				"preferred=" + preferred +
+				", prefix='" + prefix + '\'' +
+				", firstName='" + firstName + '\'' +
+				", middleName='" + middleName + '\'' +
+				", lastName='" + lastName + '\'' +
+				'}'+"\n";
 	}
 }

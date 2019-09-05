@@ -1,21 +1,42 @@
 package org.ccfng.apibasedmigration.models;
 
-import java.sql.Date;
 import java.util.List;
 
 public class Encounter {
 
+	private Integer patientID;
+
+	private Integer encounterID;
+
 	private Integer encounterTypeId;
 
-	private Integer encounterLocatiionId;
+	private Integer encounterLocationId;
 
-	private Date encounterDate;
+	private Provider provider;
+
+	private String encounterDate;
 
 	private Integer formTypeId;
 
     private List<Obs> obs;
 
 	public Encounter() {
+	}
+
+	public Provider getProvider() {
+		return provider;
+	}
+
+	public void setProvider(Provider provider) {
+		this.provider = provider;
+	}
+
+	public Encounter(Integer encounterId, Integer encounterTypeId, Integer encounterLocationId, String encounterDate, Integer formTypeId) {
+		this.encounterTypeId = encounterTypeId;
+		this.encounterID = encounterId;
+		this.encounterLocationId = encounterLocationId;
+		this.encounterDate = encounterDate;
+		this.formTypeId = formTypeId;
 	}
 
 	public Integer getEncounterTypeId() {
@@ -26,19 +47,19 @@ public class Encounter {
 		this.encounterTypeId = encounterTypeId;
 	}
 
-	public Integer getEncounterLocatiionId() {
-		return encounterLocatiionId;
+	public Integer getEncounterLocationId() {
+		return encounterLocationId;
 	}
 
-	public void setEncounterLocatiionId(Integer encounterLocatiionId) {
-		this.encounterLocatiionId = encounterLocatiionId;
+	public void setEncounterLocationId(Integer encounterLocationId) {
+		this.encounterLocationId = encounterLocationId;
 	}
 
-	public Date getEncounterDate() {
+	public String getEncounterDate() {
 		return encounterDate;
 	}
 
-	public void setEncounterDate(Date encounterDate) {
+	public void setEncounterDate(String encounterDate) {
 		this.encounterDate = encounterDate;
 	}
 
@@ -58,11 +79,27 @@ public class Encounter {
 		this.obs = obs;
 	}
 
+	public Integer getPatientID() {
+		return patientID;
+	}
+
+	public void setPatientID(Integer patientID) {
+		this.patientID = patientID;
+	}
+
+	public Integer getEncounterID() {
+		return encounterID;
+	}
+
+	public void setEncounterID(Integer encounterID) {
+		this.encounterID = encounterID;
+	}
+
 	@Override
 	public String toString() {
 		return "Encounter{" +
 				"encounterTypeId=" + encounterTypeId +
-				", encounterLocatiionId=" + encounterLocatiionId +
+				", encounterLocationId=" + encounterLocationId +
 				", encounterDate=" + encounterDate +
 				", formTypeId=" + formTypeId +
 				", obs=" + obs +

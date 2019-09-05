@@ -2,6 +2,8 @@ package org.ccfng.apibasedmigration.models;
 
 public class Identifier {
 
+	private Integer patientID;
+
 	private String identifier;
 
 	private Integer identifierType;
@@ -9,6 +11,13 @@ public class Identifier {
 	private Integer locationId;
 
 	private boolean preferred;
+
+	public Identifier(String identifier, Integer identifierType, Integer locationId, boolean preferred) {
+		this.identifier = identifier;
+		this.identifierType = identifierType;
+		this.locationId = locationId;
+		this.preferred = preferred;
+	}
 
 	public Identifier() {
 	}
@@ -43,6 +52,14 @@ public class Identifier {
 
 	public void setPreferred(boolean preferred) {
 		this.preferred = preferred;
+	}
+
+	public Integer getPatientID() {
+		return patientID;
+	}
+
+	public void setPatientID(Integer patientID) {
+		this.patientID = patientID;
 	}
 
 	@Override

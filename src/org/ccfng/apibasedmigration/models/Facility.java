@@ -52,6 +52,6 @@ public class Facility {
 				", datimCode='" + datimCode + '\'' +
 				", lga='" + lga + '\'' +
 				", state='" + state + '\'' +
-				'}';
+				'}'+"\n";
 	}
 }

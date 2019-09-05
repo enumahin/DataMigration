@@ -318,7 +318,7 @@
 
                     <!-- <td>E10 (old care card)</td>
 
-                     <td>Developmental Status(for children)</td>
+                     <td>Developmental Status(for obsChildren)</td>
 
                      <td><obs conceptId="1116"  answerConceptIds="1114,1115,1089" answerLabels="Developmentally appropriate,Delay of milestones,Loss or arrest of milestones" style="radio" /></td>-->
 
