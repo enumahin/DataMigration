@@ -17,6 +17,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+
 <AnchorPane fx:id="mainLayer" maxHeight="800.0" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="641.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ccfng.datamigration.Controller">
     <children>
         <HBox prefHeight="38.0" prefWidth="800.0" style="-fx-background-color: #336699;">
@@ -36,8 +37,6 @@
                         </Menu>
                         <Menu mnemonicParsing="false" text="Maintenance">
                             <items>
-                        <MenuItem mnemonicParsing="false" onAction="#activateDataMigration" style="-fx-border-bottom-color: #336699; -fx-border-bottom-width: 2; -fx-border-bottom-style: solid;" text="Data Migration" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem mnemonicParsing="false" onAction="#disableForeignKeyChecks" style="-fx-border-bottom-color: #336699; -fx-border-bottom-width: 2; -fx-border-bottom-style: solid;" text="Disable FKC" />
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem mnemonicParsing="false" onAction="#enableForeignKeyChecks" style="-fx-border-bottom-color: #336699;" text="Enable FKC" />
@@ -56,6 +55,13 @@
                         <MenuItem mnemonicParsing="false" onAction="#lineList" text="Line List" />
                             </items>
                         </Menu>
+                  <Menu mnemonicParsing="false" text="Migration">
+                     <items>
+                        <MenuItem mnemonicParsing="false" onAction="#activateDataMigration" style="-fx-border-bottom-color: #336699; -fx-border-bottom-width: 2; -fx-border-bottom-style: solid;" text="Data Migration" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#encObsDialog" text="Encounter / Obs" />
+                     </items>
+                  </Menu>
                   <Menu mnemonicParsing="false" text="Help">
                      <items>
                         <MenuItem mnemonicParsing="false" text="About" />

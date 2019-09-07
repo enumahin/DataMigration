@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -81,6 +82,7 @@ import org.ccfng.datamigration.users.User;
 import org.ccfng.datamigration.users.Users;
 import org.ccfng.datamigration.visit.Visit;
 import org.ccfng.datamigration.visit.Visits;
+import org.ccfng.global.KeyValueClass;
 import org.ccfng.openmrscleanup.OpenmrsCleanupController;
 import org.hibernate.HibernateException;
 
@@ -251,8 +253,11 @@ public class Controller {
     @FXML
     private TextField lastID;
 
+//    @FXML
+//    private ComboBox<EncounterType> encounterTypes;
+
     @FXML
-    private ComboBox<EncounterType> encounterTypes;
+    private ComboBox<KeyValueClass> encounterTypes;
 
     @FXML
     private CheckBox loadByEnc;
@@ -350,7 +355,23 @@ public class Controller {
             this.sourceDB.setItems(FXCollections.observableArrayList("OpenMRS Migration",
                     "SEEDsCare Migration", "IQCare Migration", "XML Based Migration"));
         });
+
+        ObservableList<KeyValueClass> migrationType = FXCollections.observableArrayList();
+
+        migrationType.add(new KeyValueClass(1, "Hiv Enrollment"));
+        migrationType.add(new KeyValueClass(2, "Adult Initial Clinical Evaluation"));
+        migrationType.add(new KeyValueClass(3, "Pediatric Initial Clinical Evaluation"));
+        migrationType.add(new KeyValueClass(4, "Care Card"));
+        migrationType.add(new KeyValueClass(5, "Pharmacy"));
+        migrationType.add(new KeyValueClass(6, "Client Tracking and Termination"));
+        migrationType.add(new KeyValueClass(7, "Lab Order and Result"));
+        migrationType.add(new KeyValueClass(8, "Client Intake"));
+
+        encounterTypes.setItems(migrationType);
+
     }
+
+
 
     @FXML
     public void getDirectory() {
@@ -679,16 +700,16 @@ public class Controller {
         }
     }
 
-    Set<Visit> fetchedVisits = new HashSet<>();
+//    Set<Visit> fetchedVisits = new HashSet<>();
 
-    private Visit searchVisit(Integer patient, java.util.Date date){
-        for( Visit v: fetchedVisits){
-            if(v.getPatient_id() == patient && v.getDate_created() == date){
-                return v;
-            }
-        }
-        return null;
-    }
+//    private Visit searchVisit(Integer patient, java.util.Date date){
+//        for( Visit v: fetchedVisits){
+//            if(v.getPatient_id() == patient && v.getDate_started() == date){
+//                return v;
+//            }
+//        }
+//        return null;
+//    }
 
     private Boolean isAdult(int pat){
        return true;
@@ -696,7 +717,7 @@ public class Controller {
 
     private void loadEncounter() {
 
-        fetchedVisits = getVisits();
+//        fetchedVisits = getVisits();
 
         encounterTask = new Task<ObservableList<Encounter>>() {
             @Override
@@ -706,7 +727,33 @@ public class Controller {
                     allEncounters = FXCollections.observableArrayList();
                     Encounters Encounters = new Encounters();
 
-                    if (sourceDB.getSelectionModel().getSelectedIndex() == 0 ||
+                    if (sourceDB.getSelectionModel().getSelectedIndex() == 0 ){
+                        if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 1) {
+                            logToConsole("\n Going for data merging!!!");
+                            prepareEnrollment();
+                        } else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 2) {
+                            logToConsole("\n Going for data merging!!!");
+                            adultInitial();
+                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 3) {
+                            logToConsole("\n Going for data merging!!!");
+                            pedInitial();
+                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 4) {
+                            logToConsole("\n Going for data merging!!!");
+                            careCard();
+                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 5) {
+                            logToConsole("\n Going for data merging!!!");
+                            pharmacy();
+                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 6) {
+                            logToConsole("\n Going for data merging!!!");
+                            termination();
+                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 7) {
+                            logToConsole("\n Going for data merging!!!");
+                            labOrder();
+                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 8) {
+                            logToConsole("\n Going for data merging!!!");
+                            clientIntake();
+                        }
+                    }else if(
                             sourceDB.getSelectionModel().getSelectedIndex() == 1 ||
                             sourceDB.getSelectionModel().getSelectedIndex() == 2) {
 
@@ -727,102 +774,30 @@ public class Controller {
 
                             stmt = conn.createStatement();
                             String sql = "";
-                            if (fromFile.isSelected()) {
-                                sql = getSQL();
-                            } else {
-                                if (sourceDB.getSelectionModel().getSelectedIndex() == 0)
-                                    sql = "SELECT * FROM " + suffix + "encounter WHERE form_id IN (1,53,46,12,47,56,70,71,72,67,47,65)"
-                                            + "group by patient_id,encounter_type, form_id, encounter_datetime";
-                                else
-                                    sql = "SELECT * FROM " + suffix + "encounter";
-                                //sql = "SELECT * FROM " + suffix + "encounter WHERE form_id IN (1,19,53,46,12,47,28,56,70,71,72,67,47,65)";
-                                //sql = "SELECT * FROM " + suffix + "encounter WHERE form_id IN (1,53,46,12,47,56,70,71,72,67,47,65)";
-                            }
+                            sql = "SELECT * FROM " + suffix + "encounter where voided = 0";
+
                             logToConsole("\n Creating Select statement...");
                             ResultSet rs = stmt.executeQuery(sql);
                             //STEP 5: Extract data from result set
                             while (rs.next()) {
                                 //Retrieve by column name
-                                Visit v = searchVisit(rs.getInt("patient_id"), rs.getDate("encounter_datetime"));
                                 Encounter encounter = new Encounter();
                                 encounter.setEncounter_id(rs.getInt("encounter_id"));
                                 encounter.setEncounter_datetime(rs.getDate("encounter_datetime"));
-                                if (sourceDB.getSelectionModel().getSelectedIndex() == 0) {
-
-                                    if (rs.getInt("form_id") == 1) {
-                                        if(isAdult(rs.getInt("patient_id"))) {
-                                            encounter.setForm_id(22);
-                                            encounter.setEncounter_type(8);
-                                        }else{
-                                            encounter.setForm_id(20);
-                                            encounter.setEncounter_type(8);
-                                        }
-                                    }
-                                    else if (rs.getInt("form_id") == 56 ||
-                                            rs.getInt("form_id") == 70 ||
-                                            rs.getInt("form_id") == 71 ||
-                                            rs.getInt("form_id") == 47 ||
-                                            rs.getInt("form_id") == 72) {
-                                        encounter.setForm_id(14);
-                                        encounter.setEncounter_type(12);
-                                    }
-                                    else if (rs.getInt("form_id") == 28 ||  rs.getInt("form_id") == 19
-                                            ||  rs.getInt("form_id") == 65) {
-                                        encounter.setForm_id(23);
-                                        encounter.setEncounter_type(14);
-                                    }
-//                                    else if (rs.getInt("form_id") == 18) {
-//                                        encounter.setForm_id(22);
-//                                        encounter.setEncounter_type(8);
-//                                    }
-                                    else if (rs.getInt("form_id") == 46 || rs.getInt("form_id") == 53) {
-                                        encounter.setForm_id(27);
-                                        encounter.setEncounter_type(13);
-                                    }
-                                    else if (rs.getInt("form_id") == 12) {
-                                        encounter.setForm_id(15);
-                                        encounter.setEncounter_type(16);
-                                    }
-                                    else if (rs.getInt("form_id") == 67) {
-                                        encounter.setForm_id(21);
-                                        encounter.setEncounter_type(11);
-                                    }
-//                                    else if (rs.getInt("form_id") == 47) {
-//                                        encounter.setForm_id(1);
-//                                        encounter.setEncounter_type(rs.getInt("encounter_type"));
-//                                    }
-//                                    else if (rs.getInt("form_id") == 53) {
-//                                        encounter.setForm_id(27);
-//                                        encounter.setEncounter_type(rs.getInt("encounter_type"));
-//                                    }
-                                    else {
-                                        encounter.setForm_id(rs.getInt("form_id"));
-                                        encounter.setEncounter_type(rs.getInt("encounter_type"));
-                                    }
-//                                    else if (rs.getInt("form_id") == 46) {
-//                                        encounter.setForm_id(27);
-//                                        encounter.setEncounter_type(13);
-//                                    }
-                                } else {
-                                    encounter.setForm_id(rs.getInt("form_id"));
-                                    encounter.setEncounter_type(rs.getInt("encounter_type"));
-                                }
+                                 encounter.setForm_id(rs.getInt("form_id"));
+                                 encounter.setEncounter_type(rs.getInt("encounter_type"));
 
                                 encounter.setUuid(UUID.randomUUID());
                                 encounter.setCreator(1);
                                 encounter.setDate_changed(rs.getDate("date_changed"));
                                 encounter.setDate_created(rs.getDate("date_created"));
-                                encounter.setDate_voided(rs.getDate("date_voided"));
-
-                                encounter.setLocation_id(2);
+//                                encounter.setDate_voided(rs.getDate("date_voided"));
+                                encounter.setLocation_id(rs.getInt("location_id"));
                                 encounter.setPatient_id(rs.getInt("patient_id"));
-                                if(v != null)
-                                    encounter.setVisit_id(v.getVisit_id());
-                                else
-                                    encounter.setVisit_id(rs.getInt("encounter_id"));
+                                encounter.setVisit_id(rs.getInt("visit_id"));
 
-                                encounter.setVoid_reason(rs.getString("void_reason"));
-                                encounter.setVoided(rs.getBoolean("voided"));
+//                                encounter.setVoid_reason(rs.getString("void_reason"));
+//                                encounter.setVoided(rs.getBoolean("voided"));
 
                                 allEncounters.add(encounter);
                                 //logToConsole(" Encounter Type : "+rs.getInt("encounter_type"));
@@ -1034,6 +1009,83 @@ public class Controller {
 
     }
 
+    private void prepareEnrollment() {
+        allEncounters = FXCollections.observableArrayList();
+        connectionSettings();
+        //
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName(driver);
+
+            //STEP 3: Open a connection
+            logToConsole("\n Connecting to Source Database!!");
+            conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);
+            logToConsole("\n Connected to database successfully...");
+
+            stmt = conn.createStatement();
+            String sql = "";
+
+            sql = "SELECT * FROM " + suffix + "encounter WHERE encounter_type = 15 and voided = 0 "
+                            + "group by patient_id";
+
+            logToConsole("\n Creating Select statement...");
+            ResultSet rs = stmt.executeQuery(sql);
+            //STEP 5: Extract data from result set
+            while (rs.next()) {
+                //Retrieve by column name
+                Integer vID = getVisits(rs.getInt("patient_id"), rs.getDate("encounter_datetime"));
+                Encounter encounter = new Encounter();
+                encounter.setEncounter_id(rs.getInt("encounter_id"));
+                encounter.setEncounter_datetime(rs.getDate("encounter_datetime"));
+                encounter.setForm_id(rs.getInt("form_id"));
+                encounter.setEncounter_type(rs.getInt("encounter_type"));
+                encounter.setUuid(UUID.randomUUID());
+                encounter.setCreator(1);
+                encounter.setDate_changed(rs.getDate("date_changed"));
+                encounter.setDate_created(rs.getDate("date_created"));
+                encounter.setLocation_id(8);
+                encounter.setPatient_id(rs.getInt("patient_id"));
+                encounter.setVisit_id(vID);
+                allEncounters.add(encounter);
+            }
+            rs.close();
+            logToConsole("\n Data Successfully Fetched!");
+        } catch (SQLException se) {
+            //Handle errors for JDBC
+            se.printStackTrace();
+            logToConsole("\n Error: " + se.getMessage());
+        } catch (Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+            logToConsole("\n Error: " + e.getMessage());
+        } finally {
+            //finally block used to close resources
+            try {
+                if (stmt != null)
+                    conn.close();
+            } catch (SQLException se) {
+            }// do nothing
+            closeConnection(conn);
+        }//end try
+    }
+
+    private void adultInitial() {
+    }
+    private void pedInitial() {
+    }
+    private void careCard() {
+    }
+    private void pharmacy() {
+    }
+    private void termination() {
+    }
+    private void labOrder() {
+    }
+    private void clientIntake() {
+    }
+
     private void loadObs() {
 
         obsTask = new Task<ObservableList<Obs>>() {
@@ -1042,31 +1094,34 @@ public class Controller {
                 try {
                     allObses = FXCollections.observableArrayList();
                     Obses obses = new Obses();
-                    if((encounterTypes.getSelectionModel().getSelectedItem().getId() == 19 ||
-                            encounterTypes.getSelectionModel().getSelectedItem().getId() == 28 ||
-                            encounterTypes.getSelectionModel().getSelectedItem().getId() == 65) &&
-                            sourceDB.getSelectionModel().getSelectedIndex() == 0
-                            ){
-                        logToConsole("\n Going for data merging!!!");
-                        //logToConsole(hivEnrollment().toString());
-                        for(Obs ob : hivEnrollment()) {
-                            allObses.add(ob);
-                        }
-                        //logToConsole("All Obs:" +allObses);
-
-                    }else if((encounterTypes.getSelectionModel().getSelectedItem().getId() == 1 ||
-                            encounterTypes.getSelectionModel().getSelectedItem().getId() == 20 ||
-                            encounterTypes.getSelectionModel().getSelectedItem().getId() == 18) &&
-                            sourceDB.getSelectionModel().getSelectedIndex() == 0
-                            ){
-                        logToConsole("\n Going for data merging!!!");
-                        //logToConsole(hivEnrollment().toString());
-                        for(Obs ob : initialEvaluation()) {
-                            allObses.add(ob);
-                        }
-                        //logToConsole("All Obs:" +allObses);
-
-                    }else if (sourceDB.getSelectionModel().getSelectedIndex() == 0 ||
+                    if( sourceDB.getSelectionModel().getSelectedIndex() == 0 ) {
+//                        if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 1) {
+//                            logToConsole("\n Going for data merging!!!");
+//                            prepareEnrollment();
+//                        } else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 2) {
+//                            logToConsole("\n Going for data merging!!!");
+//                            adultInitial();
+//                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 3) {
+//                            logToConsole("\n Going for data merging!!!");
+//                            pedInitial();
+//                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 4) {
+//                            logToConsole("\n Going for data merging!!!");
+//                            careCard();
+//                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 5) {
+//                            logToConsole("\n Going for data merging!!!");
+//                            pharmacy();
+//                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 6) {
+//                            logToConsole("\n Going for data merging!!!");
+//                            termination();
+//                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 7) {
+//                            logToConsole("\n Going for data merging!!!");
+//                            labOrder();
+//                        }else if (encounterTypes.getSelectionModel().getSelectedItem().getKey() == 8) {
+//                            logToConsole("\n Going for data merging!!!");
+//                            clientIntake();
+//                        }
+                    }
+                        else if (//sourceDB.getSelectionModel().getSelectedIndex() == 0 ||
                             sourceDB.getSelectionModel().getSelectedIndex() == 1 ||
                             sourceDB.getSelectionModel().getSelectedIndex() == 2) {
                         logToConsole("\n No data merging!!!");
@@ -1103,14 +1158,14 @@ public class Controller {
                                                             Integer.parseInt(firstID.getText()) +
                                                             " && obs_id < " + Integer.parseInt(lastID.getText()) +
                                                             " && encounter.form_id = " +
-                                                            encounterTypes.getSelectionModel().getSelectedItem().getId();
+                                                            encounterTypes.getSelectionModel().getSelectedItem().getKey();
 
                                                     }
                                                 } else {
                                                     sql = "SELECT * FROM " + suffix
                                                             + "obs LEFT JOIN encounter on obs.encounter_id = encounter.encounter_id where form_id = "
                                                             +
-                                                            encounterTypes.getSelectionModel().getSelectedItem().getId();
+                                                            encounterTypes.getSelectionModel().getSelectedItem().getKey();
                                                 }
 
                                         } else {
@@ -1138,7 +1193,7 @@ public class Controller {
                                 //Retrieve by column name
                                 if(sourceDB.getSelectionModel().getSelectedIndex() == 0) {
                                    // logToConsole("\nFetching Obs ID: "+rs.getInt("obs_id"));
-                                  try (PrintWriter writer = new PrintWriter(encounterTypes.getSelectionModel().getSelectedItem().getName().toLowerCase().replaceAll("[^a-zA-Z0-9]", "_").toLowerCase()+".csv", "UTF-8")) {
+                                  try (PrintWriter writer = new PrintWriter(encounterTypes.getSelectionModel().getSelectedItem().getValue().toLowerCase().replaceAll("[^a-zA-Z0-9]", "_").toLowerCase()+".csv", "UTF-8")) {
                                     if(concepts.containsKey(rs.getInt("concept_id"))){
                                         Obs obs = new Obs();
                                         if (rs.getString("accession_number") != null)
@@ -1725,6 +1780,8 @@ public class Controller {
                                 patientIdentifier.setPreferred(rs.getBoolean("preferred"));
                                 if (rs.getInt("identifier_type") == 3 && sourceDB.getSelectionModel().getSelectedIndex() == 0)
                                     patientIdentifier.setIdentifier_type(5);
+                                if (rs.getInt("identifier_type") == 5 && sourceDB.getSelectionModel().getSelectedIndex() == 0)
+                                    patientIdentifier.setIdentifier_type(1);
                                 else
                                     patientIdentifier.setIdentifier_type(rs.getInt("identifier_type"));
                                 patientIdentifier.setIdentifier(rs.getString("identifier"));
@@ -2126,7 +2183,7 @@ public class Controller {
                             if (fromFile.isSelected()) {
                                 sql = getSQL();
                             } else {
-                                sql = "SELECT * FROM " + suffix + "person";
+                                sql = "SELECT * FROM " + suffix + "person where person_id > 1";
                             }
                             logToConsole("Creating Select statement...\n");
                             stmt = conn.createStatement();
@@ -2337,7 +2394,7 @@ public class Controller {
                             if (fromFile.isSelected()) {
                                 sql = getSQL();
                             } else {
-                                sql = "SELECT * FROM " + suffix + "person_address";
+                                sql = "SELECT * FROM " + suffix + "person_address where person_id > 1";
                             }
                             logToConsole("Creating Select statement...\n");
                             ResultSet rs = stmt.executeQuery(sql);
@@ -2618,7 +2675,64 @@ public class Controller {
                             }// do nothing
                             closeConnection(conn);
                         }//end try
+                        if(sourceDB.getSelectionModel().getSelectedIndex() == 0){
+                            try {
+                                //STEP 2: Register JDBC driver
+                                Class.forName(driver);
 
+                                //STEP 3: Open a connection
+                                logToConsole("\n Connecting to Source Database!!");
+                                conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);
+                                logToConsole("\n Connected to database successfully...");
+
+                                //STEP 4: Execute a query
+
+                                stmt = conn.createStatement();
+                                String sql = "";
+                                if (fromFile.isSelected()) {
+                                    sql = getSQL();
+                                } else {
+                                    sql = "SELECT person_id,value_text,date_created from obs where voided = 0 && concept_id = 7778430 Group By person_id";
+                                }
+                                logToConsole("\n Creating Select statement...");
+                                ResultSet rs = stmt.executeQuery(sql);
+                                //STEP 5: Extract data from result set
+                                while (rs.next()) {
+                                    //Retrieve by column name
+                                    PersonAttribute personAttribute = new PersonAttribute();
+                                    personAttribute.setPerson_attribute_id(null);
+                                    personAttribute.setPerson_id(rs.getInt("person_id"));
+                                    personAttribute.setValue(rs.getString("value_text"));
+                                    personAttribute.setPerson_attribute_type_id(8);
+                                    personAttribute.setUuid(UUID.randomUUID());
+                                    personAttribute.setCreator(1);
+                                    personAttribute.setDate_created(rs.getDate("date_created"));
+//                                    personAttribute.setDate_voided(rs.getDate("date_voided"));
+//                                    personAttribute.setVoid_reason(rs.getString("void_reason"));
+//                                    personAttribute.setVoided(rs.getBoolean("voided"));
+
+                                    allPersonAttributes.add(personAttribute);
+                                }
+                                rs.close();
+                                logToConsole("\n Data Successfully Fetched!");
+                            } catch (SQLException se) {
+                                //Handle errors for JDBC
+                                se.printStackTrace();
+                                logToConsole("\n Error: " + se.getMessage());
+                            } catch (Exception e) {
+                                //Handle errors for Class.forName
+                                e.printStackTrace();
+                                logToConsole("\n Error: " + e.getMessage());
+                            } finally {
+                                //finally block used to close resources
+                                try {
+                                    if (stmt != null)
+                                        conn.close();
+                                } catch (SQLException se) {
+                                }// do nothing
+                                closeConnection(conn);
+                            }//end try
+                        }
                     } else {
                         logToConsole("#################### XML BASED MIGRATION!");
 
@@ -2643,6 +2757,9 @@ public class Controller {
                             logToConsole("Error Loading File Content to a Model: " + exc.getMessage() + "\n");
                         }
                     }
+
+
+
                     if (allPersonAttributes.isEmpty()) {
                         for (PersonAttribute thePersonAttribute : personAttributes.getPersonAttributes()) {
                             if (thePersonAttribute.getValue() != null) {
@@ -2762,7 +2879,7 @@ public class Controller {
                             if (fromFile.isSelected()) {
                                 sql = getSQL();
                             } else {
-                                sql = "SELECT * FROM " + suffix + "person_name";
+                                sql = "SELECT * FROM " + suffix + "person_name where person_id > 1";
                             }
                             logToConsole("\n Creating Select statement...");
                             ResultSet rs = stmt.executeQuery(sql);
@@ -2967,7 +3084,7 @@ public class Controller {
                                     sql = getSQL();
                                 } else {
                                     logToConsole("\n Fetching visit from OpenMRS through encounter...");
-                                    sql = "SELECT * FROM " + suffix + "encounter WHERE form_id IN (1,53,46,12,47,56,70,71,72,67,47,65) group by patient_id, encounter_datetime";
+                                    sql = "SELECT * FROM " + suffix + "encounter where voided=0 group by patient_id, encounter_datetime";
                                     //sql = "SELECT * FROM " + suffix + "encounter WHERE form_id IN (1,53,46,12,47,56,70,71,72,67,47,65)";
                                     //sql = "SELECT * FROM " + suffix + "encounter WHERE form_id IN (1,19,53,46,12,47,28,56,70,71,72,67,47,65)";
                                 }
@@ -2977,19 +3094,16 @@ public class Controller {
                                 while (rs.next()) {
                                     //Retrieve by column name
                                     Visit visit = new Visit();
-                                    visit.setVisit_id(rs.getInt("encounter_id"));
+                                    visit.setVisit_id(null);
                                     visit.setPatient_id(rs.getInt("patient_id"));
                                     visit.setVisit_type_id(1);
                                     visit.setDate_started(rs.getDate("encounter_datetime"));
                                     visit.setDate_stopped(rs.getDate("encounter_datetime"));
-                                    visit.setLocation_id(2);
+                                    visit.setLocation_id(8);
                                     visit.setUuid(UUID.randomUUID());
                                     visit.setCreator(1);
                                     visit.setDate_changed(rs.getDate("date_changed"));
                                     visit.setDate_created(rs.getDate("date_created"));
-                                    visit.setDate_voided(rs.getDate("date_voided"));
-                                    visit.setVoid_reason(rs.getString("void_reason"));
-                                    visit.setVoided(rs.getBoolean("voided"));
                                     allVisits.add(visit);
                                 }
                                 rs.close();
@@ -2998,7 +3112,7 @@ public class Controller {
                                 if (fromFile.isSelected()) {
                                     sql = getSQL();
                                 } else {
-                                    sql = "SELECT * FROM " + suffix + "visit";
+                                    sql = "SELECT * FROM " + suffix + "visit where voided=0";
                                 }
                                 logToConsole("\n Creating Select statement...");
                                 ResultSet rs = stmt.executeQuery(sql);
@@ -3081,8 +3195,8 @@ public class Controller {
 
                         String INSERT_SQL = "INSERT INTO visit"
                                 + "(visit_id, patient_id, visit_type_id, date_started, date_stopped, location_id," +
-                                " creator, date_created, voided, date_voided, void_reason, uuid) " +
-                                "VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?)";
+                                " creator, date_created, uuid) " +
+                                "VALUES ( ?,?,?,?,?,?,?,?,?)";
 
                         String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
@@ -3096,7 +3210,10 @@ public class Controller {
                                 // Insert sample records
                                 for (Visit module : allVisits) {
                                     try {
-                                        stmt.setInt(1, module.getVisit_id());
+                                        if (sourceDB.getSelectionModel().getSelectedIndex() > 0)
+                                            stmt.setInt(1, module.getVisit_id());
+                                        else
+                                            stmt.setString(1, null);
                                         stmt.setInt(2, module.getPatient_id());
                                         stmt.setInt(3, module.getVisit_type_id());
                                         if (module.getDate_started() != null)
@@ -3113,13 +3230,13 @@ public class Controller {
                                             stmt.setDate(8, new java.sql.Date(module.getDate_created().getTime()));
                                         else
                                             stmt.setDate(8, null);
-                                        stmt.setBoolean(9, module.isVoided());
-                                        if (module.getDate_voided() != null)
-                                            stmt.setDate(10, new java.sql.Date(module.getDate_voided().getTime()));
-                                        else
-                                            stmt.setDate(10, null);
-                                        stmt.setString(11, module.getVoid_reason());
-                                        stmt.setString(12, module.getUuid().toString());
+//                                        stmt.setBoolean(9, module.isVoided());
+//                                        if (module.getDate_voided() != null)
+//                                            stmt.setDate(10, new java.sql.Date(module.getDate_voided().getTime()));
+//                                        else
+//                                            stmt.setDate(10, null);
+//                                        stmt.setString(11, module.getVoid_reason());
+                                        stmt.setString(9, module.getUuid().toString());
 
                                         //Add statement to batch
                                         stmt.addBatch();
@@ -3770,16 +3887,16 @@ public class Controller {
             conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);
             logToConsole("\n Source Database connection successful...");
 
-            Platform.runLater( () -> {
-                try {
-                    encounterTypes.getItems().removeAll();
-                }catch (Exception ex){
-                    System.out.println(ex.getMessage());
-                }
-                getEncounterTypes();
-
-                encounterTypes.getItems().addAll(allEncounterTypes);
-            });
+//            Platform.runLater( () -> {
+//                try {
+//                    encounterTypes.getItems().removeAll();
+//                }catch (Exception ex){
+//                    System.out.println(ex.getMessage());
+//                }
+//                getEncounterTypes();
+//
+//                encounterTypes.getItems().addAll(allEncounterTypes);
+//            });
 
         } catch (SQLException se) {
             //Handle errors for JDBC
@@ -3850,6 +3967,13 @@ public class Controller {
         SessionManager.username = username.getText();
         SessionManager.password = password.getText();
         SessionManager.db = db.getText();
+
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (Exception exc) {
+            logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+        }
         String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
 
@@ -4476,8 +4600,6 @@ public class Controller {
                             }else{
                                 permObs.setValue_coded(null);
                             }
-
-
                             //permObs.setValue_coded(rs3.getInt("value_coded"));
                             if (rs3.getInt("value_coded_name_id") > 0)
                                 permObs.setValue_coded_name_id(rs3.getInt("value_coded_name_id"));
@@ -4571,10 +4693,76 @@ public class Controller {
         return getObs;
     }
 
+    private Integer insertVisit(Integer patientID, Date encounterDate){
+        Integer t3d_id = null;
+        appConsole.clear();
+        logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+        SessionManager.host = host.getText();
+        SessionManager.port = port.getText();
+        SessionManager.username = username.getText();
+        SessionManager.password = password.getText();
+        SessionManager.db = db.getText();
+        String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
+                "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
+        Statement stmt = null;
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (Exception exc) {
+            logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+        }
+            String INSERT_SQL = "INSERT INTO visit"
+                    + "(visit_id, patient_id, visit_type_id, date_started, date_stopped, location_id," +
+                    " creator, date_created, uuid) " +
+                    "VALUES ( ?,?,?,?,?,?,?,?,?)";
 
+           String username = SessionManager.username;
+            String password = SessionManager.password;
+            try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
 
-    private Set<Visit> getVisits() {
-        Set<Visit> visits = new HashSet<>();
+                conn.setAutoCommit(false);
+                try (PreparedStatement stmt1 = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+                    // Insert sample records
+                        try {
+                            stmt1.setString(1, null);
+                            stmt1.setInt(2, patientID);
+                            stmt1.setInt(3, 1);
+                            stmt1.setDate(4, encounterDate);
+                            stmt1.setDate(5, encounterDate);
+                            stmt1.setInt(6, 8);
+                            stmt1.setInt(7, 1);
+                            stmt1.setDate(8, encounterDate);
+                            stmt1.setString(9, UUID.randomUUID().toString());
+
+                            //Add statement to batch
+                            stmt1.execute();
+                            ResultSet rs = stmt1.getGeneratedKeys();
+                            if (rs.next()){
+                                t3d_id =rs.getInt(1);
+                            }
+                            rs.close();
+                        }
+                        catch (Exception ex) {
+                            logToConsole("\n Error: " + ex.getMessage());
+                            ex.printStackTrace();
+                        }
+                    conn.commit();
+                    logToConsole("\n Transaction is committed successfully.");
+                }
+                catch (SQLException e) {
+                    e.printStackTrace();
+                    rollbackTransaction(conn, e);
+                }
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        return t3d_id;
+    }
+
+    private Integer getVisits(Integer patientID, Date encounterDate) {
+        Visit visit = null;
         appConsole.clear();
         logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
         SessionManager.host = host.getText();
@@ -4596,12 +4784,12 @@ public class Controller {
 
 
             stmt = conn.createStatement();
-                String sql = "SELECT * FROM visit";
+                String sql = "SELECT * FROM visit where patient_id="+patientID +" and "+"date_started='"+encounterDate+"'";
                 logToConsole("\n Fetching Visits..");
                 ResultSet rs = stmt.executeQuery(sql);
                 //STEP 5: Extract data from result set
                 while (rs.next()) {
-                    Visit visit = new Visit();
+                    visit = new Visit();
                     visit.setVisit_id(rs.getInt("visit_id"));
                     visit.setPatient_id(rs.getInt("patient_id"));
                     visit.setVisit_type_id(1);
@@ -4615,7 +4803,7 @@ public class Controller {
                     visit.setDate_voided(rs.getDate("date_voided"));
                     visit.setVoid_reason(rs.getString("void_reason"));
                     visit.setVoided(rs.getBoolean("voided"));
-                    visits.add(visit);
+
                 }
                 rs.close();
         } catch (SQLException e) {
@@ -4628,7 +4816,11 @@ public class Controller {
             } catch (Exception se) {
             }// do nothing
         }//end try
-        return visits;
+        if(visit != null){
+            return visit.getVisit_id();
+        }else{
+            return insertVisit(patientID, encounterDate);
+        }
     }
 
 
@@ -4822,6 +5014,33 @@ public class Controller {
 
             stage.setScene(scene);
             stage.setTitle("Api Mapping!");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void encObsDialog(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("encobs.fxml").openStream());
+
+            EncounterObsController controller = (EncounterObsController) fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("OpenMRS Encounter & Obs Migration!");
             stage.setResizable(false);
             stage.alwaysOnTopProperty();
             stage.show();
