@@ -80,6 +80,7 @@ import org.ccfng.datamigration.users.User;
 import org.ccfng.datamigration.users.Users;
 import org.ccfng.datamigration.visit.Visit;
 import org.ccfng.datamigration.visit.Visits;
+import org.ccfng.global.DBMiddleMan;
 import org.ccfng.openmrscleanup.OpenmrsCleanupController;
 import org.hibernate.HibernateException;
 
@@ -256,6 +257,7 @@ public class Controller {
     @FXML
     private CheckBox loadByEnc;
 
+
     public void initialize() {
 
         vBoxTables.setDisable(true);
@@ -348,6 +350,27 @@ public class Controller {
         Platform.runLater(() -> {
             this.sourceDB.setItems(FXCollections.observableArrayList("OpenMRS Migration",
                     "SEEDsCare Migration", "IQCare Migration", "XML Based Migration"));
+        });
+
+            logToConsole("Loading Data Please wait...");
+
+        Thread loderThread = new Thread(this::dataLoader);
+
+        loderThread.start();
+
+    }
+
+    public void dataLoader(){
+        DBMiddleMan.getObs();
+        DBMiddleMan.getPatients();
+        DBMiddleMan.getPatientIdentifiers();
+        DBMiddleMan.getPatientProgram();
+        DBMiddleMan.getPeople();
+        DBMiddleMan.getPeopleNames();
+        DBMiddleMan.getAllPeopleAddresses();
+        DBMiddleMan.getEncounters();
+        Platform.runLater(() -> {
+            logToConsole("\n Data loaded successfully.");
         });
     }
 
@@ -3744,6 +3767,7 @@ public class Controller {
     public void closeApp() {
         checkConnection();
         Platform.exit();
+        System.exit(0);
     }
 
     @FXML
@@ -4740,6 +4764,7 @@ public class Controller {
             stage.setResizable(false);
             stage.alwaysOnTopProperty();
             stage.show();
+            stage.setOnCloseRequest(e -> controller.shutdown());
         }catch (Exception ex){
             logToConsole(ex.getMessage());
             ex.printStackTrace();

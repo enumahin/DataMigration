@@ -14,7 +14,7 @@ public class Demographics{
 
 	private String PatientName;
 
-	private Integer PatientAge;
+	private Long PatientAge;
 
 	private String patientPhoneNumber;
 
@@ -87,11 +87,11 @@ public class Demographics{
 		PatientName = patientName;
 	}
 
-		public Integer getPatientAge() {
+		public Long getPatientAge() {
 			return PatientAge;
 		}
 
-		public void setPatientAge(Integer patientAge) {
+		public void setPatientAge(Long patientAge) {
 			PatientAge = patientAge;
 		}
 

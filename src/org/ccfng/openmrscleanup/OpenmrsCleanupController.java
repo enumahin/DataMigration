@@ -1575,7 +1575,7 @@ public class OpenmrsCleanupController {
 				lastCarePharmacy.setLastCareRegimenLineId(rs.getInt("RegimenID"));
 				lastCarePharmacy.setLastCareRegimenLine(rs.getString("RegimenLine"));
 
-				lastCarePharmacy.setPatientAge(rs.getInt("birthdate"));
+				lastCarePharmacy.setPatientAge(rs.getLong("birthdate"));
 				logToConsole("\n Patient Age is: "+rs.getInt("birthdate"));
 
 				logToConsole("\nPatient Age: "+lastCarePharmacy.getPatientAge());
@@ -1693,7 +1693,7 @@ public class OpenmrsCleanupController {
 
 				lastCarePharmacy.setNextAppointmentDate(rs.getDate("NextAppointmentDATE"));
 
-				lastCarePharmacy.setPatientAge(rs.getInt("birthdate"));
+				lastCarePharmacy.setPatientAge(rs.getLong("birthdate"));
 				logToConsole("\n Patient Age is: "+rs.getInt("birthdate"));
 
 
@@ -2831,7 +2831,7 @@ public class OpenmrsCleanupController {
 						lastCarePharmacy.setLastCareRegimenLineId(rs.getInt("RegimenID"));
 						lastCarePharmacy.setLastCareRegimenLine(rs.getString("RegimenLine"));
 
-						lastCarePharmacy.setPatientAge(rs.getInt("birthdate"));
+						lastCarePharmacy.setPatientAge(rs.getLong("birthdate"));
 						logToConsole("\n Patient Age is: "+rs.getInt("birthdate"));
 
 						logToConsole("\nPatient Age: "+lastCarePharmacy.getPatientAge());

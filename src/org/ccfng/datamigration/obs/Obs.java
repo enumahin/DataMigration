@@ -1,15 +1,16 @@
 package org.ccfng.datamigration.obs;
 
-import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Date;
+import java.sql.Date;
 import java.util.UUID;
+import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.Type;
 
 @XmlRootElement(name = "Obs")
 @EqualsAndHashCode(exclude = {"Encounter_id","Uuid",
