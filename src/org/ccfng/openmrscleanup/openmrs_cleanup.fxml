@@ -3,6 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -855,6 +857,95 @@
                            </children>
                         </AnchorPane>
                     </content>
+                  </Tab>
+                  <Tab text="PMTCT Not On HIV Care">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox prefHeight="472.0" prefWidth="186.0">
+                                 <children>
+                                    <Label prefHeight="33.0" prefWidth="248.0" style="-fx-background-color: #336699;" text="Update" textFill="#fffefe">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                       <padding>
+                                          <Insets left="10.0" />
+                                       </padding>
+                                    </Label>
+                                    <Button mnemonicParsing="false" onAction="#getPMTCT" prefHeight="27.0" prefWidth="186.0" style="-fx-background-color: skyblue;" text="Load">
+                                       <VBox.margin>
+                                          <Insets left="10.0" right="10.0" top="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button layoutX="10.0" layoutY="164.0" mnemonicParsing="false" onAction="#enrolltoART" prefHeight="27.0" prefWidth="253.0" style="-fx-background-color: darkgreen;" text="Update" textFill="#fffefe">
+                                       <VBox.margin>
+                                          <Insets left="10.0" right="10.0" top="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Label fx:id="weightHeightStatus1" prefHeight="32.0" prefWidth="186.0" textFill="#110000">
+                                       <padding>
+                                          <Insets left="10.0" />
+                                       </padding>
+                                       <font>
+                                          <Font name="System Bold Italic" size="13.0" />
+                                       </font>
+                                    </Label>
+                                    <ImageView fitHeight="50.0" fitWidth="59.0" pickOnBounds="true" preserveRatio="true">
+                                       <VBox.margin>
+                                          <Insets left="70.0" />
+                                       </VBox.margin>
+                                       <image>
+                                          <Image url="@/org/ccfng/imgs/patient.png" />
+                                       </image>
+                                    </ImageView>
+                                    <Label alignment="CENTER" prefHeight="29.0" prefWidth="186.0" text="0" textAlignment="CENTER">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                    </Label>
+                                    <Label alignment="CENTER" layoutX="10.0" layoutY="199.0" prefHeight="29.0" prefWidth="186.0" text="of" textAlignment="CENTER">
+                                       <font>
+                                          <Font name="System Bold" size="13.0" />
+                                       </font>
+                                    </Label>
+                                    <Label alignment="CENTER" layoutX="10.0" layoutY="228.0" prefHeight="29.0" prefWidth="186.0" textAlignment="CENTER">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </VBox>
+                              <VBox layoutX="187.0" prefHeight="472.0" prefWidth="1080.0">
+                                 <children>
+                                    <TableView fx:id="pmtctArtTable" prefHeight="474.0" prefWidth="1054.0">
+                                       <columns>
+                                          <TableColumn prefWidth="97.0" text="Patient ID">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="PatientID" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="133.0" text="PepFar ID">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="PepfarID" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="173.0" text="Patient Name">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="PatientName" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                          <TableColumn prefWidth="134.0" text="Enrolled Date">
+                                             <cellValueFactory>
+                                                <PropertyValueFactory property="EncounterDateTime" />
+                                             </cellValueFactory>
+                                          </TableColumn>
+                                       </columns>
+                                    </TableView>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
                   </Tab>
               </tabs>
             </TabPane>

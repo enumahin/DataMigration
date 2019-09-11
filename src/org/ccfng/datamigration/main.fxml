@@ -50,6 +50,11 @@
                         <MenuItem mnemonicParsing="false" onAction="#lineList" text="Line List" />
                             </items>
                         </Menu>
+                  <Menu mnemonicParsing="false" text="Data">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#callDataLoader" text="Load Data" />
+                    </items>
+                  </Menu>
                   <Menu mnemonicParsing="false" text="Help">
                      <items>
                         <MenuItem mnemonicParsing="false" text="About" />

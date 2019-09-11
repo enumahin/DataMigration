@@ -375,6 +375,11 @@ public class Controller {
     }
 
     @FXML
+    private void callDataLoader(){
+        new Thread(this::dataLoader).start();
+    }
+
+    @FXML
     public void getDirectory() {
         fileComboBox.setItems(null);
         if (fromFile.isSelected()) {

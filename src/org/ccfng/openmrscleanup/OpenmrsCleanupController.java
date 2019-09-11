@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,11 +15,13 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -48,6 +51,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.ccfng.datamigration.Controller;
 import org.ccfng.datamigration.obs.Obs;
 import org.ccfng.datamigration.session.SessionManager;
+import org.ccfng.global.ConnectionClass;
+import org.ccfng.global.DBMiddleMan;
 import org.ccfng.global.Location;
 import org.ccfng.openmrscleanup.models.Address;
 import org.ccfng.openmrscleanup.models.DateFix;
@@ -115,8 +120,13 @@ public class OpenmrsCleanupController {
 
 	private Task<ObservableList<PharmacyEncounter>> weightHeightTask;
 
+	private Task<ObservableList<PharmacyEncounter>> pmtctArt;
+
 	@FXML
 	private TableView<PharmacyEncounter> weightHeightTable;
+
+	@FXML
+	private TableView<PharmacyEncounter> pmtctArtTable;
 
 	private Task<ObservableList<PatientStatus>> patientStatusTask;
 
@@ -167,6 +177,14 @@ public class OpenmrsCleanupController {
 
 	DateTimeFormatter formatter;
 
+	ConnectionClass cc = null;
+
+	@FXML
+	private Label lblCount;
+
+	@FXML
+	private Label lblTotal;
+
 	public void connectionSettings() {
 		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	}
@@ -184,6 +202,7 @@ public class OpenmrsCleanupController {
 
 	public void initialize(){
 
+		cc = new ConnectionClass();
 		getLocation();
 		new Thread(locationTask).start();
 
@@ -258,6 +277,10 @@ public class OpenmrsCleanupController {
 				SelectionMode.MULTIPLE
 		);
 
+		pmtctArtTable.getSelectionModel().setSelectionMode(
+				SelectionMode.MULTIPLE
+		);
+
 		logToConsole("\n Fetching Database Config!!");
 		try (Stream<String> stream = Files.lines(Paths.get("source-db-config.txt"))) {
 			List<String> db_files = FXCollections.observableArrayList();
@@ -301,7 +324,7 @@ public class OpenmrsCleanupController {
 
 					//STEP 3: Open a connection
 					logToConsole("\n Connecting to Source Database!!");
-					conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);
+					conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
 					logToConsole("\n Connected to database successfully...");
 
 					//STEP 4: Execute a query
@@ -2893,6 +2916,7 @@ public class OpenmrsCleanupController {
 
 	@FXML
 	private void getCareWOPharmacy(){
+//		new Thread(this::fetchCareWOPharmacy).start();
 		fetchCareWOPharmacy();
 //		new Thread(lastPharmacyTask).start();
 	}
@@ -3235,5 +3259,167 @@ public class OpenmrsCleanupController {
 //
 //		getExcess();
 //		new Thread(weightHeightTask).start();
+	}
+
+	@FXML
+	private void getPMTCT(){
+		ObservableList<PharmacyEncounter> pmtctProgram = FXCollections.observableArrayList();
+//		List<PatientProgram> patientPrograms = new ArrayList<>();
+//		lblTotal.setText("");
+
+		new Thread(()-> {
+			AtomicReference<Integer> count = new AtomicReference<>(0);
+		DBMiddleMan.allPatientPrograms.stream()
+				.filter(patientProgram -> patientProgram.getProgram_id() == 1
+						&& ChronoUnit.DAYS.between(LocalDate.parse("2015-01-01"),LocalDate.parse(patientProgram.getDate_enrolled().toString())) >= 0)
+				.forEach(patientProgram -> {
+
+										DBMiddleMan.allPatientPrograms.stream()
+												.filter(patientProgram1 -> patientProgram1.getPatient_id()
+														.equals(patientProgram.getPatient_id())
+														&& patientProgram1.getProgram_id() == 3)
+												.findFirst().orElseGet(() -> {
+											DBMiddleMan.allObs.stream()
+													.filter(obs -> obs.getConcept_id() == 7778111 && obs.getPerson_id().equals(patientProgram.getPatient_id()))
+													.reduce((first, second) -> second).ifPresent(obs -> {
+												DBMiddleMan.allEncounters.stream().filter(enc -> enc.getEncounter_id().equals(obs.getEncounter_id()))
+														.findFirst().ifPresent(encounter -> {
+													if(ChronoUnit.DAYS.between(LocalDate.parse(encounter.getEncounter_datetime().toString()),
+															LocalDate.parse(LocalDate.now().toString())) <= 180) {
+														count.getAndSet(count.get() + 1);
+														final Integer fCount = count.get();
+														PharmacyEncounter pharmacyEncounter = new PharmacyEncounter();
+											Platform.runLater(()->{
+												logToConsole("\nPatient ID of "+patientProgram.getPatient_id()+" is Active by 180: Last Drug Pick Up was "+encounter.getEncounter_datetime());
+												lblCount.setText(fCount.toString());
+											});
+//											patientPrograms.add(patientProgram);
+											DBMiddleMan.allPeople.stream().filter(person -> person.getPerson_id()
+													.equals(patientProgram.getPatient_id()))
+													.findFirst().ifPresent(person -> {
+												pharmacyEncounter.setPatientID(person.getPerson_id());
+											});
+											DBMiddleMan.allPeopleNames.stream().filter(person -> person.getPerson_id()
+													.equals(patientProgram.getPatient_id()))
+													.reduce((first, second) -> second)
+													.ifPresent(person -> {
+														pharmacyEncounter.setPatientName(
+																person.getGiven_name() + " " + person.getFamily_name());
+													});
+											DBMiddleMan.allPatientIdentifiers.stream()
+													.filter(person -> person.getPatient_id()
+															.equals(patientProgram.getPatient_id())
+															&& person.getIdentifier_type() == 4)
+													.findFirst().ifPresent(person -> {
+												pharmacyEncounter.setPepfarID(person.getIdentifier());
+											});
+											pharmacyEncounter.setEncounterDateTime(
+													Date.valueOf(patientProgram.getDate_enrolled().toString()));
+														pmtctProgram.add(pharmacyEncounter);
+													}else{
+														Platform.runLater(()->{
+															logToConsole("\nPatient ID of "+patientProgram.getPatient_id()+" LTFU: Last Drug Pick Up was "+encounter.getEncounter_datetime());
+														});
+													}
+												});
+
+											});
+											return null;
+										});
+
+				});
+
+		}).start();
+
+		Platform.runLater(()->{
+			if(pmtctProgram.size() < 1){
+				Platform.runLater(()->{
+					logToConsole("\n No match found!");
+				});
+			}
+			pmtctArtTable.setItems(pmtctProgram);
+		});
+	}
+
+	@FXML
+	private void enrolltoART(){
+		new Thread(()->{
+			if(locationComboBox.getSelectionModel().getSelectedItem() != null) {
+				if (pmtctArtTable.getSelectionModel().getSelectedItems().size() > 0) {
+					Platform.runLater(()->{
+						logToConsole("\n Initializing.!\n");
+					});
+
+					String INSERT_SQL = "INSERT INTO patient_program"
+							+ "(patient_program_id, patient_id, program_id, date_enrolled, date_completed, location_id," +
+							" creator, date_created, voided, date_voided, void_reason, uuid) " +
+							"VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?)";
+
+					try (Connection conn = DriverManager
+							.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());) {
+
+						conn.setAutoCommit(false);
+						try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+							int wDone = 0;
+							// Insert sample records
+							Platform.runLater(()->{
+								logToConsole("\n Loading Data.!!\n");
+							});
+							for (PharmacyEncounter module : pmtctArtTable.getSelectionModel().getSelectedItems()) {
+
+								stmt.setString(1, null);
+								stmt.setInt(2, module.getPatientID());
+								stmt.setInt(3, 3);
+
+								stmt.setDate(4, new java.sql.Date(module.getEncounterDateTime().getTime()));
+
+								//logToConsole("\n Loading Data...!!\n");
+
+								stmt.setDate(5, null);
+								//logToConsole("\n Loading Data....!!\n");
+								stmt.setInt(6, locationComboBox.getSelectionModel().getSelectedItem().getLocationID());
+								//stmt.setInt(7, module.getOutcome_concept_id());
+								stmt.setInt(7, 1);
+								//logToConsole("\n Loading Data.....!!\n");
+								stmt.setDate(8, new java.sql.Date(module.getEncounterDateTime().getTime()));
+
+								//logToConsole("\n Loading Data......!!\n");
+								stmt.setBoolean(9, false);
+								stmt.setDate(10, null);
+								stmt.setString(11, null);
+								stmt.setString(12, UUID.randomUUID().toString());
+								//logToConsole("\n Loading Data..........!!\n");
+								//Add statement to batch
+								stmt.addBatch();
+							}
+							//execute batch
+							stmt.executeBatch();
+							Platform.runLater(()->{
+								logToConsole("\n Enrolling Patient....!!\n");
+							});
+							conn.commit();
+							Platform.runLater(()->{
+								logToConsole("Patient Enrolled!.");
+							});
+						}
+						catch (SQLException e) {
+							e.printStackTrace();
+							rollbackTransaction(conn, e);
+						}
+					}
+					catch (SQLException e) {
+						e.printStackTrace();
+					}
+				} else {
+					Platform.runLater(() -> {
+						logToConsole("\n No Record Selected!");
+					});
+				}
+			}else{
+				Platform.runLater(() -> {
+					logToConsole("\n Please Select Location and try again!");
+				});
+			}
+		}).start();
 	}
 }
