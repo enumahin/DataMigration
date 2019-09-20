@@ -1,9 +1,12 @@
 package org.ccfng.datamigration.person;
 
-import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -11,6 +14,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Time;
 import java.util.Date;
 import java.util.UUID;
+import lombok.EqualsAndHashCode;
+import org.ccfng.datamigration.patient.Patient;
+import org.ccfng.datamigration.personaddress.PersonAddress;
+import org.ccfng.datamigration.personname.PersonName;
+import org.ccfng.global.DBMiddleMan;
+import org.hibernate.annotations.Type;
 
 @XmlRootElement(name = "Person")
 @EqualsAndHashCode(exclude = {"Date_changed","Uuid",
@@ -206,5 +215,37 @@ public class Person {
 
     public String toString() {
         return "Person(Uuid=" + this.getUuid() + ", Date_changed=" + this.getDate_changed() + ", Date_created=" + this.getDate_created() + ", Person_id=" + this.getPerson_id() + ", Creator=" + this.getCreator() + ", Death_date=" + this.getDeath_date() + ", Dead=" + this.getDead() + ", Void_reason=" + this.getVoid_reason() + ", Birthtime=" + this.getBirthtime() + ", Deathdate_estimated=" + this.getDeathdate_estimated() + ", Gender=" + this.getGender() + ", Birthdate_estimated=" + this.getBirthdate_estimated() + ", Birthdate=" + this.getBirthdate() + ", Voided=" + this.getVoided() + ", Date_voided=" + this.getDate_voided() + ")";
+    }
+
+    public PersonName getPersonName(){
+       return DBMiddleMan.allPeopleNames.stream()
+                .filter(personName ->
+                        personName.getPerson_id().equals(this.getPerson_id())
+                )
+                .reduce((first, second) -> second)
+               .orElse(null);
+    }
+
+    public PersonAddress getPersonAddress(){
+        return DBMiddleMan.allPeopleAddresses.stream()
+                .filter(personAdd ->
+                        personAdd.getPerson_id().equals(this.getPerson_id())
+                )
+                .reduce((first, second) -> second)
+                .orElse(null);
+    }
+
+//    public PersonAttribute getPersonAttribute(){
+//        return DBMiddleMan.allPeo.stream()
+//                .filter(personName ->
+//                        personName.getPerson_id().equals(this.getPerson_id())
+//                )
+//                .reduce((first, second) -> second)
+//                .get();
+//    }
+
+    public Patient getPatient(){
+       return DBMiddleMan.allPatients.stream().filter(patient -> patient.getPatient_id().equals(this.getPerson_id()))
+                .findFirst().orElse(null);
     }
 }

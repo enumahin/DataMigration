@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Date;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
+import org.ccfng.datamigration.encounter.Encounter;
+import org.ccfng.global.DBMiddleMan;
 import org.hibernate.annotations.Type;
 
 @XmlRootElement(name = "Obs")
@@ -357,4 +359,17 @@ public class Obs
     public String toString() {
         return "Obs(Obs_id=" + this.getObs_id() + ", Value_text=" + this.getValue_text() + ", Uuid=" + this.getUuid() + ", Visit_id=" + this.getVisit_id() + ", Location_id=" + this.getLocation_id() + ", Value_drug=" + this.getValue_drug() + ", Value_group_id=" + this.getValue_group_id() + ", Void_reason=" + this.getVoid_reason() + ", Value_complex=" + this.getValue_complex() + ", Encounter_id=" + this.getEncounter_id() + ", Value_coded_name_id=" + this.getValue_coded_name_id() + ", Concept_id=" + this.getConcept_id() + ", Comments=" + this.getComments() + ", Date_created=" + this.getDate_created() + ", Person_id=" + this.getPerson_id() + ", Creator=" + this.getCreator() + ", Form_namespace_and_path=" + this.getForm_namespace_and_path() + ", Value_modifier=" + this.getValue_modifier() + ", Value_coded=" + this.getValue_coded() + ", Accession_number=" + this.getAccession_number() + ", Obs_datetime=" + this.getObs_datetime() + ", Voided=" + this.isVoided() + ", Value_numeric=" + this.getValue_numeric() + ", Date_voided=" + this.getDate_voided() + ", Value_datetime=" + this.getValue_datetime() + ")";
     }
+
+    public Encounter getEncounter(){
+       return DBMiddleMan.allEncounters.stream().filter(encounter -> encounter.getEncounter_id().equals(this.getEncounter_id()))
+                .findFirst().orElse(null);
+
+    }
+
+    public Obs getLastObs(int concept_id){
+        return DBMiddleMan.allObs.stream().filter(obs -> obs.getConcept_id() == concept_id
+                && obs.getPerson_id().equals(this.getPerson_id()))
+                .reduce((first, second)->second).orElse(null);
+    }
+
 }

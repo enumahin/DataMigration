@@ -6,11 +6,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.ccfng.datamigration.encounter.Encounter;
 import org.ccfng.datamigration.obs.Obs;
 import org.ccfng.datamigration.patient.Patient;
@@ -26,18 +27,18 @@ public class DBMiddleMan {
 
 	static final ConnectionClass cc = new ConnectionClass();
 
-	public static List<Obs> allObs;
+	public static ObservableList<Obs> allObs;
 
-	public static List<Patient> allPatients;
+	public static ObservableList<Patient> allPatients;
 
-	public static List<Patient> allPatientsOnArt;
+	public static Set<Patient> allPatientsOnArt;
 
-	public static List<PatientIdentifier> allPatientIdentifiers;
-	public static List<PatientProgram> allPatientPrograms;
-	public static List<Person> allPeople;
-	public static List<PersonName> allPeopleNames;
-	public static List<PersonAddress> allPeopleAddresses;
-	public static List<Encounter> allEncounters;
+	public static ObservableList<PatientIdentifier> allPatientIdentifiers;
+	public static ObservableList<PatientProgram> allPatientPrograms;
+	public static ObservableList<Person> allPeople;
+	public static ObservableList<PersonName> allPeopleNames;
+	public static ObservableList<PersonAddress> allPeopleAddresses;
+	public static ObservableList<Encounter> allEncounters;
 
 
 	public static class KeyValueClass{
@@ -80,7 +81,10 @@ public class DBMiddleMan {
 		allObs = FXCollections.observableArrayList();
 //		Thread obsThread = new Thread(() -> {
 
-			String sql = "select * from obs";
+			String sql = "select obs.*, encounter.encounter_datetime from obs"
+					+ " left join encounter on "
+					+ "obs.encounter_id = encounter.encounter_id "
+					+ " where obs.voided=0 || encounter.voided = 0 ORDER BY encounter_datetime ASC";
 			PreparedStatement stmt = null;
 			try {
 				//STEP 2: Register JDBC driver
@@ -177,6 +181,8 @@ public class DBMiddleMan {
 
 //		 obsThread.start();
 //		return allObs;
+//		Comparator<Obs> comparator = Comparator.comparing(Obs::getObs_id);
+//		FXCollections.sort(allObs,comparator);
 
 	}
 
@@ -194,7 +200,7 @@ public class DBMiddleMan {
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * from patient";
+			String sql = "SELECT * from patient where voided=0";
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -212,7 +218,7 @@ public class DBMiddleMan {
 				allPatients.add(patient);
 			}
 
-			allPatientsOnArt = FXCollections.observableArrayList();
+			allPatientsOnArt = new HashSet<>();
 
 			rs.close();
 		} catch (SQLException se) {
@@ -230,6 +236,12 @@ public class DBMiddleMan {
 			}// do nothing
 		}//end try
 //		return allPatients;
+
+		Comparator<Patient> comparator = Comparator.comparing(Patient::getPatient_id);
+		FXCollections.sort(allPatients,comparator);
+//
+//		Comparator<Patient> comparator2 = Comparator.comparing(Patient::getPatient_id);
+//		FXCollections.sort(allPatientsOnArt,comparator2);
 	}
 
 	public static void getPatientIdentifiers(){
@@ -246,7 +258,7 @@ public class DBMiddleMan {
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * from patient_identifier";
+			String sql = "SELECT * from patient_identifier where voided =0";
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -285,6 +297,9 @@ public class DBMiddleMan {
 			}// do nothing
 		}//end try
 //		return allPatientIdentifiers;
+
+		Comparator<PatientIdentifier> comparator = Comparator.comparing(PatientIdentifier::getPatient_id);
+		FXCollections.sort(allPatientIdentifiers,comparator);
 	}
 
 	public static void getPatientProgram(){
@@ -301,7 +316,7 @@ public class DBMiddleMan {
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM patient_program";
+			String sql = "SELECT * FROM patient_program where voided=0";
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -325,13 +340,15 @@ public class DBMiddleMan {
 				patientProgram.setDate_completed(rs.getDate("date_completed"));
 				patientProgram.setDate_enrolled(rs.getDate("date_enrolled"));
 				allPatientPrograms.add(patientProgram);
+
+				if(patientProgram.getProgram_id() == 3){
+					allPatients.stream()
+							.filter(patient -> patient.getPatient_id().equals(patientProgram.getPatient_id()))
+							.findFirst().ifPresent(p -> allPatientsOnArt.add(p));
+				}
 			}
-
-			allPatientPrograms.forEach(pp -> {
-				allPatients.stream()
-						.filter(patient -> patient.getPatient_id().equals(pp.getPatient_id())).findFirst().ifPresent(p -> allPatientsOnArt.add(p));
-			});
-
+			System.out.println("All Patient Programs: "+allPatientPrograms.size());
+			System.out.println("All Patient on ART: "+allPatientsOnArt.size());
 
 			rs.close();
 		} catch (SQLException se) {
@@ -349,6 +366,9 @@ public class DBMiddleMan {
 			}// do nothing
 		}//end try
 //		return allPatientPrograms;
+
+		Comparator<PatientProgram> comparator = Comparator.comparing(PatientProgram::getPatient_id);
+		FXCollections.sort(allPatientPrograms,comparator);
 	}
 
 	public static void getConceptNames(){
@@ -391,7 +411,6 @@ public class DBMiddleMan {
 		//		return allPatientPrograms;
 	}
 
-
 	public static void getPeople(){
 
 		allPeople = FXCollections.observableArrayList();
@@ -407,7 +426,7 @@ public class DBMiddleMan {
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM person";
+			String sql = "SELECT * FROM person where voided=0";
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -447,6 +466,9 @@ public class DBMiddleMan {
 			}// do nothing
 		}//end try
 //		return allPeople;
+
+		Comparator<Person> comparator = Comparator.comparing(Person::getPerson_id);
+		FXCollections.sort(allPeople,comparator);
 	}
 
 	public static void getPeopleNames(){
@@ -464,7 +486,7 @@ public class DBMiddleMan {
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM person_name";
+			String sql = "SELECT * FROM person_name where voided=0";
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -508,6 +530,9 @@ public class DBMiddleMan {
 			}// do nothing
 		}//end try
 //		return allPeopleNames;
+
+		Comparator<PersonName> comparator = Comparator.comparing(PersonName::getPerson_id);
+		FXCollections.sort(allPeopleNames,comparator);
 	}
 
 	public static void getEncounters(){
@@ -524,7 +549,8 @@ public class DBMiddleMan {
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM encounter";
+			String sql = "SELECT encounter.* FROM encounter left join patient on encounter.patient_id = patient.patient_id "
+					+ "where encounter.voided=0 AND patient.voided=0 ORDER BY encounter_datetime ASC";
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -563,6 +589,9 @@ public class DBMiddleMan {
 			}// do nothing
 		}//end try
 //		return allPeopleNames;
+
+		Comparator<Encounter> comparator = Comparator.comparing(Encounter::getEncounter_datetime);
+		FXCollections.sort(allEncounters,comparator);
 	}
 
 	public static void getAllPeopleAddresses(){
@@ -579,7 +608,7 @@ public class DBMiddleMan {
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM person_address";
+			String sql = "SELECT * FROM person_address where voided=0";
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -627,5 +656,8 @@ public class DBMiddleMan {
 			}// do nothing
 		}//end try
 //		return allPeopleNames;
+
+		Comparator<PersonAddress> comparator = Comparator.comparing(PersonAddress::getPerson_id);
+		FXCollections.sort(allPeopleAddresses,comparator);
 	}
 }

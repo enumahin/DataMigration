@@ -1,12 +1,16 @@
 package org.ccfng.datamigration.patient;
 
-import lombok.EqualsAndHashCode;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+import lombok.EqualsAndHashCode;
+import org.ccfng.datamigration.encounter.Encounter;
+import org.ccfng.datamigration.obs.Obs;
+import org.ccfng.datamigration.patientidentifier.PatientIdentifier;
+import org.ccfng.datamigration.person.Person;
+import org.ccfng.global.DBMiddleMan;
 
 @XmlRootElement(name = "Patient")
 @EqualsAndHashCode(exclude = {"Voided"})
@@ -111,6 +115,41 @@ public class Patient
     public String toString() {
         return "Patient(Patient_id=" + this.getPatient_id() + ", Allergy_status=" + this.getAllergy_status() + ", Voided=" + this.isVoided() + ", Date_changed=" + this.getDate_changed() + ", Date_created=" + this.getDate_created() + ", Date_voided=" + this.getDate_voided() + ", Void_reason=" + this.getVoid_reason() + ", Creator=" + this.getCreator() + ")";
     }
+
+    public PatientIdentifier getPepfarID(){
+       return DBMiddleMan.allPatientIdentifiers.stream()
+                .filter(patientIdentifier ->
+                        patientIdentifier.getPatient_id().equals(this.getPatient_id()) &&
+                                patientIdentifier.getIdentifier_type() == 4
+                ).findFirst().orElse(null);
+    }
+
+    public PatientIdentifier getHospitalNumber(){
+        return DBMiddleMan.allPatientIdentifiers.stream()
+                .filter(patientIdentifier ->
+                        patientIdentifier.getPatient_id().equals(this.getPatient_id()) &&
+                                patientIdentifier.getIdentifier_type() == 3
+                ).findFirst().orElse(null);
+    }
+
+    public Person getPerson(){
+        return DBMiddleMan.allPeople.stream().filter(person -> person.getPerson_id().equals(this.getPatient_id()))
+                .findFirst().orElse(null);
+    }
+
+    public Encounter lastArtCareCardEncounter(){
+       return DBMiddleMan.allEncounters.stream()
+                .filter(encounter -> encounter.getForm_id() == 56 && encounter.getPatient_id().equals(this.getPatient_id())
+                        && encounter.getOb(7778111) != null)
+                .reduce((first, second) -> second).orElse(null);
+    }
+
+    public Obs exited(){
+        return DBMiddleMan.allObs.stream().filter(obs -> obs.getPerson_id()
+                .equals(this.getPatient_id()) && (obs.getConcept_id() == 1737 || obs.getConcept_id() == 977))
+                .findFirst().orElse(null);
+    }
+
 
 //    @XmlElement(name = "Changed_by")
 //    private Integer Changed_by;

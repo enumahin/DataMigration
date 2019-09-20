@@ -1,9 +1,5 @@
 package org.ccfng.datamigration.encounter;
 
-import javafx.collections.ObservableArray;
-import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.Type;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -13,7 +9,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
+import org.ccfng.datamigration.obs.Obs;
+import org.ccfng.datamigration.patient.Patient;
+import org.ccfng.global.DBMiddleMan;
+import org.hibernate.annotations.Type;
 
 @XmlRootElement(name = "Encounter")
 @EqualsAndHashCode(exclude = {"Date_changed","Uuid",
@@ -192,5 +195,101 @@ public class Encounter {
 
     public String toString() {
         return "Encounter(Uuid=" + this.getUuid() + ", Visit_id=" + this.getVisit_id() + ", Date_changed=" + this.getDate_changed() + ", Location_id=" + this.getLocation_id() + ", Patient_id=" + this.getPatient_id() + ", Date_created=" + this.getDate_created() + ", Creator=" + this.getCreator() + ", Encounter_type=" + this.getEncounter_type() + ", Void_reason=" + this.getVoid_reason() + ", Encounter_datetime=" + this.getEncounter_datetime() + ", Encounter_id=" + this.getEncounter_id() + ", Voided=" + this.isVoided() + ", Form_id=" + this.getForm_id() + ", Date_voided=" + this.getDate_voided() + ")";
+    }
+
+    public Encounter nearestSibbling(int sibbling){
+
+        if(sibbling == 7){
+            Encounter senior =  DBMiddleMan.allEncounters.stream().filter(encounter -> encounter.getPatient_id().equals(this.getPatient_id()) &&
+                    encounter.getEncounter_type() == sibbling &&
+                    encounter.getEncounter_id() > this.getEncounter_id() &&
+                    (DBMiddleMan.allObs.stream().anyMatch(obs -> obs.getEncounter_id().equals(encounter.getEncounter_id()) &&
+                            obs.getConcept_id() == 7778111))).findFirst().orElse(null);
+            if(senior != null){
+                return senior;
+            }else{
+                Encounter junior =  DBMiddleMan.allEncounters.stream().filter(encounter -> encounter.getPatient_id().equals(this.getPatient_id()) &&
+                        encounter.getEncounter_type() == sibbling && encounter.getEncounter_id() < this.getEncounter_id() &&
+                        (DBMiddleMan.allObs.stream().anyMatch(obs -> obs.getEncounter_id().equals(encounter.getEncounter_id()) &&
+                                obs.getConcept_id() == 7778111))).reduce((first, second) -> second).orElse(null);
+                if(junior != null){
+                    return junior;
+                }
+            }
+        }else if(sibbling == 12 ){
+            Encounter senior =  DBMiddleMan.allEncounters.stream().filter(encounter -> encounter.getPatient_id().equals(this.getPatient_id()) &&
+                    encounter.getForm_id() == 56 &&
+                    encounter.getEncounter_id() > this.getEncounter_id() &&
+                    (DBMiddleMan.allObs.stream().anyMatch(obs -> obs.getEncounter_id().equals(encounter.getEncounter_id()) &&
+                            obs.getConcept_id() == 7778111))).findFirst().orElse(null);
+            if(senior != null){
+                return senior;
+            }else{
+                Encounter junior =  DBMiddleMan.allEncounters.stream().filter(encounter -> encounter.getPatient_id().equals(this.getPatient_id()) &&
+                        encounter.getEncounter_type() == sibbling && encounter.getEncounter_id() < this.getEncounter_id() &&
+                        (DBMiddleMan.allObs.stream().anyMatch(obs -> obs.getEncounter_id().equals(encounter.getEncounter_id()) &&
+                                obs.getConcept_id() == 7778111))).reduce((first, second) -> second).orElse(null);
+                if(junior != null){
+                    return junior;
+                }
+            }
+        }
+
+       return null;
+    }
+
+    public Obs isArtEncounter (){
+        return DBMiddleMan.allObs.stream()
+                .filter(obs -> obs.getConcept_id() == 7778111 &&
+                        obs.getEncounter_id().equals(this.getEncounter_id())
+                ).findFirst().orElse(null);
+    }
+
+    public Encounter hasPharmacyForm(){
+       return DBMiddleMan.allEncounters.stream()
+                .filter(enc -> enc.getEncounter_type() == 7 &&
+                        enc.getPatient_id().equals(this.getPatient_id()) &&
+                        enc.getEncounter_datetime().equals(this.getEncounter_datetime()) && enc.getOb(7778111) != null
+                ).findFirst().orElse(null);
+
+    }
+
+    public Encounter hasCareCard(){
+        return DBMiddleMan.allEncounters.stream()
+                .filter(enc -> enc.getForm_id() == 56 &&
+                        enc.getPatient_id().equals(this.getPatient_id()) &&
+                        enc.getEncounter_datetime().equals(this.getEncounter_datetime()) && enc.getOb(7778111) != null
+                ).findFirst().orElse(null);
+
+    }
+
+    public boolean hasSibbling(int form_id){
+        return DBMiddleMan.allObs.stream()
+                .anyMatch(obs -> obs.getConcept_id() == 7778111 && obs.getEncounter().getEncounter_type() == form_id &&
+                        obs.getEncounter().getEncounter_datetime()
+                                .equals(this.getEncounter_datetime()) && obs.getEncounter().getPatient_id().equals(this.getPatient_id())
+                );
+
+    }
+
+    public Patient getPatient(){
+       return DBMiddleMan.allPatients.stream().filter(patient -> patient.getPatient_id().equals(this.getPatient_id()))
+                .findFirst().orElse(null);
+    }
+
+    public boolean isCareCardEncounter(){
+       return DBMiddleMan.allEncounters.stream().anyMatch(encounter ->
+                encounter.getEncounter_type() == 56 && encounter.getEncounter_id().equals(this.getEncounter_id()) &&
+                DBMiddleMan.allObs.stream().anyMatch(obs -> obs.getEncounter_id().equals(encounter.getEncounter_id()) &&
+                        obs.getConcept_id() == 7778111));
+    }
+
+    public List<Obs> getObs(){
+       return DBMiddleMan.allObs.stream().filter(obs -> obs.getEncounter_id().equals(this.getEncounter_id())).collect(Collectors.toList());
+    }
+
+    public Obs getOb(int concept_id){
+        return DBMiddleMan.allObs.stream().filter(obs -> obs.getEncounter_id().equals(this.getEncounter_id())
+                && obs.getConcept_id() == concept_id).findFirst().orElse(null);
     }
 }

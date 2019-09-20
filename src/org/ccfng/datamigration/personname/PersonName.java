@@ -1,15 +1,20 @@
 package org.ccfng.datamigration.personname;
 
-import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.Type;
-
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.UUID;
+import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.Type;
 
 @XmlRootElement(name = "Person_name")
 @EqualsAndHashCode(exclude = {"Uuid",
@@ -234,6 +239,8 @@ public class PersonName{
     public String toString() {
         return "PersonName(Person_name_id=" + this.getPerson_name_id() + ", Person_id=" + this.getPerson_id() + ", Given_name=" + this.getGiven_name() + ", Prefix=" + this.getPrefix() + ", Family_name_suffix=" + this.getFamily_name_suffix() + ", Family_name_prefix=" + this.getFamily_name_prefix() + ", Family_name=" + this.getFamily_name() + ", Middle_name=" + this.getMiddle_name() + ", Degree=" + this.getDegree() + ", Preferred=" + this.isPreferred() + ", Family_name2=" + this.getFamily_name2() + ", Uuid=" + this.getUuid() + ", Voided=" + this.isVoided() + ", Date_changed=" + this.getDate_changed() + ", Date_created=" + this.getDate_created() + ", Date_voided=" + this.getDate_voided() + ", Void_reason=" + this.getVoid_reason() + ", Creator=" + this.getCreator() + ")";
     }
+
+
 
 //    @XmlElement(name = "Changed_by")
 //    private Integer Changed_by;

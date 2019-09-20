@@ -352,6 +352,7 @@ public class Controller {
                     "SEEDsCare Migration", "IQCare Migration", "XML Based Migration"));
         });
 
+        appConsole.clear();
             logToConsole("Loading Data Please wait...");
 
         Thread loderThread = new Thread(this::dataLoader);
