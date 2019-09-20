@@ -68,37 +68,37 @@ public class EncounterObsController {
 
 	private Task<ObservableList<Encounter>> encounterTask;
 
-	@FXML
-	private void migrate(){
-		lblTotal.setText(""+1000);
-		Task<ObservableList<Integer>> task  = new Task<ObservableList<Integer>>() {
-			int wDone = 0;
-			@Override
-			protected ObservableList<Integer> call() throws Exception {
-				Platform.runLater(()->{
-					logToConsole("Starting Loop!");
-				});
-				for(Integer i = 0; i <= 1000; i++){
-					Thread.sleep(1000);
-					updateProgress(wDone + 1, 1000);
-					wDone++;
-					Integer j = wDone;
-					Platform.runLater(()->{
-						lblCount.setText(String.valueOf(j));
-					});
-
-				}
-				Platform.runLater(()->{
-					logToConsole("Done Looping!");
-				});
-				return null;
-			};
-		};
-		progressBar.progressProperty().bind(task.progressProperty());
-		progressIndicator.progressProperty().bind(task.progressProperty());
-
-		new Thread(task).start();
-	}
+//	@FXML
+//	private void migrate(){
+//		lblTotal.setText(""+1000);
+//		Task<ObservableList<Integer>> task  = new Task<ObservableList<Integer>>() {
+//			int wDone = 0;
+//			@Override
+//			protected ObservableList<Integer> call() throws Exception {
+//				Platform.runLater(()->{
+//					logToConsole("Starting Loop!");
+//				});
+//				for(Integer i = 0; i <= 1000; i++){
+//					Thread.sleep(1000);
+//					updateProgress(wDone + 1, 1000);
+//					wDone++;
+//					Integer j = wDone;
+//					Platform.runLater(()->{
+//						lblCount.setText(String.valueOf(j));
+//					});
+//
+//				}
+//				Platform.runLater(()->{
+//					logToConsole("Done Looping!");
+//				});
+//				return null;
+//			};
+//		};
+//		progressBar.progressProperty().bind(task.progressProperty());
+//		progressIndicator.progressProperty().bind(task.progressProperty());
+//
+//		new Thread(task).start();
+//	}
 
 	public void initialize(){
 		cc = new ConnectionClass();
@@ -106,7 +106,6 @@ public class EncounterObsController {
 		Path pathToFile = Paths.get("conceptMapping.csv");
 		try (BufferedReader br = Files.newBufferedReader(pathToFile,
 				StandardCharsets.US_ASCII)) {
-
 			// read the first line from the text file
 			String line = br.readLine();
 
@@ -991,7 +990,7 @@ public class EncounterObsController {
 	}
 
 	@FXML
-	private void migrate1(){
+	private void migrate(){
 		txtConsole.setText("########################## OpenMRS Patient Data Migration ########################");
 			Integer typeID = cboEncounter.getSelectionModel().getSelectedItem().getKey();
 

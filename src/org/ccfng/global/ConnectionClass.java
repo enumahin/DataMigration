@@ -40,7 +40,7 @@ public class ConnectionClass {
 				sourcePassword = db_files.get(3);
 				sourceDb = db_files.get(4);
 				source_jdbcUrl = "jdbc:mysql://" +this.sourceHost + ":" + this.sourcePort + "/" + sourceDb +
-						"?useServerPrepStmts=false&rewriteBatchedStatements=true";
+						"?useServerPrepStmts=false&useSSL=false&rewriteBatchedStatements=true";
 			}
 			//logToConsole("\n Database Config Fetched!!");
 		} catch (IOException e) {

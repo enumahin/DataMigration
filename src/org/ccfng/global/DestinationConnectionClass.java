@@ -40,7 +40,7 @@ public class DestinationConnectionClass {
 				destinationPassword = db_files.get(4);
 				destinationDb = db_files.get(5);
 				destination_jdbcUrl = "jdbc:mysql://" +this.destinationHost + ":" + this.destinationPort + "/" + destinationDb +
-						"?useServerPrepStmts=false&rewriteBatchedStatements=true";
+						"?useServerPrepStmts=false&useSSL=false&rewriteBatchedStatements=true";
 			}
 			//logToConsole("\n Database Config Fetched!!");
 		} catch (IOException e) {
