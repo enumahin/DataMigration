@@ -49,6 +49,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.ccfng.datamigration.datamapping.ConceptmapController;
 import org.ccfng.datamigration.encounter.Encounter;
 import org.ccfng.datamigration.encounter.Encounters;
 import org.ccfng.datamigration.encounterprovider.EncounterProvider;
@@ -353,7 +354,7 @@ public class Controller {
         });
 
         appConsole.clear();
-            logToConsole("Loading Data Please wait...");
+//            logToConsole("Loading Data Please wait...");
 
         Thread loderThread = new Thread(this::dataLoader);
 
@@ -362,6 +363,9 @@ public class Controller {
     }
 
     public void dataLoader(){
+	    Platform.runLater(() -> {
+		    logToConsole("\n Loading Data from DB, please wait......");
+	    });
         DBMiddleMan.getObs();
         DBMiddleMan.getPatients();
         DBMiddleMan.getPatientIdentifiers();
@@ -4771,6 +4775,61 @@ public class Controller {
             stage.alwaysOnTopProperty();
             stage.show();
             stage.setOnCloseRequest(e -> controller.shutdown());
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void mappedData(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/datamigration/datamapping/conceptmap.fxml").openStream());
+
+            ConceptmapController controller = (org.ccfng.datamigration.datamapping.ConceptmapController) fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("Data Mapping!");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+
+    @FXML
+    private void encObsDialog(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("encobs.fxml").openStream());
+
+            EncounterObsController controller = (EncounterObsController) fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("OpenMRS Encounter & Obs Migration!");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
         }catch (Exception ex){
             logToConsole(ex.getMessage());
             ex.printStackTrace();

@@ -26,6 +26,8 @@
                         <Menu mnemonicParsing="false" text="File">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#closeApp" text="Close" />
+                                <SeparatorMenuItem mnemonicParsing="false" />
+                                <MenuItem mnemonicParsing="false" onAction="#mappedData" text="Mapped Concept" />
                             </items>
                         </Menu>
                         <Menu mnemonicParsing="false" text="Maintenance">
@@ -55,6 +57,15 @@
                       <MenuItem mnemonicParsing="false" onAction="#callDataLoader" text="Reload Data" />
                     </items>
                   </Menu>
+                  <Menu mnemonicParsing="false" text="Migration">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#activateDataMigration"
+                                          style="-fx-border-bottom-color: #336699; -fx-border-bottom-width: 2; -fx-border-bottom-style: solid;"
+                                          text="Data Migration" />
+                                <SeparatorMenuItem mnemonicParsing="false" />
+                                <MenuItem mnemonicParsing="false" onAction="#encObsDialog" text="Encounter / Obs" />
+                            </items>
+                   </Menu>
                   <Menu mnemonicParsing="false" text="Help">
                      <items>
                         <MenuItem mnemonicParsing="false" text="About" />

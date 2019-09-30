@@ -16,10 +16,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
@@ -54,6 +54,7 @@ import org.ccfng.datamigration.obs.Obs;
 import org.ccfng.datamigration.session.SessionManager;
 import org.ccfng.global.ConnectionClass;
 import org.ccfng.global.DBMiddleMan;
+import org.ccfng.global.KeyValueClass;
 import org.ccfng.global.Location;
 import org.ccfng.openmrscleanup.models.Address;
 import org.ccfng.openmrscleanup.models.DateFix;
@@ -152,6 +153,9 @@ public class OpenmrsCleanupController {
 	private TextField valueToSearch;
 
 	@FXML
+	private TextField regimenName;
+
+	@FXML
 	private TextField valueToAdd;
 
 	@FXML
@@ -181,6 +185,12 @@ public class OpenmrsCleanupController {
 	ConnectionClass cc = null;
 
 	@FXML
+	ComboBox<KeyValueClass> presentRegimen;
+
+	@FXML
+	ComboBox<KeyValueClass> newRegimen;
+
+	@FXML
 	private Label lblCount;
 
 	@FXML
@@ -193,15 +203,15 @@ public class OpenmrsCleanupController {
 	public OpenmrsCleanupController(){
 	}
 
-	public void logToConsole(String text) {
-		Platform.runLater(() -> {
-			if (text != null)
-				appConsole.appendText(text);
-		});
-	}
-
-
 	public void initialize(){
+
+		List<KeyValueClass> regimenLines = new LinkedList<>();
+		regimenLines.add(new KeyValueClass(7778108, "First Line"));
+		regimenLines.add(new KeyValueClass(7778109, "Second Line"));
+		regimenLines.add(new KeyValueClass(7778410, "Other Regimen"));
+
+		presentRegimen.setItems(FXCollections.observableList(regimenLines));
+		newRegimen.setItems(FXCollections.observableList(regimenLines));
 
 		cc = new ConnectionClass();
 		getLocation();
@@ -304,9 +314,32 @@ public class OpenmrsCleanupController {
 		}
 
 		//Platform.runLater(() -> {
-			getRegimens();
+		getRegimens();
 
 	}
+
+	@FXML
+	public void getPresentRegimens(){
+//		int rLine = presentRegimen.getSelectionModel().getSelectedItem().getKey();
+//		System.out.println("Regimen ID: "+rLine);
+//		getRegimens(rLine, "present");
+	}
+
+	@FXML
+	public void getNewRegimens(){
+//		getRegimens(newRegimen.getSelectionModel().getSelectedItem().getKey(), "new");
+//		getRegimens();
+	}
+
+
+	public void logToConsole(String text) {
+		Platform.runLater(() -> {
+			if (text != null)
+				appConsole.appendText(text);
+		});
+	}
+
+
 
 	private void getLocation() {
 		locationTask = new Task<ObservableList<Location>>() {
@@ -370,6 +403,74 @@ public class OpenmrsCleanupController {
 		};
 	}
 
+	@FXML
+	public void createRegimen(){
+
+		if(regimenName.getText() == null || presentRegimen.getSelectionModel().getSelectedItem() == null){
+			logToConsole("Select Regimen Line and Enter new Regimen name.");
+			return;
+		}
+
+		String INSERT_SQL = "INSERT INTO concept"
+				+ "(concept_id,datatype_id, class_id, creator, uuid,date_created)" +
+				"VALUES (null,?,?,?,?,?)";
+		int t3d_id = 0;
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+			Class.forName("com.mysql.jdbc.Driver");
+			logToConsole("\n Connecting..!\n");
+			conn.setAutoCommit(false);
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);) {
+
+				// Insert sample records
+				logToConsole("\n Loading Concept for Regimen "+regimenName.getText()+"...!!\n");
+				stmt.setInt(1, 4);
+				stmt.setInt(2, 11);
+				stmt.setInt(3, 1);
+				stmt.setString(4, UUID.randomUUID().toString());
+				stmt.setDate(5, new java.sql.Date(new java.util.Date().getTime()));
+				stmt.execute();
+				ResultSet rs = stmt.getGeneratedKeys();
+				if (rs.next()) {
+					t3d_id = rs.getInt(1);
+					stmt.execute(
+							"INSERT INTO concept_name (concept_id, name, locale, creator, uuid,locale_preferred,concept_name_type,date_created) "
+									+ "VALUES(" + t3d_id + ",'"+regimenName.getText()+"','en',1,UUID(),1,'FULLY_SPECIFIED',NOW())");
+				}
+				rs.close();
+				logToConsole("\n "+regimenName.getText()+" Concept_Id: " + t3d_id);
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+				stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
+						+ "VALUES("+presentRegimen.getSelectionModel().getSelectedItem().getKey()+","+t3d_id+",1,UUID(), NOW())");
+
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}catch (Exception e){
+				e.printStackTrace();
+				rollbackTransaction(conn, e);
+			}
+				conn.commit();
+			} catch (SQLException e) {
+				logToConsole("Error: "+e.getMessage());
+				e.printStackTrace();
+			}catch (Exception ex){
+				logToConsole("Error: "+ex.getMessage());
+				ex.printStackTrace();
+			}
+		regimenName.setText("");
+			getRegimens();
+
+		}
 	@FXML
 	private void createDTG(){
 		int[] conceptIDS;
@@ -747,15 +848,19 @@ public class OpenmrsCleanupController {
 
 		allRegimenComboBox.getItems().removeAll();
 		newRegimenComboBox.getItems().removeAll();
+//		getRegimens(presentRegimen.getSelectionModel().getSelectedItem().getKey(), "new");
+//		getRegimens(newRegimen.getSelectionModel().getSelectedItem().getKey(), "new");
+
 		getRegimens();
 		//### UPDATE PHARMACY FORM
 	}
 
+//	private void getRegimens(int regimenLine, String target){
 	private void getRegimens(){
-		allRegimenComboBox.getItems().removeAll();
-		newRegimenComboBox.getItems().removeAll();
+		allRegimenComboBox.setItems(null);
+		newRegimenComboBox.setItems(null);
 		//Controller ctrl = new Controller();
-		Set<Regimen> regimenSet = new HashSet<>();
+		List<Regimen> regimenSet = new ArrayList<>();
 		connectionSettings();
 
 		Connection conn = null;
@@ -772,8 +877,8 @@ public class OpenmrsCleanupController {
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT concept_id, name from concept_name where concept_id IN "
-					+ "(select answer_concept from concept_answer where concept_id IN (7778108,7778109,7778410)) order by name ASC";
+			String sql = "SELECT concept_name.concept_id, concept_name.name from concept_name where concept_name.concept_id IN "
+					+ "(select answer_concept from concept_answer where concept_id IN(7778108, 7778109, 7778410)) order by concept_name.name ASC";
 
 			logToConsole("\n Creating Select statement...");
 
@@ -805,8 +910,10 @@ public class OpenmrsCleanupController {
 			} catch (Exception se) {
 			}// do nothing
 		}//end try
-		allRegimenComboBox.getItems().addAll(regimenSet);
-		newRegimenComboBox.getItems().addAll(regimenSet);
+//		if(target.equals("present")){
+			allRegimenComboBox.setItems(FXCollections.observableList(regimenSet));
+//		}else
+		  newRegimenComboBox.setItems(FXCollections.observableList(regimenSet));
 	}
 
 	@FXML
@@ -817,7 +924,7 @@ public class OpenmrsCleanupController {
 
 		if(allRegimenComboBox.getSelectionModel().getSelectedItem() == null){
 			logToConsole("\n Searching for First Lines without Regimen!\n");
-			sql = "SELECT ob.person_id as patientID, "
+			sql = "SELECT ob.person_id as patientID,"
 					+ "(select value_coded from obs where concept_id=7778108 AND person_id = ob.person_id "
 					+ "AND encounter_id=ob.encounter_id AND voided = 0 order by obs_id ASC LIMIT 1) AS valueText,"
 //					+ "null AS valueText, "
@@ -828,8 +935,10 @@ public class OpenmrsCleanupController {
 						+ "FROM person_name where person_id = ob.person_id && (preferred = 1 || preferred = 0) limit 1) As patientName,"
 					+ "encounter.encounter_datetime AS EncounterDateTime, "
 
-					+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && concept_name.locale ='en' && concept_name.locale_preferred = 1 Limit 1) AS Question,"
-					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && concept_name.locale ='en' && concept_name.locale_preferred = 1 Limit 1) AS Answer"
+					+ "(Select name from concept_name where concept_name.concept_id = ob.concept_id && "
+					+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 Limit 1) AS Question,"
+					+ "(Select name from concept_name where concept_name.concept_id = ob.value_coded && "
+					+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 Limit 1) AS Answer"
 					+ "  FROM obs AS ob LEFt JOIN encounter "
 					+ "on ob.encounter_id = encounter.encounter_id where "
 					+ " ob.value_coded = 7778108 "
@@ -854,10 +963,13 @@ public class OpenmrsCleanupController {
 						+ "concept_name.locale ='en' && concept_name.locale_preferred = 1 group by name Limit 1) AS Answer"
 						+ "  FROM obs AS ob LEFt JOIN encounter "
 					+ "on ob.encounter_id = encounter.encounter_id where "
-					+ "ob.value_coded = "+allRegimenComboBox.getSelectionModel().getSelectedItem().getConceptID()
-					+  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , formatter).toString()  //+ " || "
-					//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
-					+ "' order by ob.person_id";
+
+					+ "ob.value_coded = "+allRegimenComboBox.getSelectionModel().getSelectedItem().getConceptID();
+			if(startDate.getValue() != null)
+					sql +=  " AND encounter.encounter_datetime >='"+ LocalDate.parse(startDate.getValue().toString() , cc.getFormatter()).toString()+"' ";  //+ " || "
+
+							//+ "ob.obs_group_id in (SELECT obs_id from obs as os where os.concept_id = 7778408 && os.encounter_id = ob.encounter_id group by os.obs_id))"
+					sql += " order by ob.person_id";
 		}
 		Controller ctrl = new Controller();
 		ObservableList<PharmacyEncounter> pharmacyEncounters = FXCollections.observableArrayList();
@@ -875,21 +987,11 @@ public class OpenmrsCleanupController {
 			logToConsole("\n Destination Database connection successful..");
 
 			stmt = conn.createStatement();
-//			String sql = "SELECT obs.person_id as patientID, encounter.encounter_id as encounterID, "
-//					+ "obs.obs_id AS obsID, "
-//					+ "(Select identifier FROM patient_identifier where patient_id = obs.person_id && identifier_type = 4) AS pepfarID,"
-//					+ "(Select CONCAT(person_name.given_name,' ',person_name.family_name) AS patientName FROM person_name where person_id = obs.person_id) As patientName,"
-//					+ "encounter.encounter_datetime AS EncounterDateTime,"
-//					+ "(Select name from concept_name where concept_id = obs.concept_id) AS Question"
-//					+ "(Select name from concept_name where concept_id = obs.value_coded) AS Answer"
-//					+ "  FROM obs LEFt JOIN encounter "
-//					+ "on obs.encounter_id = encounter.encounter_id where "
-//					+ "(encounter.encounter_type = 7 && obs.concept_id IN (7778111)) ||"
-//					+ "(encounter.encounter_type = 7 && obs.concept_id IN (7778108,7778109,7778410)";
-
-
-
+			if(startDate.getValue() != null)
 			logToConsole("\n Fetching Obs starting from .."+LocalDate.parse(startDate.getValue().toString() , formatter));
+			else
+			logToConsole("\n Fetching All dispensations..");
+
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
 			while (rs.next()) {
@@ -934,12 +1036,6 @@ public class OpenmrsCleanupController {
 
 	@FXML
 	private void getLastEncounter(){
-
-//		if(missingPharmacyTable.getItems() != null) {
-//			missingPharmacyTable.getItems().removeAll();
-//		}
-		//new Thread(lastPharmacyTask).start();
-
 		partialGetLCE();
 	}
 
@@ -1428,6 +1524,15 @@ public class OpenmrsCleanupController {
 	@FXML
 	private void updateRegimens(){
 		//Set<PharmacyEncounter> selectedEncounters = new HashSet<>();
+		if(newRegimen.getSelectionModel().getSelectedItem() == null ||
+				newRegimenComboBox.getSelectionModel().getSelectedItem() == null){
+			logToConsole("Select the right Regimen line and regimen to convert to.");
+			return;
+		}
+		if(pharmacyEncounterTable.getSelectionModel().getSelectedItems().size() < 1){
+			logToConsole("Select record on the table to convert.");
+			return;
+		}
 		logToConsole("\n Initializing.!\n");
 
 			String INSERT_SQL = "UPDATE obs SET concept_id=?, value_coded=? WHERE obs_id=?";
@@ -1437,17 +1542,19 @@ public class OpenmrsCleanupController {
 				logToConsole("\n Connecting..!\n");
 				conn.setAutoCommit(false);
 				Regimen regimen = newRegimenComboBox.getSelectionModel().getSelectedItem();
+				System.out.println("Line: "+newRegimen.getSelectionModel().getSelectedItem().getKey());
 				try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
 
 					// Insert sample records
 					for (PharmacyEncounter pE : pharmacyEncounterTable.getSelectionModel().getSelectedItems()) {
 						if(allRegimenComboBox.getSelectionModel().getSelectedItem() != null) {
 							logToConsole("\n Loading Selected Regimens...!!\n");
-							stmt.setInt(1, 7778108);
+							stmt.setInt(1, newRegimen.getSelectionModel().getSelectedItem().getKey());
 							stmt.setInt(2, regimen.getConceptID());
 							stmt.setInt(3, pE.getObsID());
 							stmt.addBatch();
-							stmt.addBatch("UPDATE obs SET value_coded=7778108 where concept_id=7778111 && encounter_id=" + pE
+							stmt.addBatch("UPDATE obs SET value_coded="+newRegimen.getSelectionModel().getSelectedItem().getKey()
+									+" where concept_id=7778111 && encounter_id=" + pE
 									.getEncounterID());
 						}else{
 							stmt.addBatch("INSERT INTO obs"
@@ -1457,7 +1564,7 @@ public class OpenmrsCleanupController {
 									"creator, date_created, voided, date_voided, void_reason, uuid, obs_group_id) " +
 									"VALUES ("
 									+ pE.getPatientID()+","+
-									7778108+","+
+									newRegimen.getSelectionModel().getSelectedItem().getKey()+","+
 									pE.getEncounterID()+",NULL,"+
 									pE.getEncounterDateTime()+",42,NULL,NULL,"+regimen.getConceptID()+",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,"+
 									pE.getEncounterDateTime()+",0,NULL,NULL,"+UUID.randomUUID().toString()+",NULL)");

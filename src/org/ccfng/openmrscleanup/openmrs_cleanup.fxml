@@ -34,7 +34,7 @@
                                           </Label>
                                           <ComboBox fx:id="locationComboBox" prefHeight="27.0" prefWidth="247.0" promptText="Select Your Facility">
                                              <VBox.margin>
-                                                <Insets bottom="20.0" />
+                                                <Insets left="10.0" right="10.0" />
                                              </VBox.margin>
                                           </ComboBox>
                                           <Label layoutX="10.0" layoutY="10.0" prefHeight="33.0" prefWidth="215.0" style="-fx-background-color: #336699;" text="Create DTG" textFill="#fffefe">
@@ -42,56 +42,81 @@
                                                 <Font name="System Bold" size="18.0" />
                                              </font>
                                           </Label>
-                                          <Button fx:id="createDTG" layoutX="10.0" layoutY="169.0" mnemonicParsing="false" onAction="#createDTG" prefHeight="27.0" prefWidth="190.0" style="-fx-background-color: darkgreen;" text="Create DTG" textFill="#f8f7f7" wrapText="true">
-                                             <VBox.margin>
-                                                <Insets left="10.0" top="10.0" />
-                                             </VBox.margin>
-                                          </Button>
-                                          <Label prefHeight="29.0" prefWidth="214.0" style="-fx-background-color: #336699;" text="Drug Regimen" textAlignment="CENTER" textFill="#fcfcfc">
+                                          <HBox prefHeight="36.0" prefWidth="215.0">
+                                             <children>
+                                                <Button fx:id="createDTG" mnemonicParsing="false" onAction="#createDTG" prefHeight="27.0" prefWidth="94.0" style="-fx-background-color: darkgreen;" text="Create DTG" textFill="#f8f7f7" wrapText="true" />
+                                                <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#createRegimen" prefHeight="27.0" prefWidth="117.0" style="-fx-background-color: darkgreen;" text="Create Regimen" textFill="#f8f7f7" wrapText="true">
+                                                   <HBox.margin>
+                                                      <Insets left="2.0" />
+                                                   </HBox.margin>
+                                                </Button>
+                                             </children>
+                                          </HBox>
+                                          <Label prefHeight="29.0" prefWidth="214.0" style="-fx-background-color: #336699;" text="Create Regimen" textAlignment="CENTER" textFill="#fcfcfc">
                                              <font>
                                                 <Font name="System Bold" size="18.0" />
                                              </font>
                                              <VBox.margin>
-                                                <Insets top="30.0" />
+                                                <Insets />
                                              </VBox.margin></Label>
-                                          <DatePicker fx:id="startDate" onAction="#getDispensed" promptText="Select Start Date">
+                                          <ComboBox fx:id="presentRegimen" onAction="#getPresentRegimens" prefHeight="27.0" prefWidth="217.0" promptText="Select New Regimen Line">
                                              <VBox.margin>
-                                                <Insets left="10.0" right="10.0" top="10.0" />
-                                             </VBox.margin>
-                                          </DatePicker>
-                                          <ComboBox fx:id="allRegimenComboBox" onAction="#getDispensed" prefHeight="37.0" prefWidth="196.0" promptText="Select Regimen">
-                                             <VBox.margin>
-                                                <Insets left="10.0" top="10.0" />
+                                                <Insets left="10.0" right="10.0" top="5.0" />
                                              </VBox.margin>
                                           </ComboBox>
-                                          <Separator prefWidth="200.0">
+                                          <TextField fx:id="regimenName" promptText="Enter new Regimen Name">
                                              <VBox.margin>
-                                                <Insets top="10.0" />
+                                                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
                                              </VBox.margin>
-                                          </Separator>
-                                          <Label prefHeight="33.0" prefWidth="214.0" style="-fx-background-color: #336699;" text="Update To" textFill="#fffefe">
+                                          </TextField>
+                                          <Label layoutX="10.0" layoutY="125.0" prefHeight="29.0" prefWidth="214.0" style="-fx-background-color: #336699;" text="Show Dispensed Drugs" textAlignment="CENTER" textFill="#fcfcfc">
                                              <font>
                                                 <Font name="System Bold" size="18.0" />
                                              </font>
                                           </Label>
+                                          <ComboBox fx:id="allRegimenComboBox" onAction="#getDispensed" prefHeight="37.0" prefWidth="196.0" promptText="Select Regimen">
+                                             <VBox.margin>
+                                                <Insets left="10.0" top="5.0" />
+                                             </VBox.margin>
+                                          </ComboBox>
+                                          <DatePicker fx:id="startDate" onAction="#getDispensed" promptText="Select Start Date">
+                                             <VBox.margin>
+                                                <Insets left="10.0" right="10.0" top="5.0" />
+                                             </VBox.margin>
+                                          </DatePicker>
+                                          <Separator prefWidth="200.0">
+                                             <VBox.margin>
+                                                <Insets top="5.0" />
+                                             </VBox.margin>
+                                          </Separator>
+                                          <Label prefHeight="27.0" prefWidth="218.0" style="-fx-background-color: #336699;" text="Update To" textFill="#fffefe">
+                                             <font>
+                                                <Font name="System Bold" size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <ComboBox fx:id="newRegimen" onAction="#getNewRegimens" prefHeight="27.0" prefWidth="216.0" promptText="Select the right regimen line">
+                                             <VBox.margin>
+                                                <Insets left="10.0" right="10.0" top="5.0" />
+                                             </VBox.margin>
+                                          </ComboBox>
                                           <ComboBox fx:id="newRegimenComboBox" layoutX="10.0" layoutY="49.0" prefHeight="37.0" prefWidth="193.0" promptText="Select Regimen">
                                              <VBox.margin>
-                                                <Insets left="10.0" right="10.0" top="10.0" />
+                                                <Insets left="10.0" right="10.0" top="5.0" />
                                              </VBox.margin>
                                           </ComboBox>
                                           <Button mnemonicParsing="false" onAction="#updateRegimens" prefHeight="27.0" prefWidth="192.0" style="-fx-background-color: darkgreen;" text="Update" textFill="#f8f7f7" wrapText="true">
                                              <VBox.margin>
-                                                <Insets left="10.0" right="10.0" top="10.0" />
+                                                <Insets left="10.0" right="10.0" top="5.0" />
                                              </VBox.margin>
                                           </Button>
                                           <Separator prefWidth="200.0">
                                              <VBox.margin>
-                                                <Insets top="30.0" />
+                                                <Insets top="5.0" />
                                              </VBox.margin>
                                           </Separator>
                                           <Button mnemonicParsing="false" onAction="#pharmToExcel" prefHeight="27.0" prefWidth="215.0" text="Export Table">
                                              <VBox.margin>
-                                                <Insets left="10.0" right="10.0" top="10.0" />
+                                                <Insets left="10.0" right="10.0" top="5.0" />
                                              </VBox.margin>
                                           </Button>
                                        </children>
