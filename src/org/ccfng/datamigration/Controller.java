@@ -82,6 +82,7 @@ import org.ccfng.datamigration.users.Users;
 import org.ccfng.datamigration.visit.Visit;
 import org.ccfng.datamigration.visit.Visits;
 import org.ccfng.global.DBMiddleMan;
+import org.ccfng.global.KeyValueClass;
 import org.ccfng.openmrscleanup.OpenmrsCleanupController;
 import org.hibernate.HibernateException;
 
@@ -207,6 +208,10 @@ public class Controller {
     private ObservableList<Provider> allProviders;
 
     private Task<ObservableList<EncounterProvider>> encounterProviderTask;
+
+	private ObservableList<KeyValueClass> allUserRoles;
+
+    private Task<ObservableList<KeyValueClass>> userRoleProviderTask;
 
     private ObservableList<EncounterProvider> allEncounterProviders;
 
@@ -515,6 +520,9 @@ public class Controller {
                         case "encounter_provider":
                             loadEncounterProvider();
                             break;
+	                    case "user_role":
+		                    loadUserRole();
+		                    break;
 
                     }
 
@@ -588,6 +596,11 @@ public class Controller {
                                         progressIndicator.progressProperty().bind(encounterProviderTask.progressProperty());
                                         new Thread(encounterProviderTask).start();
                                         break;
+	                                case "user_role":
+		                                progressBar.progressProperty().bind(userRoleProviderTask.progressProperty());
+		                                progressIndicator.progressProperty().bind(userRoleProviderTask.progressProperty());
+		                                new Thread(userRoleProviderTask).start();
+		                                break;
                                 }
 
                             } catch (ArrayIndexOutOfBoundsException ex) {
@@ -602,8 +615,141 @@ public class Controller {
         }
     }
 
+	private void loadUserRole() {
 
-    private void checkConnection() {
+		userRoleProviderTask = new Task<ObservableList<KeyValueClass>>() {
+			@Override
+			protected ObservableList<KeyValueClass> call() throws Exception {
+				try {
+
+					allUserRoles = FXCollections.observableArrayList();
+
+//					List<KeyValueClass> userRoles = new ArrayList<>();
+
+					if (sourceDB.getSelectionModel().getSelectedIndex() == 0 ||
+							sourceDB.getSelectionModel().getSelectedIndex() == 1 ||
+							sourceDB.getSelectionModel().getSelectedIndex() == 2) {
+
+						connectionSettings();
+
+						Connection conn = null;
+						Statement stmt = null;
+						try {
+							//STEP 2: Register JDBC driver
+							Class.forName(driver);
+
+							//STEP 3: Open a connection
+							logToConsole("\n Connecting to Source Database!!");
+							conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);
+							logToConsole("\n Connected to database successfully...");
+
+							//STEP 4: Execute a query
+
+							stmt = conn.createStatement();
+							String sql = "";
+							if (fromFile.isSelected()) {
+								sql = getSQL();
+							} else {
+								sql = "SELECT * FROM " + suffix + "user_role";
+							}
+							logToConsole("\n Creating Select statement...");
+							ResultSet rs = stmt.executeQuery(sql);
+							//STEP 5: Extract data from result set
+							while (rs.next()) {
+								//Retrieve by column name
+								KeyValueClass userrole = new KeyValueClass();
+								userrole.setKey(rs.getInt("user_id"));
+								userrole.setValue(rs.getString("role"));
+								allUserRoles.add(userrole);
+							}
+							rs.close();
+							logToConsole("\n Data Successfully Fetched!\n");
+						} catch (SQLException se) {
+							//Handle errors for JDBC
+							se.printStackTrace();
+							logToConsole("\n Error: " + se.getMessage());
+						} catch (Exception e) {
+							//Handle errors for Class.forName
+							e.printStackTrace();
+							logToConsole("\n Error: " + e.getMessage());
+						} finally {
+							//finally block used to close resources
+							try {
+								if (stmt != null)
+									conn.close();
+							} catch (SQLException se) {
+							}// do nothing
+							closeConnection(conn);
+						}//end try
+
+					} else {
+						logToConsole("#################### XML BASED MIGRATION!");
+
+						File file = null;
+
+						try {
+							logToConsole("Fetching patient.xml file......\n");
+							file = new File(xsdDir + "/user_role.xml");
+							logToConsole("File fetched......\n");
+						} catch (Exception e) {
+							logToConsole("Error opening file user_role.xml: " + e.getMessage() + "\n");
+						}
+
+					}
+					if (!allUserRoles.isEmpty()) {
+						logToConsole("\n Loading Data.!\n");
+						String INSERT_SQL = "INSERT INTO user_role"
+								+ "(user_id, role) " +
+								"VALUES (?, ?)";
+
+						String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
+								"?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
+						String username = SessionManager.username;
+						String password = SessionManager.password;
+						Class.forName("com.mysql.jdbc.Driver");
+						try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+							logToConsole("\n Loading Data..!\n");
+							conn.setAutoCommit(false);
+							try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+								logToConsole("\n Loading Data...!\n");
+								int wDone = 0;
+								// Insert sample records
+								for (KeyValueClass module : allUserRoles) {
+									//logToConsole("\n Loading Data...!!\n");
+									stmt.setInt(1, module.getKey());
+									stmt.setString(2, module.getValue());
+									//Add statement to batch
+									stmt.addBatch();
+									updateProgress(wDone + 1, allUserRoles.size());
+									Integer pDone = ((wDone + 1) / allUserRoles.size()) * 100;
+									wDone++;
+								}
+								//execute batch
+								logToConsole("\n Loading Data....!\n");
+								stmt.executeBatch();
+								logToConsole("\n Loading Data.....!\n");
+								conn.commit();
+								logToConsole("Data Loaded successfully.");
+							} catch (SQLException e) {
+								e.printStackTrace();
+								rollbackTransaction(conn, e);
+							}
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+					}
+					return FXCollections.observableArrayList(allUserRoles);
+				} catch (ArrayIndexOutOfBoundsException ex) {
+					logToConsole("Error: " + ex.getMessage());
+					return null;
+				}
+
+			}
+
+		};
+	}
+
+	private void checkConnection() {
 
         try (PrintWriter writer = new PrintWriter("db-config.txt", "UTF-8")) {
             writer.println(FilePath.xsdDir);
@@ -4697,7 +4843,6 @@ public class Controller {
             ex.printStackTrace();
         }
     }
-
 
     @FXML
     private void patientTracker(){

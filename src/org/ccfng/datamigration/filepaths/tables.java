@@ -1,7 +1,7 @@
 package org.ccfng.datamigration.filepaths;
 
 public enum tables {
-    person, person_address, person_attribute, person_name, users, provider, patient, patient_identifier, patient_program, visit, encounter, encounter_provider, obs ;
+    person, person_address, person_attribute, person_name, users, provider, patient, patient_identifier, patient_program, visit, encounter, encounter_provider, obs, user_role ;
 
     private tables(){}
 

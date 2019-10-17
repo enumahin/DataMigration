@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -29,6 +30,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import org.ccfng.datamigration.encounter.Encounter;
 import org.ccfng.datamigration.filepaths.ConceptMap;
 import org.ccfng.datamigration.obs.Obs;
@@ -63,42 +65,18 @@ public class EncounterObsController {
 	@FXML
 	private Button btnMigrate;
 
+	@FXML ComboBox<KeyValueClass> cboLocation;
+
+	@FXML
+	private TextField offset;
+
+	@FXML
+	private TextField limit;
+
 	@FXML
 	private TextArea txtConsole;
 
 	private Task<ObservableList<Encounter>> encounterTask;
-
-//	@FXML
-//	private void migrate(){
-//		lblTotal.setText(""+1000);
-//		Task<ObservableList<Integer>> task  = new Task<ObservableList<Integer>>() {
-//			int wDone = 0;
-//			@Override
-//			protected ObservableList<Integer> call() throws Exception {
-//				Platform.runLater(()->{
-//					logToConsole("Starting Loop!");
-//				});
-//				for(Integer i = 0; i <= 1000; i++){
-//					Thread.sleep(1000);
-//					updateProgress(wDone + 1, 1000);
-//					wDone++;
-//					Integer j = wDone;
-//					Platform.runLater(()->{
-//						lblCount.setText(String.valueOf(j));
-//					});
-//
-//				}
-//				Platform.runLater(()->{
-//					logToConsole("Done Looping!");
-//				});
-//				return null;
-//			};
-//		};
-//		progressBar.progressProperty().bind(task.progressProperty());
-//		progressIndicator.progressProperty().bind(task.progressProperty());
-//
-//		new Thread(task).start();
-//	}
 
 	public void initialize(){
 		cc = new ConnectionClass();
@@ -143,6 +121,61 @@ public class EncounterObsController {
 
 		cboEncounter.setItems(migrationType);
 
+		new Thread(this::getLocations).start();
+	}
+
+	private void getLocations() {
+		ObservableList<KeyValueClass> locations = FXCollections.observableArrayList();
+
+		Platform.runLater(()->{
+			logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+		});
+
+		Statement stmt = null;
+		try {
+			//STEP 2: Register JDBC driver
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (Exception exc) {
+			Platform.runLater(()->{
+				logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+			});
+		}
+		try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+			Platform.runLater(()->{
+				logToConsole("\n Destination Database connection successful..");
+			});
+
+			stmt = conn.createStatement();
+			String sql = "SELECT * FROM location ";
+			Platform.runLater(()->{
+				logToConsole("\n Fetching Locations..");
+			});
+			ResultSet rs = stmt.executeQuery(sql);
+			//STEP 5: Extract data from result set
+			while (rs.next()) {
+				KeyValueClass loc = new KeyValueClass();
+				loc.setKey(rs.getInt("location_id"));
+				loc.setValue(rs.getString("name"));
+				locations.add(loc);
+			}
+			rs.close();
+			Platform.runLater(()->{
+				logToConsole("\n Done..");
+			});
+		} catch (SQLException e) {
+			Platform.runLater(()->{
+				logToConsole("\n Error: " + e.getMessage());
+			});
+			e.printStackTrace();
+		}finally {
+			//finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (Exception se) {
+			}// do nothing
+		}//end try
+		cboLocation.setItems(locations);
 	}
 
 	private static ConceptMap createConceptMap(String[] metadata) {
@@ -390,17 +423,25 @@ public class EncounterObsController {
 			Class.forName("com.mysql.jdbc.Driver");
 
 			//STEP 3: Open a connection
-			logToConsole("\n Connecting to Source Database!!");
+			Platform.runLater(()->{
+				logToConsole("\n Connecting to Source Database!!");
+			});
 			conn1 = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
-			logToConsole("\n Connected to database successfully...");
+			Platform.runLater(()->{
+				logToConsole("\n Connected to database successfully...");
+			});
 
 			stmt1 = conn1.createStatement();
 
+			Platform.runLater(()->{
+				logToConsole("\n Creating Select statement...");
+			});
 
-			logToConsole("\n Creating Select statement...");
 			ResultSet rs = stmt1.executeQuery(sql);
 			//STEP 5: Extract data from result set
-			logToConsole("\n Fetching Encounters....");
+			Platform.runLater(()->{
+				logToConsole("\n Fetching Encounters....");
+			});
 			while (rs.next()) {
 				//Retrieve by column name
 				Integer vID = getVisit(rs.getInt("patient_id"), rs.getDate("encounter_datetime"));
@@ -419,15 +460,21 @@ public class EncounterObsController {
 				allEncounters.add(encounter);
 			}
 			rs.close();
-			logToConsole("\n Encounters Successfully Fetched!");
+			Platform.runLater(()->{
+				logToConsole("\n Encounters Successfully Fetched!");
+			});
 		} catch (SQLException se) {
 			//Handle errors for JDBC
 			se.printStackTrace();
-			logToConsole("\n Error: " + se.getMessage());
+			Platform.runLater(()->{
+				logToConsole("\n Error: " + se.getMessage());
+			});
 		} catch (Exception e) {
 			//Handle errors for Class.forName
 			e.printStackTrace();
-			logToConsole("\n Error: " + e.getMessage());
+			Platform.runLater(()->{
+				logToConsole("\n Error: " + e.getMessage());
+			});
 		} finally {
 			//finally block used to close resources
 			try {
@@ -437,13 +484,15 @@ public class EncounterObsController {
 			}// do nothing
 			closeConnection(conn1);
 		}//end try
-		logToConsole("\n Building Observations!");
+		Platform.runLater(()->{
+			logToConsole("\n Building Observations!");
+		});
 //		String obsSQL = ;
 		List<Obs> encOb = getObs(obsSQL);
-		System.out.println(encOb);
+//		System.out.println(encOb);
 		if(encOb.size() > 0){
-			logToConsole("\n OBS Size: "+encOb.size());
 			Platform.runLater(()->{
+				logToConsole("\n OBS Size: "+encOb.size());
 				lblTotal.setText(""+allEncounters.size());
 			});
 			ObservableList<Encounter> listEnc = FXCollections.observableArrayList();
@@ -458,7 +507,9 @@ public class EncounterObsController {
 							"date_changed, voided, date_voided, void_reason, uuid, visit_id) " +
 							"VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-					logToConsole("\n Connecting to destination DB! \n");
+					Platform.runLater(()->{
+						logToConsole("\n Connecting to destination DB! \n");
+					});
 					try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
 						conn.setAutoCommit(false);
 						try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
@@ -518,24 +569,32 @@ public class EncounterObsController {
 							//execute batch()
 							//							try {
 							stmt.executeBatch();
-							logToConsole("Transaction is committed successfully.");
+							Platform.runLater(()->{
+								logToConsole("Encounter Transaction is committed successfully.");
+							});
 							//							} catch (Exception ex) {
 							//								logToConsole("Error in batch insert: " + ex.getMessage());
 							//								closeConnection(conn);
 							//							}
 
 						} catch (SQLException e) {
-							logToConsole("Error running Insert statement: " + e.getMessage());
+							Platform.runLater(()->{
+								logToConsole("Error running Insert statement: " + e.getMessage());
+							});
 							e.printStackTrace();
 							rollbackTransaction(conn, e);
 						}catch (Exception e) {
-							logToConsole("Error running Insert statement: " + e.getMessage());
+							Platform.runLater(()->{
+								logToConsole("Error running Insert statement: " + e.getMessage());
+							});
 							e.printStackTrace();
 							rollbackTransaction(conn, e);
 						}
 						conn.commit();
 					} catch (SQLException e) {
-						logToConsole("Error Establishing connection: " + e.getMessage());
+						Platform.runLater(()->{
+							logToConsole("Error Establishing connection: " + e.getMessage());
+						});
 						e.printStackTrace();
 
 					}
@@ -543,9 +602,9 @@ public class EncounterObsController {
 				}
 			};
 
-			Platform.runLater(() -> {
+//			new Thread(()->{
 				createObs(encOb);
-			});
+//			}).start();
 
 			if(progressBar.progressProperty().isBound()){
 				progressBar.progressProperty().unbind();
@@ -556,7 +615,9 @@ public class EncounterObsController {
 
 			new Thread(encounterTask).start();
 		}else{
-			logToConsole("\n No Observation found!");
+			Platform.runLater(()->{
+				logToConsole("\n No Observation found!");
+			});
 		}
 	}
 
@@ -596,14 +657,82 @@ public class EncounterObsController {
 		String obsSQL = "Select obs.* from obs LEFT JOIN encounter on obs.encounter_id=encounter.encounter_id where (encounter.form_id=56)";
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
+
 	public void createPharmacyEncounter(){
+		String subQ = "";
+		if(! offset.getText().equals("") && ! limit.getText().equals("")){
+			subQ += " LIMIT "+limit.getText()+ " OFFSET "+offset.getText();
+		}
 		String encSQL = "Select * from encounter where (form_id = 46 || form_id = 53) and voided = 0 "
-				+ "group by patient_id";
+				+subQ;
 		int form_id= 27;
 		int encTYPE= 13;
-		String obsSQL = "Select obs.* from obs LEFT JOIN encounter on obs.encounter_id=encounter.encounter_id where (form_id = 46 || form_id = 53)";
+
+		//#################################################
+
+			List<Integer> encIDs = new ArrayList<>();
+			String IDar = "";
+			Statement stmt = null;
+			try {
+				//STEP 2: Register JDBC driver
+				Class.forName("com.mysql.jdbc.Driver");
+			} catch (Exception exc) {
+				Platform.runLater(()->{
+					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+				});
+			}
+			try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());) {
+				Platform.runLater(()->{
+					logToConsole("\n Destination Database for Encounter connection successful..");
+				});
+
+				stmt = conn.createStatement();
+//				String sql = "SELECT * FROM location ";
+				Platform.runLater(()->{
+					logToConsole("\n Fetching Encounter IDs..");
+				});
+				ResultSet rs = stmt.executeQuery(encSQL);
+				//STEP 5: Extract data from result set
+				while (rs.next()) {
+						IDar += rs.getInt("encounter_id")+",";
+
+					encIDs.add(rs.getInt("encounter_id"));
+				}
+				rs.close();
+				Platform.runLater(()->{
+					logToConsole("\n Done..");
+				});
+			} catch (SQLException e) {
+				Platform.runLater(()->{
+					logToConsole("\n Error: " + e.getMessage());
+				});
+				e.printStackTrace();
+			}finally {
+				//finally block used to close resources
+				try {
+					if (stmt != null)
+						stmt.close();
+				} catch (Exception se) {
+				}// do nothing
+			}//end try
+		//#################################################
+		System.out.println("Encounter IDS "+ IDar);
+
+		String result = Optional.ofNullable(IDar)
+				.filter(sStr -> sStr.length() != 0)
+				.map(sStr -> sStr.substring(0, sStr.length() - 1))
+				.orElse(IDar);
+
+		System.out.println("Encounter IDS "+ result);
+
+		String obsSQL = "Select obs.* from obs LEFT JOIN encounter on obs.encounter_id=encounter.encounter_id where "
+//				+ "(form_id = 46 || form_id = 53) AND"
+				+ " encounter.encounter_id IN ("+result+")";
+
+
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
+
 	public void createClientTrackingEncounter(){
 
 	}
@@ -615,6 +744,7 @@ public class EncounterObsController {
 		String obsSQL = "Select obs.* from obs LEFT JOIN encounter on obs.encounter_id=encounter.encounter_id where encounter_type=5";
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
+
 	public void createClientIntakeEncounter(){
 
 	}
@@ -970,7 +1100,9 @@ public class EncounterObsController {
 			//execute batch
 			stmt_obs.executeBatch();
 			//																				conn_obs.commit();
-			logToConsole("\nObs Inserted.");
+			Platform.runLater(()->{
+				logToConsole("\nObs Inserted.");
+			});
 		} catch (SQLException e) {
 			logToConsole("\n"+e.getMessage());
 			e.printStackTrace();
@@ -981,9 +1113,11 @@ public class EncounterObsController {
 			//																				return null;
 		}
 		conn.commit();
-		logToConsole("\nAll Obs successfully Inserted!");
+
 	} catch (SQLException e) {
-		logToConsole("Error Establishing connection: " + e.getMessage());
+		Platform.runLater(()->{
+			logToConsole("Error Establishing connection: " + e.getMessage());
+		});
 		e.printStackTrace();
 
 	}
@@ -1013,14 +1147,18 @@ public class EncounterObsController {
 					createClientIntakeEncounter();
 				}
 			}else {
-				logToConsole("Please Select Migration Type First!");
+				Platform.runLater(()->{
+					logToConsole("Please Select Migration Type First!");
+				});
 			}
 	}
 
 	private void rollbackTransaction(Connection conn, Exception e) {
 		if (conn != null) {
 			try {
-				logToConsole("\nTransaction is being rolled back: " + e.getMessage());
+				Platform.runLater(()->{
+					logToConsole("\nTransaction is being rolled back: " + e.getMessage());
+				});
 				conn.rollback();
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -1034,15 +1172,26 @@ public class EncounterObsController {
 				conn.close();
 		} catch (SQLException se) {
 			se.printStackTrace();
-			logToConsole("\n Error: " + se.getMessage());
+			Platform.runLater(()->{
+				logToConsole("\n Error: " + se.getMessage());
+			});
 		}//end finally try
 	}
 
 	public void logToConsole(String text) {
-		Platform.runLater(() -> {
-			if (text != null)
-				txtConsole.appendText(text);
-		});
-
+		System.out.println(text);
+//		Task<String> task = new Task<String>() {
+//
+//			@Override
+//			protected String call() throws Exception {
+//				Platform.runLater(() -> {
+//					if (text != null)
+//						txtConsole.appendText(text);
+//				});
+//				return null;
+//			}
+//		};
+//
+//		new Thread(task).start();
 	}
 }
