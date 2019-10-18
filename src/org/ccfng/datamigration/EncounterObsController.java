@@ -43,9 +43,9 @@ public class EncounterObsController {
 
 	HashMap<Integer, Integer> concepts = new HashMap<>();
 
-	ConnectionClass cc ;
+	ConnectionClass cc;
 
-	DestinationConnectionClass dd ;
+	DestinationConnectionClass dd;
 
 	@FXML
 	private Label lblCount;
@@ -65,7 +65,8 @@ public class EncounterObsController {
 	@FXML
 	private Button btnMigrate;
 
-	@FXML ComboBox<KeyValueClass> cboLocation;
+	@FXML
+	ComboBox<KeyValueClass> cboLocation;
 
 	@FXML
 	private TextField offset;
@@ -78,7 +79,7 @@ public class EncounterObsController {
 
 	private Task<ObservableList<Encounter>> encounterTask;
 
-	public void initialize(){
+	public void initialize() {
 		cc = new ConnectionClass();
 		dd = new DestinationConnectionClass();
 		Path pathToFile = Paths.get("conceptMapping.csv");
@@ -104,7 +105,8 @@ public class EncounterObsController {
 				line = br.readLine();
 			}
 
-		} catch (IOException ioe) {
+		}
+		catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
 
@@ -127,7 +129,7 @@ public class EncounterObsController {
 	private void getLocations() {
 		ObservableList<KeyValueClass> locations = FXCollections.observableArrayList();
 
-		Platform.runLater(()->{
+		Platform.runLater(() -> {
 			logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
 		});
 
@@ -135,19 +137,21 @@ public class EncounterObsController {
 		try {
 			//STEP 2: Register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
-		} catch (Exception exc) {
-			Platform.runLater(()->{
+		}
+		catch (Exception exc) {
+			Platform.runLater(() -> {
 				logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 			});
 		}
-		try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
-			Platform.runLater(()->{
+		try (Connection conn = DriverManager
+				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+			Platform.runLater(() -> {
 				logToConsole("\n Destination Database connection successful..");
 			});
 
 			stmt = conn.createStatement();
 			String sql = "SELECT * FROM location ";
-			Platform.runLater(()->{
+			Platform.runLater(() -> {
 				logToConsole("\n Fetching Locations..");
 			});
 			ResultSet rs = stmt.executeQuery(sql);
@@ -159,31 +163,35 @@ public class EncounterObsController {
 				locations.add(loc);
 			}
 			rs.close();
-			Platform.runLater(()->{
+			Platform.runLater(() -> {
 				logToConsole("\n Done..");
 			});
-		} catch (SQLException e) {
-			Platform.runLater(()->{
+		}
+		catch (SQLException e) {
+			Platform.runLater(() -> {
 				logToConsole("\n Error: " + e.getMessage());
 			});
 			e.printStackTrace();
-		}finally {
+		}
+		finally {
 			//finally block used to close resources
 			try {
 				if (stmt != null)
 					stmt.close();
-			} catch (Exception se) {
+			}
+			catch (Exception se) {
 			}// do nothing
 		}//end try
 		cboLocation.setItems(locations);
 	}
 
 	private static ConceptMap createConceptMap(String[] metadata) {
-		Integer openmrs =  Integer.parseInt(metadata[0]);
+		Integer openmrs = Integer.parseInt(metadata[0]);
 		Integer nmrs = 0;
 		try {
 			nmrs = Integer.parseInt(metadata[1]);
-		}catch (Exception ex){
+		}
+		catch (Exception ex) {
 		}
 
 		// create and return book of this metadata
@@ -191,27 +199,29 @@ public class EncounterObsController {
 
 	}
 
-	private Integer createVisit(Integer patientID, Date encounterDate){
+	private Integer createVisit(Integer patientID, Date encounterDate) {
 		Integer t3d_id = null;
 		txtConsole.clear();
 		logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
-		
+
 		Statement stmt = null;
 		try {
 			//STEP 2: Register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
-		} catch (Exception exc) {
+		}
+		catch (Exception exc) {
 			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 		}
-		String INSERT_SQL = "INSERT INTO visit"
+		String INSERT_SQL = "INSERT IGNORE INTO visit"
 				+ "(visit_id, patient_id, visit_type_id, date_started, date_stopped, location_id," +
 				" creator, date_created, uuid) " +
 				"VALUES ( ?,?,?,?,?,?,?,?,?)";
 
-		try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+		try (Connection conn = DriverManager
+				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
 
 			conn.setAutoCommit(false);
-			try (PreparedStatement stmt1 = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt1 = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);) {
 				// Insert sample records
 				try {
 					stmt1.setString(1, null);
@@ -227,8 +237,8 @@ public class EncounterObsController {
 					//Add statement to batch
 					stmt1.execute();
 					ResultSet rs = stmt1.getGeneratedKeys();
-					if (rs.next()){
-						t3d_id =rs.getInt(1);
+					if (rs.next()) {
+						t3d_id = rs.getInt(1);
 					}
 					rs.close();
 				}
@@ -255,19 +265,22 @@ public class EncounterObsController {
 		Visit visit = null;
 		txtConsole.clear();
 		logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
-		
+
 		Statement stmt = null;
 		try {
 			//STEP 2: Register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
-		} catch (Exception exc) {
+		}
+		catch (Exception exc) {
 			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 		}
-		try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+		try (Connection conn = DriverManager
+				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
 			logToConsole("\n Destination Database connection successful..");
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM visit where patient_id="+patientID +" and "+"date_started='"+encounterDate+"'";
+			String sql =
+					"SELECT * FROM visit where patient_id=" + patientID + " and " + "date_started='" + encounterDate + "'";
 			logToConsole("\n Fetching Visits..");
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -289,30 +302,33 @@ public class EncounterObsController {
 
 			}
 			rs.close();
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			logToConsole("\n Error: " + e.getMessage());
 			e.printStackTrace();
-		}finally {
+		}
+		finally {
 			//finally block used to close resources
 			try {
 				if (stmt != null)
 					stmt.close();
-			} catch (Exception se) {
+			}
+			catch (Exception se) {
 			}// do nothing
 		}//end try
-		
-		if(visit != null){
+
+		if (visit != null) {
 			return visit.getVisit_id();
-		}else{
+		} else {
 			return createVisit(patientID, encounterDate);
 		}
 	}
 
-	private List<Obs> getObs(String sql){
+	private List<Obs> getObs(String sql) {
 		List<Obs> getObs = new ArrayList<>();
 		Connection conn = null;
 		Statement stmt = null;
-		try{
+		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
 			stmt = conn.createStatement();
@@ -375,42 +391,200 @@ public class EncounterObsController {
 							permObs.setValue_group_id(rs.getInt("value_group_id"));
 						if (rs.getString("value_modifier") != null)
 							permObs.setValue_modifier(rs.getString("value_modifier"));
-						if (rs.getDouble("value_numeric") != 0)
-							permObs.setValue_numeric(rs.getDouble("value_numeric"));
+						if (rs.getDouble("value_numeric") != 0) {
+
+							if(rs.getString("unit") != null && rs.getInt("concept_id") == 7778370){
+
+								if(rs.getInt("unit") == 523){
+									permObs.setValue_numeric(rs.getDouble("value_numeric"));
+								}else if(rs.getInt("unit") == 524){
+									permObs.setValue_numeric(rs.getDouble("value_numeric") * 30);
+								}else if(rs.getInt("unit") == 520){
+									permObs.setValue_numeric(rs.getDouble("value_numeric") * 7);
+								}
+
+							}else {
+								permObs.setValue_numeric(rs.getDouble("value_numeric"));
+							}
+						}
 						if (rs.getString("value_text") != null)
 							permObs.setValue_text(rs.getString("value_text"));
 						if (rs.getInt("voided_by") > 0)
 							permObs.setVoided_by(rs.getInt("voided_by"));
 						getObs.add(permObs);
-					}else{
+					} else {
 						writer.println(rs.getInt("concept_id"));
 					}
-				} catch (IOException ioe) {
+				}
+				catch (IOException ioe) {
 					ioe.printStackTrace();
 				}
 			}
 
 			rs.close();
-		} catch (SQLException se) {
+		}
+		catch (SQLException se) {
 			//Handle errors for JDBC
 			se.printStackTrace();
 			logToConsole("\n SQLException Error: " + se.getMessage());
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			//Handle errors for Class.forName
 			e.printStackTrace();
 			logToConsole("\n Exception Error: " + e.getMessage());
-		} finally {
+		}
+		finally {
 			//finally block used to close resources
 			try {
 				if (stmt != null)
 					conn.close();
-			} catch (SQLException se) {
+			}
+			catch (SQLException se) {
 			}// do nothing
 			closeConnection(conn);
 		}//end try
 
 		return getObs;
 	}
+
+//	private List<Obs> getPharmObs(ObservableList<Encounter> encounters) {
+//
+//		List<Obs> getObs = new ArrayList<>();
+//
+//		for (Encounter encounter : encounters)
+//		{
+//			List<Obs> localObs = new ArrayList<>();
+//				Connection conn = null;
+//
+//				Statement stmt = null;
+//			try
+//				{
+//					Class.forName("com.mysql.jdbc.Driver");
+//					conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
+//					stmt = conn.createStatement();
+//					ResultSet rs = stmt
+//							.executeQuery(sql);
+//					while (rs.next()) {
+//						try (PrintWriter writer = new PrintWriter("missing_concepts.csv", "UTF-8")) {
+//
+//							if (concepts.containsKey(rs.getInt("concept_id"))) {
+//								Obs permObs = new Obs();
+//								permObs.setUuid(UUID.fromString(rs.getString("uuid")));
+//								if (rs.getString("accession_number") != null)
+//									permObs.setAccession_number(rs.getString("accession_number"));
+//
+//								if (rs.getString("comments") != null)
+//									permObs.setComments(rs.getString("comments"));
+//
+//								// DO Concept Mapping here
+//
+//								if (concepts.containsKey(rs.getInt("concept_id"))) {
+//									permObs.setConcept_id(concepts.get(rs.getInt("concept_id")));
+//								} else {
+//									writer.println(rs.getInt("concept_id"));
+//									permObs.setConcept_id(rs.getInt("concept_id"));
+//								}
+//								permObs.setUuid(UUID.randomUUID());
+//								permObs.setCreator(1);
+//								permObs.setDate_created(rs.getDate("date_created"));
+//
+//								permObs.setEncounter_id(rs.getInt("encounter_id"));
+//								permObs.setLocation_id(8);
+//								permObs.setObs_datetime(rs.getDate("obs_datetime"));
+//
+//								if (rs.getInt("obs_group_id") > 0)
+//									permObs.setObs_group_id(rs.getInt("obs_group_id"));
+//
+//								if (rs.getInt("obs_id") > 0)
+//									permObs.setObs_id(rs.getInt("obs_id"));
+//								if (rs.getInt("order_id") > 0)
+//									permObs.setOrder_id(rs.getInt("order_id"));
+//
+//								permObs.setPerson_id(rs.getInt("person_id"));
+//								if (null != rs.getString("value_coded")) {
+//									if (concepts.containsKey(rs.getInt("value_coded"))) {
+//										permObs.setValue_coded(concepts.get(rs.getInt("value_coded")));
+//									} else {
+//										writer.println(rs.getInt("value_coded"));
+//										permObs.setValue_coded(concepts.get(rs.getInt("value_coded")));
+//									}
+//								}
+//								//permObs.setValue_coded(rs.getInt("value_coded"));
+//								if (rs.getInt("value_coded_name_id") > 0)
+//									permObs.setValue_coded_name_id(rs.getInt("value_coded_name_id"));
+//								if (rs.getString("value_complex") != null)
+//									permObs.setValue_complex(rs.getString("value_complex"));
+//								if (rs.getDate("value_datetime") != null)
+//									permObs.setValue_datetime(rs.getDate("value_datetime"));
+//								if (rs.getInt("value_drug") > 0)
+//									permObs.setValue_drug(rs.getInt("value_drug"));
+//								if (rs.getInt("value_group_id") > 0)
+//									permObs.setValue_group_id(rs.getInt("value_group_id"));
+//								if (rs.getString("value_modifier") != null)
+//									permObs.setValue_modifier(rs.getString("value_modifier"));
+//
+//								if (rs.getDouble("value_numeric") != 0) {
+//									if(rs.getInt("concept_id") == 7778370) {
+//
+//										permObs.setValue_numeric(rs.getDouble("value_numeric"));
+//
+//									}else{
+//										permObs.setValue_numeric(rs.getDouble("value_numeric"));
+//									}
+//
+//								}
+//								if (rs.getString("value_text") != null)
+//									permObs.setValue_text(rs.getString("value_text"));
+//								if (rs.getInt("voided_by") > 0)
+//									permObs.setVoided_by(rs.getInt("voided_by"));
+//								localObs.add(permObs);
+//							} else {
+//								writer.println(rs.getInt("concept_id"));
+//							}
+//						}
+//						catch (IOException ioe) {
+//							ioe.printStackTrace();
+//						}
+//
+//					}
+//
+//					rs.close();
+//				} catch(
+//
+//				SQLException se)
+//
+//				{
+//					//Handle errors for JDBC
+//					se.printStackTrace();
+//					logToConsole("\n SQLException Error: " + se.getMessage());
+//				} catch(
+//
+//				Exception e)
+//
+//				{
+//					//Handle errors for Class.forName
+//					e.printStackTrace();
+//					logToConsole("\n Exception Error: " + e.getMessage());
+//				} finally
+//
+//				{
+//					//finally block used to close resources
+//					try {
+//						if (stmt != null)
+//							conn.close();
+//					}
+//					catch (SQLException se) {
+//					}// do nothing
+//					closeConnection(conn);
+//				}//end try
+////
+////				localObs.stream().filter(localObs -> localObs.getConcept_id().equals(7778370))
+//
+//				getObs.addAll(localObs);
+//			}
+//
+//		return getObs;
+//	}
 
 	private void verseEncounter(String sql, int form_id, int encounter_type, String obsSQL){
 
@@ -502,7 +676,7 @@ public class EncounterObsController {
 				@Override
 				protected ObservableList<Encounter> call() throws Exception {
 
-					String INSERT_SQL = "INSERT INTO encounter"
+					String INSERT_SQL = "INSERT IGNORE INTO encounter"
 							+ "(encounter_id, encounter_type, patient_id, location_id, form_id, encounter_datetime, creator, date_created, " +
 							"date_changed, voided, date_voided, void_reason, uuid, visit_id) " +
 							"VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -552,8 +726,9 @@ public class EncounterObsController {
 //																	new Thread(new Task<String>(){
 //																		@Override
 //																		protected String call() throws Exception {
+								Integer finalWDone = wDone;
 								Platform.runLater(()->{
-									lblCount.setText(wDone.toString());
+									lblCount.setText(finalWDone.toString());
 								});
 
 //																			return null;
@@ -563,7 +738,7 @@ public class EncounterObsController {
 								stmt.addBatch();
 								updateProgress(wDone + 1, allEncounters.size());
 								Integer pDone = ((wDone + 1) / allEncounters.size()) * 100;
-
+								wDone++;
 								listEnc.add(module);
 							}
 							//execute batch()
@@ -625,19 +800,18 @@ public class EncounterObsController {
 
 		new Thread(()->{
 			verseEncounter("SELECT * FROM encounter WHERE encounter_type = 15 and voided = 0 "
-				+ "group by patient_id", 23, 14,
-				"Select obs.* from obs LEFT JOIN encounter on obs.encounter_id=encounter.encounter_id where encounter.encounter_type=15");
+				, 23, 14,
+				"Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where encounter.encounter_type=15");
 		}).start();
 
 
 	}
 	public void createAdultInitialEncounter(){
 		String encSQL = "Select encounter.* from encounter left join person on encounter.patient_id=person.person_id where form_id = 1 and "
-				+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 >= 18 and encounter.voided = 0 "
-				+ "group by patient_id";
+				+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 >= 18 and encounter.voided = 0 ";
 		int form_id= 22;
 		int encTYPE= 26;
-		String obsSQL = "Select obs.* from obs LEFT JOIN encounter on obs.encounter_id=encounter.encounter_id where (encounter.form_id=1 OR encounter.form_id=24)";
+		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where (encounter.form_id=1 OR encounter.form_id=24)";
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
 	public void createPedInitialEncounter(){
@@ -646,15 +820,14 @@ public class EncounterObsController {
 				+ "group by patient_id";
 		int form_id= 20;
 		int encTYPE= 24;
-		String obsSQL = "Select obs.* from obs LEFT JOIN encounter on obs.encounter_id=encounter.encounter_id where (encounter.form_id=1 OR encounter.form_id=27)";
+		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where (encounter.form_id=1 OR encounter.form_id=27)";
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
 	public void createCareCardEncounter(){
-		String encSQL = "Select * from encounter where (form_id = 56) and voided = 0 "
-				+ "group by patient_id";
+		String encSQL = "Select * from encounter where (form_id = 56) and voided = 0 ";
 		int form_id= 14;
 		int encTYPE= 12;
-		String obsSQL = "Select obs.* from obs LEFT JOIN encounter on obs.encounter_id=encounter.encounter_id where (encounter.form_id=56)";
+		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where (encounter.form_id=56)";
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
 
@@ -682,6 +855,7 @@ public class EncounterObsController {
 				});
 			}
 			try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());) {
+
 				Platform.runLater(()->{
 					logToConsole("\n Destination Database for Encounter connection successful..");
 				});
@@ -694,8 +868,7 @@ public class EncounterObsController {
 				ResultSet rs = stmt.executeQuery(encSQL);
 				//STEP 5: Extract data from result set
 				while (rs.next()) {
-						IDar += rs.getInt("encounter_id")+",";
-
+					IDar += rs.getInt("encounter_id")+",";
 					encIDs.add(rs.getInt("encounter_id"));
 				}
 				rs.close();
@@ -725,23 +898,309 @@ public class EncounterObsController {
 
 		System.out.println("Encounter IDS "+ result);
 
-		String obsSQL = "Select obs.* from obs LEFT JOIN encounter on obs.encounter_id=encounter.encounter_id where "
-//				+ "(form_id = 46 || form_id = 53) AND"
+		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where "
+				//				+ "(form_id = 46 || form_id = 53) AND"
 				+ " encounter.encounter_id IN ("+result+")";
-
 
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
 
-	public void createClientTrackingEncounter(){
+//	public void createPharmacyEncounter(){
+//		String subQ = "";
+//		if(! offset.getText().equals("") && ! limit.getText().equals("")){
+//			subQ += " LIMIT "+limit.getText()+ " OFFSET "+offset.getText();
+//		}
+//		String encSQL = "Select * from encounter where (form_id = 46 || form_id = 53) and voided = 0 "
+//				+subQ;
+//		int form_id= 27;
+//		int encTYPE= 13;
+//
+//
+//		//#######################Try OUT
+//
+//
+//
+//		//#################################################
+//
+//		List<Integer> encIDs = new ArrayList<>();
+//		String IDar = "";
+//		Statement stmt = null;
+//		try {
+//			//STEP 2: Register JDBC driver
+//			Class.forName("com.mysql.jdbc.Driver");
+//		} catch (Exception exc) {
+//			Platform.runLater(()->{
+//				logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+//			});
+//		}
+//		try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());) {
+//
+//			Platform.runLater(()->{
+//				logToConsole("\n Destination Database for Encounter connection successful..");
+//			});
+//
+//			stmt = conn.createStatement();
+//			//				String sql = "SELECT * FROM location ";
+//			Platform.runLater(()->{
+//				logToConsole("\n Fetching Encounter IDs..");
+//			});
+//			ResultSet rs = stmt.executeQuery(encSQL);
+//			//STEP 5: Extract data from result set
+//			while (rs.next()) {
+//				IDar += rs.getInt("encounter_id")+",";
+//				encIDs.add(rs.getInt("encounter_id"));
+//			}
+//			rs.close();
+//			Platform.runLater(()->{
+//				logToConsole("\n Done..");
+//			});
+//		} catch (SQLException e) {
+//			Platform.runLater(()->{
+//				logToConsole("\n Error: " + e.getMessage());
+//			});
+//			e.printStackTrace();
+//		}finally {
+//			//finally block used to close resources
+//			try {
+//				if (stmt != null)
+//					stmt.close();
+//			} catch (Exception se) {
+//			}// do nothing
+//		}//end try
+//		//#################################################
+//		System.out.println("Encounter IDS "+ IDar);
+//
+//		String result = Optional.ofNullable(IDar)
+//				.filter(sStr -> sStr.length() != 0)
+//				.map(sStr -> sStr.substring(0, sStr.length() - 1))
+//				.orElse(IDar);
+//
+//		System.out.println("Encounter IDS "+ result);
+//
+//		String obsSQL = "Select obs.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 ) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where "
+//				//				+ "(form_id = 46 || form_id = 53) AND"
+//				+ " encounter.encounter_id IN ("+result+")";
+//
+////		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
+//
+//		//############################# Try out here
+//
+//		ObservableList<Encounter> allEncounters = FXCollections.observableArrayList();
+//		//
+//		Connection conn1 = null;
+//		Statement stmt1 = null;
+//		try {
+//			//STEP 2: Register JDBC driver
+//			Class.forName("com.mysql.jdbc.Driver");
+//
+//			//STEP 3: Open a connection
+//			Platform.runLater(()->{
+//				logToConsole("\n Connecting to Source Database!!");
+//			});
+//			conn1 = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
+//			Platform.runLater(()->{
+//				logToConsole("\n Connected to database successfully...");
+//			});
+//
+//			stmt1 = conn1.createStatement();
+//
+//			Platform.runLater(()->{
+//				logToConsole("\n Creating Select statement...");
+//			});
+//
+//			ResultSet rs = stmt1.executeQuery(encSQL);
+//			//STEP 5: Extract data from result set
+//			Platform.runLater(()->{
+//				logToConsole("\n Fetching Encounters....");
+//			});
+//			while (rs.next()) {
+//				//Retrieve by column name
+//				Integer vID = getVisit(rs.getInt("patient_id"), rs.getDate("encounter_datetime"));
+//				Encounter encounter = new Encounter();
+//				encounter.setEncounter_id(rs.getInt("encounter_id"));
+//				encounter.setEncounter_datetime(rs.getDate("encounter_datetime"));
+//				encounter.setForm_id(form_id);
+//				encounter.setEncounter_type(encTYPE);
+//				encounter.setUuid(UUID.randomUUID());
+//				encounter.setCreator(1);
+//				encounter.setDate_changed(rs.getDate("date_changed"));
+//				encounter.setDate_created(rs.getDate("date_created"));
+//				encounter.setLocation_id(8);
+//				encounter.setPatient_id(rs.getInt("patient_id"));
+//				encounter.setVisit_id(vID);
+//				allEncounters.add(encounter);
+//			}
+//			rs.close();
+//			Platform.runLater(()->{
+//				logToConsole("\n Encounters Successfully Fetched!");
+//			});
+//		} catch (SQLException se) {
+//			//Handle errors for JDBC
+//			se.printStackTrace();
+//			Platform.runLater(()->{
+//				logToConsole("\n Error: " + se.getMessage());
+//			});
+//		} catch (Exception e) {
+//			//Handle errors for Class.forName
+//			e.printStackTrace();
+//			Platform.runLater(()->{
+//				logToConsole("\n Error: " + e.getMessage());
+//			});
+//		} finally {
+//			//finally block used to close resources
+//			try {
+//				if (stmt1 != null)
+//					conn1.close();
+//			} catch (SQLException se) {
+//			}// do nothing
+//			closeConnection(conn1);
+//		}//end try
+//		Platform.runLater(()->{
+//			logToConsole("\n Building Observations!");
+//		});
+//		//		String obsSQL = ;
+//		List<Obs> encOb = getObs(obsSQL);
+//		//		System.out.println(encOb);
+//		if(encOb.size() > 0){
+//			Platform.runLater(()->{
+//				logToConsole("\n OBS Size: "+encOb.size());
+//				lblTotal.setText(""+allEncounters.size());
+//			});
+//			ObservableList<Encounter> listEnc = FXCollections.observableArrayList();
+//			List<Obs> collectedObs = new ArrayList<>();
+//			encounterTask = new Task<ObservableList<Encounter>>() {
+//
+//				@Override
+//				protected ObservableList<Encounter> call() throws Exception {
+//
+//					String INSERT_SQL = "INSERT IGNORE INTO encounter"
+//							+ "(encounter_id, encounter_type, patient_id, location_id, form_id, encounter_datetime, creator, date_created, " +
+//							"date_changed, voided, date_voided, void_reason, uuid, visit_id) " +
+//							"VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+//
+//					Platform.runLater(()->{
+//						logToConsole("\n Connecting to destination DB! \n");
+//					});
+//					try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+//						conn.setAutoCommit(false);
+//						try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+//							Integer wDone = 1;
+//							// Insert sample records
+//
+//							for (Encounter module : allEncounters) {
+//								encOb.stream().filter(ob-> module.getPatient_id() == ob.getPerson_id()).forEach(ob -> {
+//									ob.setEncounter_id(module.getEncounter_id());
+//									collectedObs.add(ob);
+//								});
+//
+//								//								logToConsole("Total number of Obs"+encOb);
+//								//								logToConsole("Total number of Enc Obs"+encObs);
+//								//								try {
+//								stmt.setInt(1, module.getEncounter_id());
+//								stmt.setInt(2, module.getEncounter_type());
+//								stmt.setInt(3, module.getPatient_id());
+//								stmt.setInt(4, module.getLocation_id());
+//								stmt.setInt(5, module.getForm_id());
+//								stmt.setDate(6, new Date(module.getEncounter_datetime().getTime()));
+//								stmt.setInt(7, module.getCreator());
+//								if (module.getDate_created() != null)
+//									stmt.setDate(8, new Date(module.getDate_created().getTime()));
+//								else
+//									stmt.setDate(8, null);
+//								if (module.getDate_changed() != null)
+//									stmt.setDate(9, new Date(module.getDate_changed().getTime()));
+//								else
+//									stmt.setDate(9, null);
+//								stmt.setBoolean(10, module.isVoided());
+//								if (module.getDate_voided() != null)
+//									stmt.setDate(11, new Date(module.getDate_voided().getTime()));
+//								else
+//									stmt.setDate(11, null);
+//								stmt.setString(12, module.getVoid_reason());
+//								stmt.setString(13, module.getUuid().toString());
+//								stmt.setInt(14, module.getVisit_id());
+//
+//								//																	new Thread(new Task<String>(){
+//								//																		@Override
+//								//																		protected String call() throws Exception {
+//								Platform.runLater(()->{
+//									lblCount.setText(wDone.toString());
+//								});
+//
+//								//																			return null;
+//								//																		}
+//								//																	}).start();
+//								//Add statement to batch
+//								stmt.addBatch();
+//								updateProgress(wDone + 1, allEncounters.size());
+//								Integer pDone = ((wDone + 1) / allEncounters.size()) * 100;
+//
+//								listEnc.add(module);
+//							}
+//							//execute batch()
+//							//							try {
+//							stmt.executeBatch();
+//							Platform.runLater(()->{
+//								logToConsole("Encounter Transaction is committed successfully.");
+//							});
+//							//							} catch (Exception ex) {
+//							//								logToConsole("Error in batch insert: " + ex.getMessage());
+//							//								closeConnection(conn);
+//							//							}
+//
+//						} catch (SQLException e) {
+//							Platform.runLater(()->{
+//								logToConsole("Error running Insert statement: " + e.getMessage());
+//							});
+//							e.printStackTrace();
+//							rollbackTransaction(conn, e);
+//						}catch (Exception e) {
+//							Platform.runLater(()->{
+//								logToConsole("Error running Insert statement: " + e.getMessage());
+//							});
+//							e.printStackTrace();
+//							rollbackTransaction(conn, e);
+//						}
+//						conn.commit();
+//					} catch (SQLException e) {
+//						Platform.runLater(()->{
+//							logToConsole("Error Establishing connection: " + e.getMessage());
+//						});
+//						e.printStackTrace();
+//
+//					}
+//					return listEnc;
+//				}
+//			};
+//
+//			//			new Thread(()->{
+//			createObs(encOb);
+//			//			}).start();
+//
+//			if(progressBar.progressProperty().isBound()){
+//				progressBar.progressProperty().unbind();
+//				progressIndicator.progressProperty().unbind();
+//			}
+//			progressBar.progressProperty().bind(encounterTask.progressProperty());
+//			progressIndicator.progressProperty().bind(encounterTask.progressProperty());
+//
+//			new Thread(encounterTask).start();
+//		}else{
+//			Platform.runLater(()->{
+//				logToConsole("\n No Observation found!");
+//			});
+//		}
+//
+//		//###################################
+//	}
 
+	public void createClientTrackingEncounter(){
 	}
 	public void createLabEncounter(){
-		String encSQL = "Select * from encounter where encounter_type=5 and voided = 0 "
-				+ "group by patient_id";
+		String encSQL = "Select * from encounter where encounter_type=5 and voided = 0 ";
 		int form_id= 21;
 		int encTYPE= 11;
-		String obsSQL = "Select obs.* from obs LEFT JOIN encounter on obs.encounter_id=encounter.encounter_id where encounter_type=5";
+		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where encounter_type=5";
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
 
@@ -757,7 +1216,7 @@ public class EncounterObsController {
 //			@Override
 //			protected ObservableList<Encounter> call() throws Exception {
 //
-//					String INSERT_SQL = "INSERT INTO encounter"
+//					String INSERT_SQL = "INSERT IGNORE INTO encounter"
 //							+ "(encounter_id, encounter_type, patient_id, location_id, form_id, encounter_datetime, creator, date_created, " +
 //							"date_changed, voided, date_voided, void_reason, uuid, visit_id) " +
 //							"VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -804,7 +1263,7 @@ public class EncounterObsController {
 //
 ////									Obs currentObs = new Obs();
 ////
-////									String OBS_INSERT_SQL = "INSERT INTO obs"
+////									String OBS_INSERT_SQL = "INSERT IGNORE INTO obs"
 ////											+ "(person_id, concept_id, encounter_id, order_id, obs_datetime, location_id," +
 ////											"accession_number, value_group_id, value_coded, value_coded_name_id, value_drug, value_datetime, " +
 ////											"value_numeric, value_modifier, value_text, value_complex, comments," +
@@ -963,7 +1422,7 @@ public class EncounterObsController {
 
 		Obs currentObs = new Obs();
 
-		String OBS_INSERT_SQL = "INSERT INTO obs"
+		String OBS_INSERT_SQL = "INSERT IGNORE INTO obs"
 				+ "(person_id, concept_id, encounter_id, order_id, obs_datetime, location_id," +
 				"accession_number, value_group_id, value_coded, value_coded_name_id, value_drug, value_datetime, " +
 				"value_numeric, value_modifier, value_text, value_complex, comments," +

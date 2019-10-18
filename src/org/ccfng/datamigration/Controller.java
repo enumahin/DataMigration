@@ -359,11 +359,10 @@ public class Controller {
         });
 
         appConsole.clear();
-//            logToConsole("Loading Data Please wait...");
 
-        Thread loderThread = new Thread(this::dataLoader);
+//        Thread loderThread = new Thread(this::dataLoader);
 
-        loderThread.start();
+//        loderThread.start();
 
     }
 
@@ -4972,6 +4971,33 @@ public class Controller {
 
             stage.setScene(scene);
             stage.setTitle("OpenMRS Encounter & Obs Migration!");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void openmrsMigration(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/openmrsmigration/openmrsmigration.fxml").openStream());
+
+            org.ccfng.openmrsmigration.Controller controller = (org.ccfng.openmrsmigration.Controller) fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("OpenMRS Migration!");
             stage.setResizable(false);
             stage.alwaysOnTopProperty();
             stage.show();

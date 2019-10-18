@@ -64,6 +64,8 @@
                                           text="Data Migration" />
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem mnemonicParsing="false" onAction="#encObsDialog" text="Encounter / Obs" />
+                                <SeparatorMenuItem mnemonicParsing="false" />
+                                <MenuItem mnemonicParsing="false" onAction="#openmrsMigration" text="OpenMRS Migration" />
                             </items>
                    </Menu>
                   <Menu mnemonicParsing="false" text="Help">
