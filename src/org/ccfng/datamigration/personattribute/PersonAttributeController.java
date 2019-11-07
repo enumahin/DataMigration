@@ -1,6 +1,6 @@
 package org.ccfng.datamigration.personattribute;
 
-
+import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -9,8 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 
 public class PersonAttributeController {
     
@@ -50,7 +48,7 @@ public class PersonAttributeController {
 
     }
 
-    public void xmlToPersonAttribute() throws JAXBException {
+    public void xmlToPersonAttribute() {
 
         List<PersonAttribute> allPersonAttributes = new ArrayList<PersonAttribute>();
         PersonAttributes personAttributes = new PersonAttributes();

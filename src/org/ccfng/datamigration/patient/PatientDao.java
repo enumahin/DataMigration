@@ -1,14 +1,10 @@
 package org.ccfng.datamigration.patient;
 
-import org.ccfng.datamigration.patient.Patient;
+import java.util.List;
 import org.ccfng.datamigration.session.SessionManager;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-
-import java.util.List;
 
 
 public class PatientDao implements PatientDAOInterface<Patient, String> {
@@ -48,7 +44,7 @@ public class PatientDao implements PatientDAOInterface<Patient, String> {
 
     public Patient findById(String id) {
         sessionManager.openCurrentSessionwithTransaction();
-        Patient patient = (Patient) sessionManager.getCurrentSession().get(Patient.class, id);
+        Patient patient = sessionManager.getCurrentSession().get(Patient.class, id);
         sessionManager.closeCurrentSessionwithTransaction();
         return patient;
     }

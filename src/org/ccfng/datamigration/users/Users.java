@@ -29,12 +29,10 @@ public class Users {
         if (o == this) return true;
         if (!(o instanceof Users)) return false;
         final Users other = (Users) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         final Object this$users = this.getUsers();
         final Object other$users = other.getUsers();
-        if (this$users == null ? other$users != null : !this$users.equals(other$users))
-            return false;
-        return true;
+	    return this$users == null ? other$users == null : this$users.equals(other$users);
     }
 
     public int hashCode() {

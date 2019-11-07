@@ -45,7 +45,7 @@ public class Controller {
 		Task<String> task = new Task<String>() {
 
 			@Override
-			protected String call() throws Exception {
+			protected String call() {
 				Platform.runLater(() -> {
 					if (text != null)
 						appConsole.appendText(text);
@@ -61,7 +61,7 @@ public class Controller {
 		vlTask = new Task<ObservableList<VL>>() {
 
 			@Override
-			protected ObservableList<VL> call() throws Exception {
+			protected ObservableList<VL> call() {
 
 				String sql = "SELECT pa.patient_id as patientID, "
 						+ "patient_identifier.identifier AS pepfarID,"
@@ -112,7 +112,7 @@ public class Controller {
 				} catch (Exception exc) {
 					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 				}
-				try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());) {
+				try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword())) {
 					logToConsole("\n Source Database connection successful..");
 
 					logToConsole("\n Fetching Eligibility List Please wait...");

@@ -1,5 +1,6 @@
 package org.ccfng.datamigration.personaddress;
 
+import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -8,8 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 
 public class PersonAddressController {
     private final PersonAddressService PersonAddressService;
@@ -45,7 +44,7 @@ public class PersonAddressController {
 
     }
 
-    public void xmlToPersonAddress() throws JAXBException {
+    public void xmlToPersonAddress() {
 
         List<PersonAddress> allPersonAddresses = new ArrayList<PersonAddress>();
         PersonAddresses PersonAddresses = new PersonAddresses();

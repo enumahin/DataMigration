@@ -1,8 +1,7 @@
 package org.ccfng.datamigration.personaddress;
 
-import org.ccfng.datamigration.session.SessionManager;
-
 import java.util.List;
+import org.ccfng.datamigration.session.SessionManager;
 
 
 public class PersonAddressDao implements PersonAddressDAOInterface<PersonAddress, String> {
@@ -31,7 +30,7 @@ public class PersonAddressDao implements PersonAddressDAOInterface<PersonAddress
 
     public PersonAddress findById(String id) {
         sessionManager.openCurrentSessionwithTransaction();
-        PersonAddress personAddress = (PersonAddress) sessionManager.getCurrentSession().get(PersonAddress.class, id);
+        PersonAddress personAddress = sessionManager.getCurrentSession().get(PersonAddress.class, id);
         sessionManager.closeCurrentSessionwithTransaction();
         return personAddress;
     }

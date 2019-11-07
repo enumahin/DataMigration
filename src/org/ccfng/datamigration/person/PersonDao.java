@@ -1,8 +1,7 @@
 package org.ccfng.datamigration.person;
 
-import org.ccfng.datamigration.session.SessionManager;
-
 import java.util.List;
+import org.ccfng.datamigration.session.SessionManager;
 
 
 public class PersonDao implements PersonDAOInterface<Person, String> {
@@ -31,7 +30,7 @@ public class PersonDao implements PersonDAOInterface<Person, String> {
 
     public Person findById(String id) {
         sessionManager.openCurrentSessionwithTransaction();
-        Person person = (Person) sessionManager.getCurrentSession().get(Person.class, id);
+        Person person = sessionManager.getCurrentSession().get(Person.class, id);
         sessionManager.closeCurrentSessionwithTransaction();
         return person;
     }

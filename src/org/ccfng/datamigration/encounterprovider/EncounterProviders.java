@@ -29,12 +29,12 @@ public class EncounterProviders {
         if (o == this) return true;
         if (!(o instanceof EncounterProviders)) return false;
         final EncounterProviders other = (EncounterProviders) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         final Object this$encounterproviders = this.getEncounterProviders();
         final Object other$encounterproviders = other.getEncounterProviders();
-        if (this$encounterproviders == null ? other$encounterproviders != null : !this$encounterproviders.equals(other$encounterproviders))
-            return false;
-        return true;
+	    return this$encounterproviders == null ?
+			    other$encounterproviders == null :
+			    this$encounterproviders.equals(other$encounterproviders);
     }
 
     public int hashCode() {

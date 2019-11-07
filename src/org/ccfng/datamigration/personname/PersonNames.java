@@ -29,12 +29,10 @@ public class PersonNames {
         if (o == this) return true;
         if (!(o instanceof PersonNames)) return false;
         final PersonNames other = (PersonNames) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         final Object this$person_names = this.getPerson_names();
         final Object other$person_names = other.getPerson_names();
-        if (this$person_names == null ? other$person_names != null : !this$person_names.equals(other$person_names))
-            return false;
-        return true;
+	    return this$person_names == null ? other$person_names == null : this$person_names.equals(other$person_names);
     }
 
     public int hashCode() {

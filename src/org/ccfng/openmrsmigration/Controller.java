@@ -603,10 +603,10 @@ public class Controller {
 							"VALUES ( ?,?,?,?,?,?,?,?,?)";
 
 					try (Connection conn1 = DriverManager
-							.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+							.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
 						logToConsole("\nConnected");
 						conn1.setAutoCommit(false);
-						try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);) {
+						try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 							// Insert sample records
 							Visit vs = new Visit();
 //							logToConsole("\nQuery Executed");
@@ -771,7 +771,7 @@ public class Controller {
 			});
 		}
 		try (Connection conn = DriverManager
-				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
 			Platform.runLater(()->{
 				logToConsole("\n Destination Database connection successful..");
 			});
@@ -826,7 +826,7 @@ public class Controller {
 			});
 		}
 		try (Connection conn = DriverManager
-				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
 			Platform.runLater(()->{
 				logToConsole("\n Destination Database connection successful..");
 			});
@@ -903,7 +903,7 @@ public class Controller {
 	public void logToConsole(String text) {
 				Task<String> task = new Task<String>() {
 					@Override
-					protected String call() throws Exception {
+					protected String call() {
 						Platform.runLater(() -> {
 							if (text != null)
 								console.appendText(text);

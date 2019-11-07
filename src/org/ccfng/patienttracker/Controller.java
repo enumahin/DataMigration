@@ -154,7 +154,7 @@ public class Controller {
 				} catch (Exception exc) {
 					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 				}
-				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 					logToConsole("\n Source Database connection successful..");
 
 					logToConsole("\n Fetching Appointment List Please wait...");

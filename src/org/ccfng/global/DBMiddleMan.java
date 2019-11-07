@@ -93,7 +93,7 @@ public class DBMiddleMan {
 			catch (Exception exc) {
 			}
 //			System.out.println(cc.getSource_jdbcUrl()+ " "+ cc.getSourceDb()+" "+cc.getSourceUsername()+" "+cc.getSourcePassword());
-			try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());) {
+			try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword())) {
 				stmt = conn.prepareStatement(sql);
 				stmt.setFetchSize(500);
 				ResultSet rs = stmt.executeQuery(sql);

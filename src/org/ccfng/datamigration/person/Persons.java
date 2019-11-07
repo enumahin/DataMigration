@@ -28,11 +28,10 @@ public class Persons {
         if (o == this) return true;
         if (!(o instanceof Persons)) return false;
         final Persons other = (Persons) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         final Object this$persons = this.getPersons();
         final Object other$persons = other.getPersons();
-        if (this$persons == null ? other$persons != null : !this$persons.equals(other$persons)) return false;
-        return true;
+	    return this$persons == null ? other$persons == null : this$persons.equals(other$persons);
     }
 
     public int hashCode() {

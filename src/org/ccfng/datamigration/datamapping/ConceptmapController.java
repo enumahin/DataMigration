@@ -99,7 +99,7 @@ public class ConceptmapController {
 		mapperTask = new Task<ObservableList<Mapper>>() {
 
 			@Override
-			protected ObservableList<Mapper> call() throws Exception {
+			protected ObservableList<Mapper> call() {
 
 
 		Connection conn = null;
@@ -234,7 +234,7 @@ public class ConceptmapController {
 		unmapperTask = new Task<ObservableList<Mapper>>() {
 
 			@Override
-			protected ObservableList<Mapper> call() throws Exception {
+			protected ObservableList<Mapper> call() {
 
 
 				Connection conn = null;

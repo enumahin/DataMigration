@@ -1,10 +1,8 @@
 package org.ccfng.datamigration.personname;
 
+import java.util.List;
 import com.sun.istack.internal.Nullable;
 import org.ccfng.datamigration.session.SessionManager;
-import org.hibernate.Session;
-
-import java.util.List;
 
 
 public class PersonNameDao implements PersonNameDAOInterface<PersonName, String> {
@@ -36,7 +34,7 @@ public class PersonNameDao implements PersonNameDAOInterface<PersonName, String>
         PersonName personName = null;
         try {
             sessionManager.openCurrentSessionwithTransaction();
-                personName = (PersonName) sessionManager.getCurrentSession().get(PersonName.class, id);
+                personName = sessionManager.getCurrentSession().get(PersonName.class, id);
             sessionManager.closeCurrentSessionwithTransaction();
             return personName;
         }catch (Exception ex){

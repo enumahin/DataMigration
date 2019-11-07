@@ -706,10 +706,10 @@ public class Controller {
 						String username = SessionManager.username;
 						String password = SessionManager.password;
 						Class.forName("com.mysql.jdbc.Driver");
-						try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+						try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 							logToConsole("\n Loading Data..!\n");
 							conn.setAutoCommit(false);
-							try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+							try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
 								logToConsole("\n Loading Data...!\n");
 								int wDone = 0;
 								// Insert sample records
@@ -872,7 +872,7 @@ public class Controller {
 
         encounterTask = new Task<ObservableList<Encounter>>() {
             @Override
-            protected ObservableList<Encounter> call() throws Exception {
+            protected ObservableList<Encounter> call() {
 
                 try {
                     allEncounters = FXCollections.observableArrayList();
@@ -1072,9 +1072,9 @@ public class Controller {
                         String username = SessionManager.username;
                         String password = SessionManager.password;
                         logToConsole("\n Connecting to destination DB! \n");
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 int wDone = 0;
                                 // Insert sample records
                                 for (Encounter module : allEncounters) {
@@ -1210,7 +1210,7 @@ public class Controller {
 
         obsTask = new Task<ObservableList<Obs>>() {
             @Override
-            protected ObservableList<Obs> call() throws Exception {
+            protected ObservableList<Obs> call() {
                 try {
                     allObses = FXCollections.observableArrayList();
                     Obses obses = new Obses();
@@ -1521,10 +1521,10 @@ public class Controller {
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
                         String username = SessionManager.username;
                         String password = SessionManager.password;
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 int wDone = 0;
                                 // Insert sample records
 
@@ -1675,7 +1675,7 @@ public class Controller {
     private void loadPatient() {
         patientTask = new Task<ObservableList<Patient>>() {
             @Override
-            protected ObservableList<Patient> call() throws Exception {
+            protected ObservableList<Patient> call() {
                 try {
                     allPatients = FXCollections.observableArrayList();
                     Patients patients = new Patients();
@@ -1786,10 +1786,10 @@ public class Controller {
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
                         String username = SessionManager.username;
                         String password = SessionManager.password;
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
                             logToConsole("\n Loading Data..!\n");
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 logToConsole("\n Loading Data...!\n");
                                 int wDone = 0;
                                 // Insert sample records
@@ -1856,7 +1856,7 @@ public class Controller {
     private void loadPatientIdentifier() {
         patientIdentifierTask = new Task<ObservableList<PatientIdentifier>>() {
             @Override
-            protected ObservableList<PatientIdentifier> call() throws Exception {
+            protected ObservableList<PatientIdentifier> call() {
                 try {
                     allPatientIdentifiers = FXCollections.observableArrayList();
                     PatientIdentifiers patientIdentifiers = new PatientIdentifiers();
@@ -1979,10 +1979,10 @@ public class Controller {
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
                         String username = SessionManager.username;
                         String password = SessionManager.password;
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 int wDone = 0;
                                 // Insert sample records
                                 for (PatientIdentifier module : allPatientIdentifiers) {
@@ -2050,7 +2050,7 @@ public class Controller {
     private void loadPatientProgram() {
         patientProgramTask = new Task<ObservableList<PatientProgram>>() {
             @Override
-            protected ObservableList<PatientProgram> call() throws Exception {
+            protected ObservableList<PatientProgram> call() {
                 try {
                     allPatientPrograms = FXCollections.observableArrayList();
                     PatientPrograms patientPrograms = new PatientPrograms();
@@ -2181,10 +2181,10 @@ public class Controller {
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true";
                         String username = SessionManager.username;
                         String password = SessionManager.password;
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 int wDone = 0;
                                 // Insert sample records
                                 logToConsole("\n Loading Data.!!\n");
@@ -2269,7 +2269,7 @@ public class Controller {
     private void loadPerson() {
         personTask = new Task<ObservableList<Person>>() {
             @Override
-            protected ObservableList<Person> call() throws Exception {
+            protected ObservableList<Person> call() {
 
                 try {
                     allPersons = FXCollections.observableArrayList();
@@ -2397,10 +2397,10 @@ public class Controller {
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
                         String username = SessionManager.username;
                         String password = SessionManager.password;
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 int wDone = 0;
                                 // Insert sample records
                                 for (Person person : allPersons) {
@@ -2480,7 +2480,7 @@ public class Controller {
     private void loadPersonAddress() {
         personAddressTask = new Task<ObservableList<PersonAddress>>() {
             @Override
-            protected ObservableList<PersonAddress> call() throws Exception {
+            protected ObservableList<PersonAddress> call() {
                 try {
                     allPersonAddresses = FXCollections.observableArrayList();
                     PersonAddresses personAddressses = new PersonAddresses();
@@ -2619,10 +2619,10 @@ public class Controller {
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true";
                         String username = SessionManager.username;
                         String password = SessionManager.password;
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 int wDone = 0;
                                 // Insert sample records
                                 for (PersonAddress module : allPersonAddresses) {
@@ -2721,7 +2721,7 @@ public class Controller {
     private void loadPersonAttribute() {
         personAttributeTask = new Task<ObservableList<PersonAttribute>>() {
             @Override
-            protected ObservableList<PersonAttribute> call() throws Exception {
+            protected ObservableList<PersonAttribute> call() {
                 try {
                     allPersonAttributes = FXCollections.observableArrayList();
                     PersonAttributes personAttributes = new PersonAttributes();
@@ -2836,10 +2836,10 @@ public class Controller {
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true";
                         String username = SessionManager.username;
                         String password = SessionManager.password;
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 int wDone = 0;
                                 // Insert sample records
                                 for (PersonAttribute module : allPersonAttributes) {
@@ -2905,7 +2905,7 @@ public class Controller {
     private void loadPersonName() {
         personNameTask = new Task<ObservableList<PersonName>>() {
             @Override
-            protected ObservableList<PersonName> call() throws Exception {
+            protected ObservableList<PersonName> call() {
                 try {
                     allPersonNames = FXCollections.observableArrayList();
                     PersonNames personNames = new PersonNames();
@@ -3027,10 +3027,10 @@ public class Controller {
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
                         String username = SessionManager.username;
                         String password = SessionManager.password;
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 //                        logToConsole("Connecting here!");
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 int wDone = 0;
 //                            logToConsole("Preparing statement here!");
                                 // Insert sample records
@@ -3109,7 +3109,7 @@ public class Controller {
     private void loadVisit() {
         visitTask = new Task<ObservableList<Visit>>() {
             @Override
-            protected ObservableList<Visit> call() throws Exception {
+            protected ObservableList<Visit> call() {
                 try {
                     allVisits = FXCollections.observableArrayList();
                     Visits visits = new Visits();
@@ -3260,10 +3260,10 @@ public class Controller {
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
                         String username = SessionManager.username;
                         String password = SessionManager.password;
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 int wDone = 0;
                                 // Insert sample records
                                 for (Visit module : allVisits) {
@@ -3453,10 +3453,10 @@ public class Controller {
                         String username = SessionManager.username;
                         String password = SessionManager.password;
                         Class.forName("com.mysql.jdbc.Driver");
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
                             logToConsole("\n Loading Data..!\n");
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 logToConsole("\n Loading Data...!\n");
                                 int wDone = 0;
                                 // Insert sample records
@@ -3652,10 +3652,10 @@ public class Controller {
                         String username = SessionManager.username;
                         String password = SessionManager.password;
                         Class.forName("com.mysql.jdbc.Driver");
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
                             logToConsole("\n Loading Data..!\n");
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 logToConsole("\n Loading Data...!\n");
                                 int wDone = 0;
                                 // Insert sample records
@@ -3849,10 +3849,10 @@ public class Controller {
                         String username = SessionManager.username;
                         String password = SessionManager.password;
                         Class.forName("com.mysql.jdbc.Driver");
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
                             logToConsole("\n Loading Data..!\n");
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
                                 logToConsole("\n Loading Data...!\n");
                                 int wDone = 0;
                                 // Insert sample records
@@ -3986,7 +3986,7 @@ public class Controller {
         } catch (Exception exc) {
             logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
         }
-        try (Connection conn = DriverManager.getConnection(jdbcUrl, SessionManager.username, SessionManager.password);) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, SessionManager.username, SessionManager.password)) {
             logToConsole("\n Destination Database connection successful..");
         } catch (SQLException e) {
             logToConsole("\n Error: " + e.getMessage());
@@ -4026,10 +4026,10 @@ public class Controller {
         String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
 
-        try (Connection conn = DriverManager.getConnection(jdbcUrl, SessionManager.username, SessionManager.password);) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, SessionManager.username, SessionManager.password)) {
 
             conn.setAutoCommit(false);
-            try (PreparedStatement stmt = conn.prepareStatement(SET_SQL);) {
+            try (PreparedStatement stmt = conn.prepareStatement(SET_SQL)) {
                 //execute batch
                 stmt.execute(SET_SQL);
                 conn.commit();
@@ -4104,10 +4104,10 @@ public class Controller {
         } catch (Exception exc) {
             logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
         }
-        try (Connection conn = DriverManager.getConnection(jdbcUrl, SessionManager.username, SessionManager.password);) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, SessionManager.username, SessionManager.password)) {
 
             conn.setAutoCommit(false);
-            try (PreparedStatement stmt = conn.prepareStatement(TRUNCATE_SQL);) {
+            try (PreparedStatement stmt = conn.prepareStatement(TRUNCATE_SQL)) {
                 //execute batch
                 stmt.execute(TRUNCATE_SQL);
                 conn.commit();
@@ -4181,12 +4181,12 @@ public class Controller {
         } catch (Exception exc) {
             logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
         }
-        try (Connection conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);) {
+        try (Connection conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password)) {
 //            if(actionComboBox.getSelectionModel().getSelectedItem() == "Create" ||
 //                    actionComboBox.getSelectionModel().getSelectedItem() == "Delete" ||
 //                    actionComboBox.getSelectionModel().getSelectedItem() == "Update"){
             conn.setAutoCommit(false);
-            try (Statement smt = conn.createStatement();) {
+            try (Statement smt = conn.createStatement()) {
                 //execute batch
 
                 smt.execute(sql);
@@ -4766,7 +4766,7 @@ public class Controller {
         } catch (Exception exc) {
             logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
         }
-        try (Connection conn = DriverManager.getConnection(jdbcUrl, SessionManager.username, SessionManager.password);) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, SessionManager.username, SessionManager.password)) {
             logToConsole("\n Destination Database connection successful..");
 
 
@@ -4826,9 +4826,9 @@ public class Controller {
 
             FXMLLoader fxmlLoader = new FXMLLoader();
 
-            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/openmrscleanup/openmrs_cleanup.fxml").openStream());
+            Pane root = fxmlLoader.load(getClass().getResource("/org/ccfng/openmrscleanup/openmrs_cleanup.fxml").openStream());
 
-            OpenmrsCleanupController openmrsController = (OpenmrsCleanupController) fxmlLoader.getController();
+            OpenmrsCleanupController openmrsController = fxmlLoader.getController();
 
             Scene scene = new Scene(root);
 
@@ -4853,9 +4853,9 @@ public class Controller {
 
             FXMLLoader fxmlLoader = new FXMLLoader();
 
-            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/patienttracker/patienttracker.fxml").openStream());
+            Pane root = fxmlLoader.load(getClass().getResource("/org/ccfng/patienttracker/patienttracker.fxml").openStream());
 
-            org.ccfng.patienttracker.Controller controller = (org.ccfng.patienttracker.Controller) fxmlLoader.getController();
+            org.ccfng.patienttracker.Controller controller = fxmlLoader.getController();
 
             Scene scene = new Scene(root);
 
@@ -4880,9 +4880,9 @@ public class Controller {
 
             FXMLLoader fxmlLoader = new FXMLLoader();
 
-            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/viralload/viralload.fxml").openStream());
+            Pane root = fxmlLoader.load(getClass().getResource("/org/ccfng/viralload/viralload.fxml").openStream());
 
-            org.ccfng.viralload.Controller controller = (org.ccfng.viralload.Controller) fxmlLoader.getController();
+            org.ccfng.viralload.Controller controller = fxmlLoader.getController();
 
             Scene scene = new Scene(root);
 
@@ -4907,9 +4907,9 @@ public class Controller {
 
             FXMLLoader fxmlLoader = new FXMLLoader();
 
-            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/linelist/linelist.fxml").openStream());
+            Pane root = fxmlLoader.load(getClass().getResource("/org/ccfng/linelist/linelist.fxml").openStream());
 
-            org.ccfng.linelist.Controller controller = (org.ccfng.linelist.Controller) fxmlLoader.getController();
+            org.ccfng.linelist.Controller controller = fxmlLoader.getController();
 
             Scene scene = new Scene(root);
 
@@ -4935,9 +4935,9 @@ public class Controller {
 
             FXMLLoader fxmlLoader = new FXMLLoader();
 
-            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/datamigration/datamapping/conceptmap.fxml").openStream());
+            Pane root = fxmlLoader.load(getClass().getResource("/org/ccfng/datamigration/datamapping/conceptmap.fxml").openStream());
 
-            ConceptmapController controller = (org.ccfng.datamigration.datamapping.ConceptmapController) fxmlLoader.getController();
+            ConceptmapController controller = fxmlLoader.getController();
 
             Scene scene = new Scene(root);
 
@@ -4963,9 +4963,9 @@ public class Controller {
 
             FXMLLoader fxmlLoader = new FXMLLoader();
 
-            Pane root = (Pane) fxmlLoader.load(getClass().getResource("encobs.fxml").openStream());
+            Pane root = fxmlLoader.load(getClass().getResource("encobs.fxml").openStream());
 
-            EncounterObsController controller = (EncounterObsController) fxmlLoader.getController();
+            EncounterObsController controller = fxmlLoader.getController();
 
             Scene scene = new Scene(root);
 
@@ -4990,9 +4990,9 @@ public class Controller {
 
             FXMLLoader fxmlLoader = new FXMLLoader();
 
-            Pane root = (Pane) fxmlLoader.load(getClass().getResource("/org/ccfng/openmrsmigration/openmrsmigration.fxml").openStream());
+            Pane root = fxmlLoader.load(getClass().getResource("/org/ccfng/openmrsmigration/openmrsmigration.fxml").openStream());
 
-            org.ccfng.openmrsmigration.Controller controller = (org.ccfng.openmrsmigration.Controller) fxmlLoader.getController();
+            org.ccfng.openmrsmigration.Controller controller = fxmlLoader.getController();
 
             Scene scene = new Scene(root);
 

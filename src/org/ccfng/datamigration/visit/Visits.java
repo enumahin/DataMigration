@@ -28,11 +28,10 @@ public class Visits {
         if (o == this) return true;
         if (!(o instanceof Visits)) return false;
         final Visits other = (Visits) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         final Object this$visits = this.getVisits();
         final Object other$visits = other.getVisits();
-        if (this$visits == null ? other$visits != null : !this$visits.equals(other$visits)) return false;
-        return true;
+	    return this$visits == null ? other$visits == null : this$visits.equals(other$visits);
     }
 
     public int hashCode() {

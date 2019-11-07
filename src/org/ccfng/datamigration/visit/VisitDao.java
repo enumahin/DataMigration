@@ -1,8 +1,7 @@
 package org.ccfng.datamigration.visit;
 
-import org.ccfng.datamigration.session.SessionManager;
-
 import java.util.List;
+import org.ccfng.datamigration.session.SessionManager;
 
 
 public class VisitDao implements VisitDAOInterface<Visit, String> {
@@ -31,7 +30,7 @@ public class VisitDao implements VisitDAOInterface<Visit, String> {
 
     public Visit findById(String id) {
         sessionManager.openCurrentSessionwithTransaction();
-        Visit visit = (Visit) sessionManager.getCurrentSession().get(Visit.class, id);
+        Visit visit = sessionManager.getCurrentSession().get(Visit.class, id);
         sessionManager.closeCurrentSessionwithTransaction();
         return visit;
     }

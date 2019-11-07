@@ -245,9 +245,9 @@ public class OpenmrsCleanupController {
 
 					FXMLLoader fxmlLoader = new FXMLLoader();
 
-					Pane root = (Pane) fxmlLoader.load(getClass().getResource("obs_detail.fxml").openStream());
+					Pane root = fxmlLoader.load(getClass().getResource("obs_detail.fxml").openStream());
 
-					ObsDetailController obsDetailController = (ObsDetailController) fxmlLoader.getController();
+					ObsDetailController obsDetailController = fxmlLoader.getController();
 
 					Scene scene = new Scene(root);
 
@@ -345,7 +345,7 @@ public class OpenmrsCleanupController {
 		locationTask = new Task<ObservableList<Location>>() {
 
 			@Override
-			protected ObservableList<Location> call() throws Exception {
+			protected ObservableList<Location> call() {
 				ObservableList<Location> locations = FXCollections.observableArrayList();
 
 				connectionSettings();
@@ -415,11 +415,11 @@ public class OpenmrsCleanupController {
 				+ "(concept_id,datatype_id, class_id, creator, uuid,date_created)" +
 				"VALUES (null,?,?,?,?,?)";
 		int t3d_id = 0;
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			Class.forName("com.mysql.jdbc.Driver");
 			logToConsole("\n Connecting..!\n");
 			conn.setAutoCommit(false);
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
 				// Insert sample records
 				logToConsole("\n Loading Concept for Regimen "+regimenName.getText()+"...!!\n");
@@ -447,7 +447,7 @@ public class OpenmrsCleanupController {
 				e.printStackTrace();
 				rollbackTransaction(conn, e);
 			}
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS)) {
 				stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
 						+ "VALUES("+presentRegimen.getSelectionModel().getSelectedItem().getKey()+","+t3d_id+",1,UUID(), NOW())");
 
@@ -487,11 +487,11 @@ public class OpenmrsCleanupController {
 				+ "(concept_id,datatype_id, class_id, creator, uuid,date_created)" +
 				"VALUES (null,?,?,?,?,?)";
 
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			Class.forName("com.mysql.jdbc.Driver");
 			logToConsole("\n Connecting..!\n");
 			conn.setAutoCommit(false);
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS)) {
 
 				// Insert sample records
 					logToConsole("\n Loading Concept for Regimen TDF-3TC-DTG...!!\n");
@@ -517,7 +517,7 @@ public class OpenmrsCleanupController {
 				rollbackTransaction(conn, e);
 			}
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS)) {
 				logToConsole("\n Loading Concept for Regimen ABC-3TC-DTG...!!\n");
 				stmt.setInt(1, 4);
 				stmt.setInt(2, 11);
@@ -541,7 +541,7 @@ public class OpenmrsCleanupController {
 				rollbackTransaction(conn, e);
 			}
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS)) {
 				logToConsole("\n Loading Concept for Regimen AZT-3TC-DTG...!!\n");
 				stmt.setInt(1, 4);
 				stmt.setInt(2, 11);
@@ -565,7 +565,7 @@ public class OpenmrsCleanupController {
 				rollbackTransaction(conn, e);
 			}
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS)) {
 				logToConsole("\n Loading Concept for Drug DTG...!!\n");
 				stmt.setInt(1, 4);
 				stmt.setInt(2, 3);
@@ -592,7 +592,7 @@ public class OpenmrsCleanupController {
 				rollbackTransaction(conn, e);
 			}
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS)) {
 				logToConsole("\n Loading Concept for Drug TDF/3TC/DTG...!!\n");
 				stmt.setInt(1, 4);
 				stmt.setInt(2, 3);
@@ -618,7 +618,7 @@ public class OpenmrsCleanupController {
 				rollbackTransaction(conn, e);
 			}
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS)) {
 				logToConsole("\n Loading Concept for Strength 300mg/300mg/50mg...!!\n");
 				stmt.setInt(1, 10);
 				stmt.setInt(2, 5);
@@ -641,7 +641,7 @@ public class OpenmrsCleanupController {
 				rollbackTransaction(conn, e);
 			}
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL,Statement.RETURN_GENERATED_KEYS)) {
 					stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
 							+ "VALUES("+7778108+","+t3d_id+",1,UUID(), NOW())");
 					stmt.execute("INSERT INTO concept_answer (concept_id, answer_concept, creator, uuid, date_created) "
@@ -671,7 +671,7 @@ public class OpenmrsCleanupController {
 				rollbackTransaction(conn, e);
 			}
 			String upD = "UPDATE htmlformentry_html_form set xml_data=? where form_id=?";
-			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS)) {
 				String text = "";
 				try {
 					logToConsole("\n Fetching Pharmacy Form..");
@@ -711,7 +711,7 @@ public class OpenmrsCleanupController {
 				e.printStackTrace();
 				rollbackTransaction(conn, e);
 			}
-			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS)) {
 				String text = "";
 				try {
 					logToConsole("\n Fetching Pediatrics Pharmacy Form..");
@@ -752,7 +752,7 @@ public class OpenmrsCleanupController {
 				rollbackTransaction(conn, e);
 			}
 
-			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS)) {
 				String text = "";
 				try {
 					logToConsole("\n Fetching Care Card Form..");
@@ -786,7 +786,7 @@ public class OpenmrsCleanupController {
 				rollbackTransaction(conn, e);
 			}
 
-			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt = conn.prepareStatement(upD,Statement.RETURN_GENERATED_KEYS)) {
 				String text = "";
 				try {
 					logToConsole("\n Fetching Care Card Follow Up Form..");
@@ -983,7 +983,7 @@ public class OpenmrsCleanupController {
 		} catch (Exception exc) {
 			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 		}
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			logToConsole("\n Destination Database connection successful..");
 
 			stmt = conn.createStatement();
@@ -1173,9 +1173,9 @@ public class OpenmrsCleanupController {
 
 			logToConsole("\n Connecting Encounter! \n");
 			int encounterID = 0;
-			try (Connection conn1 = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+			try (Connection conn1 = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 				conn1.setAutoCommit(false);
-				try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);) {
+				try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 					logToConsole("\n Creating Encounter! \n");
 					try {
 						if(loc == "Pharm")
@@ -1234,7 +1234,7 @@ public class OpenmrsCleanupController {
 						"creator, date_created, voided, date_voided, void_reason, uuid, obs_group_id) " +
 						"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-					try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL2);) {
+					try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL2)) {
 						logToConsole("\n Connecting Obs! \n");
 						for (Obs module : obses) {
 							///try {
@@ -1378,7 +1378,7 @@ public class OpenmrsCleanupController {
 		} catch (Exception exc) {
 			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 		}
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 
 			logToConsole("\n Source Database connection successful..");
 
@@ -1469,7 +1469,7 @@ public class OpenmrsCleanupController {
 		} catch (Exception exc) {
 			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 		}
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 
 			logToConsole("\n Source Database connection successful..");
 
@@ -1537,13 +1537,13 @@ public class OpenmrsCleanupController {
 
 			String INSERT_SQL = "UPDATE obs SET concept_id=?, value_coded=? WHERE obs_id=?";
 
-			try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+			try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 				Class.forName("com.mysql.jdbc.Driver");
 				logToConsole("\n Connecting..!\n");
 				conn.setAutoCommit(false);
 				Regimen regimen = newRegimenComboBox.getSelectionModel().getSelectedItem();
 				System.out.println("Line: "+newRegimen.getSelectionModel().getSelectedItem().getKey());
-				try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+				try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
 
 					// Insert sample records
 					for (PharmacyEncounter pE : pharmacyEncounterTable.getSelectionModel().getSelectedItems()) {
@@ -1658,7 +1658,7 @@ public class OpenmrsCleanupController {
 		} catch (Exception exc) {
 			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 		}
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			logToConsole("\n Source Database connection successful..");
 
 			stmt = conn.createStatement();
@@ -1772,7 +1772,7 @@ public class OpenmrsCleanupController {
 		} catch (Exception exc) {
 			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 		}
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			logToConsole("\n Source Database connection successful..");
 
 			stmt = conn.createStatement();
@@ -1870,7 +1870,7 @@ public class OpenmrsCleanupController {
 		} catch (Exception exc) {
 			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 		}
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			logToConsole("\n Source Database connection successful..");
 
 			stmt = conn.createStatement();
@@ -1972,12 +1972,12 @@ public class OpenmrsCleanupController {
 
 		String INSERT_SQL = "UPDATE obs SET value_datetime=DATE_SUB(?, INTERVAL 21 DAY) WHERE person_id=? AND concept_id=?";
 
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			Class.forName("com.mysql.jdbc.Driver");
 			logToConsole("\n Connecting..!\n");
 			conn.setAutoCommit(false);
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
 
 				for (DateFix dF : dateFixTableView.getSelectionModel().getSelectedItems()) {
 					if(dF.getArtStartDate().toString() != null) {
@@ -2042,12 +2042,12 @@ public class OpenmrsCleanupController {
 
 		String INSERT_SQL = "UPDATE encounter SET encounter_type=? WHERE form_id=? AND encounter_type=?";
 
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			Class.forName("com.mysql.jdbc.Driver");
 			logToConsole("\n Connecting..!\n");
 			conn.setAutoCommit(false);
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
 
 						stmt.setInt(1, 12);
 						stmt.setInt(2, 56);
@@ -2094,12 +2094,12 @@ public class OpenmrsCleanupController {
 
 		String INSERT_SQL = "UPDATE encounter SET encounter_datetime=? WHERE encounter_id=?";
 
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			Class.forName("com.mysql.jdbc.Driver");
 			logToConsole("\n Connecting..!\n");
 			conn.setAutoCommit(false);
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
 				if(loc == "Phram") {
 					for (LastCarePharmacy lCF : missingPharmacyTable.getSelectionModel().getSelectedItems()) {
 						stmt.setDate(1,
@@ -2148,12 +2148,12 @@ public class OpenmrsCleanupController {
 
 		String INSERT_SQL = "UPDATE obs SET value_datetime=DATE_ADD(?, INTERVAL "+plus+" DAY) WHERE obs_id=?";
 
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			Class.forName("com.mysql.jdbc.Driver");
 			logToConsole("\n Connecting..!\n");
 			conn.setAutoCommit(false);
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
 
 				for (LastCarePharmacy dF : nextAppointmentTable.getSelectionModel().getSelectedItems()) {
 					logToConsole("\n Loading Selected Data...!!\n");
@@ -2486,7 +2486,7 @@ public class OpenmrsCleanupController {
 				} catch (Exception exc) {
 					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 				}
-				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 					logToConsole("\n Destination Database connection successful..");
 
 					logToConsole("\n Fetching List Please wait...");
@@ -2630,7 +2630,7 @@ public class OpenmrsCleanupController {
 				} catch (Exception exc) {
 					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 				}
-				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 					logToConsole("\n Destination Database connection successful..");
 
 					logToConsole("\n Fetching Appointment List Please wait...");
@@ -2715,7 +2715,7 @@ public class OpenmrsCleanupController {
 		weightHeightTask = new Task<ObservableList<PharmacyEncounter>>() {
 
 			@Override
-			protected ObservableList<PharmacyEncounter> call() throws Exception {
+			protected ObservableList<PharmacyEncounter> call() {
 
 				ObservableList<PharmacyEncounter> lastCarePharmacyEncounters = FXCollections.observableArrayList();
 				appConsole.clear();
@@ -2728,7 +2728,7 @@ public class OpenmrsCleanupController {
 				} catch (Exception exc) {
 					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 				}
-				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+				try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 					logToConsole("\n Source Database connection successful..");
 
 					stmt = conn.createStatement();
@@ -2840,12 +2840,12 @@ public class OpenmrsCleanupController {
 
 		String INSERT_SQL = "UPDATE obs SET value_numeric=? WHERE obs_id=?";
 
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			Class.forName("com.mysql.jdbc.Driver");
 			logToConsole("\n Connecting..!\n");
 			conn.setAutoCommit(false);
 
-			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+			try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
 
 				for (PharmacyEncounter dF : weightHeightTable.getSelectionModel().getSelectedItems()) {
 
@@ -2924,7 +2924,7 @@ public class OpenmrsCleanupController {
 		Task<ObservableList<LastCarePharmacy>> listTask = new Task<ObservableList<LastCarePharmacy>>() {
 
 			@Override
-			protected ObservableList<LastCarePharmacy> call() throws Exception {
+			protected ObservableList<LastCarePharmacy> call() {
 
 				DBMiddleMan.allEncounters.stream().filter(encounter -> encounter.getForm_id() == 56
 						&& encounter.isArtEncounter() != null && encounter.hasPharmacyForm() == null)
@@ -3012,7 +3012,7 @@ public class OpenmrsCleanupController {
 		Task<ObservableList<LastCarePharmacy>> lastCarePharmacyTask = new Task<ObservableList<LastCarePharmacy>>() {
 
 			@Override
-			protected ObservableList<LastCarePharmacy> call() throws Exception {
+			protected ObservableList<LastCarePharmacy> call() {
 			DBMiddleMan.allEncounters.stream().filter(encounter -> encounter.getEncounter_type() == 7
 					&& encounter.isArtEncounter() != null && encounter.hasCareCard() == null)
 					.forEach(encounter -> {
@@ -3127,7 +3127,7 @@ public class OpenmrsCleanupController {
 	private void updateForm(PatientStatus loadCF,String days){
 
 		logToConsole("\n Initializing.!\n");
-		try (Connection conn1 = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn1 = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			conn1.setAutoCommit(false);
 			String INSERT_SQL2 = "INSERT INTO obs"
 				+ "(person_id,"
@@ -3156,7 +3156,7 @@ public class OpenmrsCleanupController {
 				+ "obs_group_id) " +
 				"VALUES (?,?,?,?,?,?,?,?,?,?,?,DATE_ADD(?,INTERVAL "+Integer.parseInt(days)+" DAY),?,?,?,?,?,?,?,?,?,?,?,?)";
 
-				try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL2);) {
+				try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL2)) {
 					logToConsole("\n Connecting Obs! \n");
 					///try {
 					//							stmt1.setInt(26, module.getObs_id());
@@ -3277,9 +3277,9 @@ public class OpenmrsCleanupController {
 
 		logToConsole("\n Connecting Encounter! \n");
 		int encounterID = 0;
-		try (Connection conn1 = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn1 = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			conn1.setAutoCommit(false);
-			try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 				logToConsole("\n Creating Encounter! \n");
 				try {
 					if(loc == "init")
@@ -3357,7 +3357,7 @@ public class OpenmrsCleanupController {
 					+ "obs_group_id) " +
 					"VALUES (?,?,?,?,?,?,?,?,?,?,?,DATE_ADD(?,INTERVAL "+Integer.parseInt(daysPlus.getText())+" DAY),?,?,?,?,?,?,?,?,?,?,?,?)";
 
-			try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL2);) {
+			try (PreparedStatement stmt1 = conn1.prepareStatement(INSERT_SQL2)) {
 				logToConsole("\n Connecting Obs! \n");
 					///try {
 					//							stmt1.setInt(26, module.getObs_id());
@@ -3547,10 +3547,10 @@ public class OpenmrsCleanupController {
 							"VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?)";
 
 					try (Connection conn = DriverManager
-							.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());) {
+							.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword())) {
 
 						conn.setAutoCommit(false);
-						try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+						try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
 							int wDone = 0;
 							// Insert sample records
 							Platform.runLater(()->{

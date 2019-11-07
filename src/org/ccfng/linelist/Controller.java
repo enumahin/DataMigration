@@ -63,7 +63,7 @@ public class Controller extends org.ccfng.datamigration.Controller {
 		Task<String> task = new Task<String>() {
 
 			@Override
-			protected String call() throws Exception {
+			protected String call() {
 				Platform.runLater(() -> {
 					if (text != null)
 						appConsole.appendText(text);
@@ -85,7 +85,7 @@ public class Controller extends org.ccfng.datamigration.Controller {
 		lineListTask = new Task<ObservableList<LineList>>() {
 
 			@Override
-			protected ObservableList<LineList> call() throws Exception {
+			protected ObservableList<LineList> call() {
 
 				for(Patient patient : DBMiddleMan.allPatientsOnArt
 //						.stream()

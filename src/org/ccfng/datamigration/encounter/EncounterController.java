@@ -1,5 +1,6 @@
 package org.ccfng.datamigration.encounter;
 
+import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -8,8 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 
 public class EncounterController {
 
@@ -47,7 +46,7 @@ public class EncounterController {
 
     }
 
-    public void xmlToEncounter() throws JAXBException{
+    public void xmlToEncounter() {
 
         List<Encounter> allEncounters = new ArrayList<Encounter>();
         Encounters Encounters = new Encounters();

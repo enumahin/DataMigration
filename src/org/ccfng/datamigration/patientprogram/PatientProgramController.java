@@ -1,8 +1,6 @@
 package org.ccfng.datamigration.patientprogram;
 
-import org.ccfng.datamigration.patientprogram.PatientProgram;
-import org.ccfng.datamigration.patientprogram.PatientPrograms;
-
+import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -11,8 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 
 public class PatientProgramController {
 
@@ -49,7 +45,7 @@ public class PatientProgramController {
 
     }
 
-    public void xmlToPatientProgram() throws JAXBException {
+    public void xmlToPatientProgram() {
 
         List<PatientProgram> allPatientPrograms = new ArrayList<PatientProgram>();
         PatientPrograms patientPrograms = new PatientPrograms();

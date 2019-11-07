@@ -5,18 +5,18 @@ import java.util.List;
 
 public interface PersonNameDAOInterface<T, Integer extends Serializable> {
 
-    public void persist(T entity);
+    void persist(T entity);
 
-    public void saveAll(List<T> entity);
+    void saveAll(List<T> entity);
 
-    public void update(T entity);
+    void update(T entity);
 
-    public T findById(int id);
+    T findById(int id);
 
-    public void delete(T entity);
+    void delete(T entity);
 
-    public List<T> findAll();
+    List<T> findAll();
 
-    public void deleteAll();
+    void deleteAll();
 
 }

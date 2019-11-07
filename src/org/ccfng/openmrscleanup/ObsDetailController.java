@@ -147,7 +147,7 @@ public class ObsDetailController {
 		} catch (Exception exc) {
 			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "");
 		}
-		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword);) {
+		try (Connection conn = DriverManager.getConnection(source_jdbcUrl, sourceUsername, sourcePassword)) {
 			logToConsole("\n Source Database connection successful..");
 
 			stmt = conn.createStatement();

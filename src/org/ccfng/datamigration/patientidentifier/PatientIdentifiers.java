@@ -29,12 +29,12 @@ public class PatientIdentifiers {
         if (o == this) return true;
         if (!(o instanceof PatientIdentifiers)) return false;
         final PatientIdentifiers other = (PatientIdentifiers) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         final Object this$patient_identifiers = this.getPatient_identifiers();
         final Object other$patient_identifiers = other.getPatient_identifiers();
-        if (this$patient_identifiers == null ? other$patient_identifiers != null : !this$patient_identifiers.equals(other$patient_identifiers))
-            return false;
-        return true;
+	    return this$patient_identifiers == null ?
+			    other$patient_identifiers == null :
+			    this$patient_identifiers.equals(other$patient_identifiers);
     }
 
     public int hashCode() {

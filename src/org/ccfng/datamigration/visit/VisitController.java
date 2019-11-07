@@ -1,5 +1,6 @@
 package org.ccfng.datamigration.visit;
 
+import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -8,8 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 
 public class VisitController {
 
@@ -46,7 +45,7 @@ public class VisitController {
 
     }
 
-    public void xmlToVisit() throws JAXBException {
+    public void xmlToVisit() {
 
         List<Visit> allVisits = new ArrayList<Visit>();
         Visits Visits = new Visits();

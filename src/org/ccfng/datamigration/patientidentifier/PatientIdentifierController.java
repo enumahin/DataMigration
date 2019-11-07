@@ -1,5 +1,6 @@
 package org.ccfng.datamigration.patientidentifier;
 
+import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -8,8 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 
 
 public class PatientIdentifierController {
@@ -48,7 +47,7 @@ public class PatientIdentifierController {
 
     }
 
-    public void xmlToPatientIdentifier() throws JAXBException {
+    public void xmlToPatientIdentifier() {
 
         List<PatientIdentifier> allPatientIdentifiers = new ArrayList<PatientIdentifier>();
         PatientIdentifiers patientIdentifiers = new PatientIdentifiers();

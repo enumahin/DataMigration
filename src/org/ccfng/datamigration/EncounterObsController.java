@@ -144,7 +144,7 @@ public class EncounterObsController {
 			});
 		}
 		try (Connection conn = DriverManager
-				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
 			Platform.runLater(() -> {
 				logToConsole("\n Destination Database connection successful..");
 			});
@@ -218,10 +218,10 @@ public class EncounterObsController {
 				"VALUES ( ?,?,?,?,?,?,?,?,?)";
 
 		try (Connection conn = DriverManager
-				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
 
 			conn.setAutoCommit(false);
-			try (PreparedStatement stmt1 = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);) {
+			try (PreparedStatement stmt1 = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 				// Insert sample records
 				try {
 					stmt1.setString(1, null);
@@ -275,7 +275,7 @@ public class EncounterObsController {
 			logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 		}
 		try (Connection conn = DriverManager
-				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
 			logToConsole("\n Destination Database connection successful..");
 
 			stmt = conn.createStatement();
@@ -674,7 +674,7 @@ public class EncounterObsController {
 			encounterTask = new Task<ObservableList<Encounter>>() {
 
 				@Override
-				protected ObservableList<Encounter> call() throws Exception {
+				protected ObservableList<Encounter> call() {
 
 					String INSERT_SQL = "INSERT IGNORE INTO encounter"
 							+ "(encounter_id, encounter_type, patient_id, location_id, form_id, encounter_datetime, creator, date_created, " +
@@ -684,9 +684,9 @@ public class EncounterObsController {
 					Platform.runLater(()->{
 						logToConsole("\n Connecting to destination DB! \n");
 					});
-					try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+					try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
 						conn.setAutoCommit(false);
-						try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+						try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
 							Integer wDone = 1;
 							// Insert sample records
 
@@ -854,7 +854,7 @@ public class EncounterObsController {
 					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
 				});
 			}
-			try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());) {
+			try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword())) {
 
 				Platform.runLater(()->{
 					logToConsole("\n Destination Database for Encounter connection successful..");
@@ -1429,10 +1429,10 @@ public class EncounterObsController {
 				"creator, date_created, voided, date_voided, void_reason, uuid, form_namespace_and_path, obs_group_id,obs_id) " +
 				"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-	try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());) {
+	try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
 
 		conn.setAutoCommit(false);
-		try (PreparedStatement stmt_obs = conn.prepareStatement(OBS_INSERT_SQL);) {
+		try (PreparedStatement stmt_obs = conn.prepareStatement(OBS_INSERT_SQL)) {
 
 			for (Obs ob : encOb) {
 					///try {

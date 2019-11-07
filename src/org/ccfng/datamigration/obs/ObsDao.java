@@ -1,14 +1,7 @@
 package org.ccfng.datamigration.obs;
 
-import org.ccfng.datamigration.obs.Obs;
-import org.ccfng.datamigration.session.SessionManager;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-
 import java.util.List;
+import org.ccfng.datamigration.session.SessionManager;
 
 
 public class ObsDao implements ObsDAOInterface<Obs, String> {
@@ -41,7 +34,7 @@ public class ObsDao implements ObsDAOInterface<Obs, String> {
 
     public Obs findById(String id) {
         sessionManager.openCurrentSessionwithTransaction();
-            Obs obs = (Obs) sessionManager.getCurrentSession().get(Obs.class, id);
+            Obs obs = sessionManager.getCurrentSession().get(Obs.class, id);
         sessionManager.closeCurrentSessionwithTransaction();
         return obs;
     }

@@ -1,10 +1,7 @@
 package org.ccfng.datamigration.patientidentifier;
 
-import org.ccfng.datamigration.patientidentifier.PatientIdentifier;
-import org.ccfng.datamigration.patientidentifier.PatientIdentifierDAOInterface;
-import org.ccfng.datamigration.session.SessionManager;
-
 import java.util.List;
+import org.ccfng.datamigration.session.SessionManager;
 
 
 public class PatientIdentifierDao implements PatientIdentifierDAOInterface<PatientIdentifier, String> {
@@ -33,7 +30,7 @@ public class PatientIdentifierDao implements PatientIdentifierDAOInterface<Patie
 
     public PatientIdentifier findById(String id) {
         sessionManager.openCurrentSessionwithTransaction();
-        PatientIdentifier patientidentifier = (PatientIdentifier) sessionManager.getCurrentSession().get(PatientIdentifier.class, id);
+        PatientIdentifier patientidentifier = sessionManager.getCurrentSession().get(PatientIdentifier.class, id);
         sessionManager.closeCurrentSessionwithTransaction();
         return patientidentifier;
     }

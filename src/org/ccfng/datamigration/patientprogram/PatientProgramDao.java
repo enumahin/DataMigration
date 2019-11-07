@@ -1,8 +1,7 @@
 package org.ccfng.datamigration.patientprogram;
 
-import org.ccfng.datamigration.session.SessionManager;
-
 import java.util.List;
+import org.ccfng.datamigration.session.SessionManager;
 
 
 public class PatientProgramDao implements PatientProgramDAOInterface<PatientProgram, String> {
@@ -31,7 +30,7 @@ public class PatientProgramDao implements PatientProgramDAOInterface<PatientProg
 
     public PatientProgram findById(String id) {
         sessionManager.openCurrentSessionwithTransaction();
-        PatientProgram patientProgram = (PatientProgram) sessionManager.getCurrentSession().get(PatientProgram.class, id);
+        PatientProgram patientProgram = sessionManager.getCurrentSession().get(PatientProgram.class, id);
         sessionManager.closeCurrentSessionwithTransaction();
         return patientProgram;
     }

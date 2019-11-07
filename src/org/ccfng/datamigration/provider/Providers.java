@@ -29,12 +29,10 @@ public class Providers {
         if (o == this) return true;
         if (!(o instanceof Providers)) return false;
         final Providers other = (Providers) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         final Object this$providers = this.getProviders();
         final Object other$providers = other.getProviders();
-        if (this$providers == null ? other$providers != null : !this$providers.equals(other$providers))
-            return false;
-        return true;
+	    return this$providers == null ? other$providers == null : this$providers.equals(other$providers);
     }
 
     public int hashCode() {

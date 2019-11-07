@@ -1,14 +1,13 @@
 package org.ccfng.datamigration.person;
 
-import javafx.collections.ObservableList;
-import org.ccfng.datamigration.session.SessionManager;
-
 import javax.transaction.Transactional;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import javafx.collections.ObservableList;
+import org.ccfng.datamigration.session.SessionManager;
 
 public class PersonService {
 
@@ -66,10 +65,10 @@ public class PersonService {
         String jdbcUrl = "jdbc:mysql://"+SessionManager.host+":"+SessionManager.port+"/"+SessionManager.db;
         String username = SessionManager.username;
         String password = SessionManager.password;
-        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 
             conn.setAutoCommit(false);
-            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
 
                 // Insert sample records
                 for (Person person : persons) {

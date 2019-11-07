@@ -1,8 +1,7 @@
 package org.ccfng.datamigration.encounter;
 
-import org.ccfng.datamigration.session.SessionManager;
-
 import java.util.List;
+import org.ccfng.datamigration.session.SessionManager;
 
 public class EncounterDao implements EncounterDAOInterface<Encounter, String> {
 
@@ -33,7 +32,7 @@ public class EncounterDao implements EncounterDAOInterface<Encounter, String> {
 
     public Encounter findById(String id) {
         sessionManager.openCurrentSessionwithTransaction();
-        Encounter encounter = (Encounter) sessionManager.getCurrentSession().get(Encounter.class, id);
+        Encounter encounter = sessionManager.getCurrentSession().get(Encounter.class, id);
         sessionManager.closeCurrentSessionwithTransaction();
         return encounter;
     }

@@ -29,12 +29,12 @@ public class PersonAttributes {
         if (o == this) return true;
         if (!(o instanceof PersonAttributes)) return false;
         final PersonAttributes other = (PersonAttributes) o;
-        if (!other.canEqual((Object) this)) return false;
+        if (!other.canEqual(this)) return false;
         final Object this$personAttributes = this.getPersonAttributes();
         final Object other$personAttributes = other.getPersonAttributes();
-        if (this$personAttributes == null ? other$personAttributes != null : !this$personAttributes.equals(other$personAttributes))
-            return false;
-        return true;
+	    return this$personAttributes == null ?
+			    other$personAttributes == null :
+			    this$personAttributes.equals(other$personAttributes);
     }
 
     public int hashCode() {
