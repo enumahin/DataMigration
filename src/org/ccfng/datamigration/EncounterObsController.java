@@ -229,7 +229,7 @@ public class EncounterObsController {
 					stmt1.setInt(3, 1);
 					stmt1.setDate(4, encounterDate);
 					stmt1.setDate(5, encounterDate);
-					stmt1.setInt(6, 8);
+					stmt1.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
 					stmt1.setInt(7, 1);
 					stmt1.setDate(8, encounterDate);
 					stmt1.setString(9, UUID.randomUUID().toString());
@@ -291,7 +291,7 @@ public class EncounterObsController {
 				visit.setVisit_type_id(1);
 				visit.setDate_started(rs.getDate("date_started"));
 				visit.setDate_stopped(rs.getDate("date_stopped"));
-				visit.setLocation_id(2);
+				visit.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
 				visit.setUuid(UUID.fromString(rs.getString("uuid")));
 				visit.setCreator(1);
 				visit.setDate_changed(rs.getDate("date_changed"));
@@ -358,7 +358,7 @@ public class EncounterObsController {
 						permObs.setDate_created(rs.getDate("date_created"));
 
 						permObs.setEncounter_id(rs.getInt("encounter_id"));
-						permObs.setLocation_id(8);
+						permObs.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
 						permObs.setObs_datetime(rs.getDate("obs_datetime"));
 
 						if (rs.getInt("obs_group_id") > 0)
@@ -628,7 +628,7 @@ public class EncounterObsController {
 				encounter.setCreator(1);
 				encounter.setDate_changed(rs.getDate("date_changed"));
 				encounter.setDate_created(rs.getDate("date_created"));
-				encounter.setLocation_id(8);
+				encounter.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
 				encounter.setPatient_id(rs.getInt("patient_id"));
 				encounter.setVisit_id(vID);
 				allEncounters.add(encounter);
@@ -702,7 +702,7 @@ public class EncounterObsController {
 								stmt.setInt(1, module.getEncounter_id());
 								stmt.setInt(2, module.getEncounter_type());
 								stmt.setInt(3, module.getPatient_id());
-								stmt.setInt(4, module.getLocation_id());
+								stmt.setInt(4, cboLocation.getSelectionModel().getSelectedItem().getKey());
 								stmt.setInt(5, module.getForm_id());
 								stmt.setDate(6, new Date(module.getEncounter_datetime().getTime()));
 								stmt.setInt(7, module.getCreator());
@@ -1458,11 +1458,8 @@ public class EncounterObsController {
 												.getTime()));
 					else
 						stmt_obs.setDate(5, null);
-					if (ob.getLocation_id() >= 0)
-						stmt_obs.setInt(6,
-								ob.getLocation_id());
-					else
-						stmt_obs.setInt(6, 0);
+
+						stmt_obs.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
 					if (ob.getAccession_number() != null)
 						stmt_obs.setString(7,
 								ob.getAccession_number());

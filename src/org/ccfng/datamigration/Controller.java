@@ -453,7 +453,6 @@ public class Controller {
                     totalObs.setText("");
                     if(tab == "obs")
                         checkLastObs();
-
                 } catch (NullPointerException ex) {
                     logToConsole("Select Table to Migrate and try again.");
                 }
@@ -467,7 +466,6 @@ public class Controller {
                     SessionManager.db = db.getText();
                     checkConnection();
                     //logToConsole("Connecting to Database...\n");
-
                     switch (tab) {
                         case "encounter":
                             loadEncounter();
@@ -697,7 +695,7 @@ public class Controller {
 					}
 					if (!allUserRoles.isEmpty()) {
 						logToConsole("\n Loading Data.!\n");
-						String INSERT_SQL = "INSERT INTO user_role"
+						String INSERT_SQL = "REPLACE INTO user_role"
 								+ "(user_id, role) " +
 								"VALUES (?, ?)";
 
@@ -1061,8 +1059,7 @@ public class Controller {
 
                         Encounter currentEncounter = new Encounter();
 
-
-                        String INSERT_SQL = "INSERT INTO encounter"
+                        String INSERT_SQL = "REPLACE INTO encounter"
                                 + "(encounter_id, encounter_type, patient_id, location_id, form_id, encounter_datetime, creator, date_created, " +
                                 "date_changed, voided, date_voided, void_reason, uuid, visit_id) " +
                                 "VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -1510,7 +1507,7 @@ public class Controller {
 
                         Obs currentObs = new Obs();
 
-                        String INSERT_SQL = "INSERT INTO obs"
+                        String INSERT_SQL = "REPLACE INTO obs"
                                 + "(person_id, concept_id, encounter_id, order_id, obs_datetime, location_id," +
                                 "accession_number, value_group_id, value_coded, value_coded_name_id, value_drug, value_datetime, " +
                                 "value_numeric, value_modifier, value_text, value_complex, comments," +
@@ -1778,7 +1775,7 @@ public class Controller {
                     if (!allPatients.isEmpty()) {
                         Patient currentPatient = new Patient();
                         logToConsole("\n Loading Data.!\n");
-                        String INSERT_SQL = "INSERT INTO patient"
+                        String INSERT_SQL = "REPLACE INTO patient"
                                 + "(patient_id, creator, date_created, voided, date_voided, void_reason) " +
                                 "VALUES ( ?,?,?,?,?,?)";
 
@@ -1970,7 +1967,7 @@ public class Controller {
 
                     if (!allPatientIdentifiers.isEmpty()) {
 
-                        String INSERT_SQL = "INSERT INTO patient_identifier"
+                        String INSERT_SQL = "REPLACE INTO patient_identifier"
                                 + "(patient_identifier_id, patient_id, identifier, identifier_type, preferred, location_id," +
                                 " creator, date_created, voided, date_voided, void_reason, uuid) " +
                                 "VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -2172,7 +2169,7 @@ public class Controller {
                     if (!allPatientPrograms.isEmpty()) {
                         PatientProgram currentPatientProgram = new PatientProgram();
 
-                        String INSERT_SQL = "INSERT INTO patient_program"
+                        String INSERT_SQL = "REPLACE INTO patient_program"
                                 + "(patient_program_id, patient_id, program_id, date_enrolled, date_completed, location_id," +
                                 " creator, date_created, voided, date_voided, void_reason, uuid) " +
                                 "VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -2385,7 +2382,7 @@ public class Controller {
                     }
                     if (!allPersons.isEmpty()) {
                         logToConsole("Loading Data......\n");
-                        String INSERT_SQL = "INSERT INTO person"
+                        String INSERT_SQL = "REPLACE INTO person"
                                 + "(person_id, gender, birthdate, birthdate_estimated, dead, death_date, creator, date_created, " +
                                 "date_changed, voided, date_voided, void_reason, uuid, deathdate_estimated, birthtime) " +
                                 "VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) " +
@@ -2608,7 +2605,7 @@ public class Controller {
                     if (!allPersonAddresses.isEmpty()) {
                         PersonAddress currentPersonAddress = new PersonAddress();
 
-                        String INSERT_SQL = "INSERT INTO person_address"
+                        String INSERT_SQL = "REPLACE INTO person_address"
                                 + "(person_address_id, person_id, preferred, city_village, state_province, postal_code, country, latitude," +
                                 "longitude, start_date, end_date, address1, address2, address3, address4, address5, " +
                                 "address6, address7, address8, address9, address10, address11, address12, address13, address14, address15," +
@@ -2827,7 +2824,7 @@ public class Controller {
                     if (!allPersonAttributes.isEmpty()) {
                         PersonAttribute currentPersonAttribute = new PersonAttribute();
 
-                        String INSERT_SQL = "INSERT INTO person_attribute"
+                        String INSERT_SQL = "REPLACE INTO person_attribute"
                                 + "(person_id, value, person_attribute_type_id, " +
                                 " creator, date_created, voided, date_voided, void_reason, uuid) " +
                                 "VALUES ( ?,?,?,?,?,?,?,?,?)";
@@ -3017,7 +3014,7 @@ public class Controller {
 
                     if (!allPersonNames.isEmpty()) {
 //                    logToConsole("Done loading.");
-                        String INSERT_SQL = "INSERT INTO person_name"
+                        String INSERT_SQL = "REPLACE INTO person_name"
                                 + "(preferred, person_id, prefix, given_name, middle_name, family_name_prefix, " +
                                 "family_name, family_name2, family_name_suffix, degree," +
                                 " creator, date_created, voided, date_voided, void_reason, uuid) " +
@@ -3251,7 +3248,7 @@ public class Controller {
                     if (!allVisits.isEmpty()) {
                         Visit currentVisit = new Visit();
 
-                        String INSERT_SQL = "INSERT INTO visit"
+                        String INSERT_SQL = "REPLACE INTO visit"
                                 + "(visit_id, patient_id, visit_type_id, date_started, date_stopped, location_id," +
                                 " creator, date_created, voided, date_voided, void_reason, uuid) " +
                                 "VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -3442,7 +3439,7 @@ public class Controller {
 
                     if (!allUsers.isEmpty()) {
                         logToConsole("\n Loading Data.!\n");
-                        String INSERT_SQL = "INSERT INTO users"
+                        String INSERT_SQL = "REPLACE INTO users"
                                 + "(user_id, system_id, username, password, salt, secret_question, secret_answer, person_id," +
                                 " retired, retired_by, changed_by, creator, date_changed, date_created, date_retired, retire_reason," +
                                 "uuid) " +
@@ -3641,7 +3638,7 @@ public class Controller {
 
                     if (!allProviders.isEmpty()) {
                         logToConsole("\n Loading Data.!\n");
-                        String INSERT_SQL = "INSERT INTO provider"
+                        String INSERT_SQL = "REPLACE INTO provider"
                                 + "(provider_id, name, identifier, provider_role_id, person_id," +
                                 " retired, retired_by, changed_by, creator, date_changed, date_created, date_retired, retire_reason," +
                                 "uuid) " +
@@ -3838,7 +3835,7 @@ public class Controller {
 
                     if (!allEncounterProviders.isEmpty()) {
                         logToConsole("\n Loading Data.!\n");
-                        String INSERT_SQL = "INSERT INTO encounter_provider"
+                        String INSERT_SQL = "REPLACE INTO encounter_provider"
                                 + "(encounter_provider_id, provider_id, encounter_id, encounter_role_id," +
                                 " voided, voided_by, changed_by, creator, date_changed, date_created, date_voided, void_reason," +
                                 "uuid) " +
