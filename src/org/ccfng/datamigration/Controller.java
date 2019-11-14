@@ -81,7 +81,9 @@ import org.ccfng.datamigration.users.User;
 import org.ccfng.datamigration.users.Users;
 import org.ccfng.datamigration.visit.Visit;
 import org.ccfng.datamigration.visit.Visits;
+import org.ccfng.global.ConnectionClass;
 import org.ccfng.global.DBMiddleMan;
+import org.ccfng.global.DestinationConnectionClass;
 import org.ccfng.global.KeyValueClass;
 import org.ccfng.openmrscleanup.OpenmrsCleanupController;
 import org.hibernate.HibernateException;
@@ -158,6 +160,9 @@ public class Controller {
 
     @FXML
     private VBox vBoxDestination;
+
+    @FXML
+    private ComboBox<KeyValueClass> cboLocation;
 
     private ObservableList<Encounter> allEncounters;
 
@@ -263,8 +268,16 @@ public class Controller {
     @FXML
     private CheckBox loadByEnc;
 
+    ConnectionClass cc;
+
+    DestinationConnectionClass dd;
+
 
     public void initialize() {
+
+        cc = new ConnectionClass();
+
+        dd = new DestinationConnectionClass();
 
         vBoxTables.setDisable(true);
 
@@ -364,6 +377,66 @@ public class Controller {
 
 //        loderThread.start();
 
+        new Thread(this::getLocations).start();
+    }
+
+    private void getLocations() {
+        ObservableList<KeyValueClass> locations = FXCollections.observableArrayList();
+
+        Platform.runLater(() -> {
+            logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+        });
+
+        Statement stmt = null;
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+        }
+        catch (Exception exc) {
+            Platform.runLater(() -> {
+                logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+            });
+        }
+        try (Connection conn = DriverManager
+                .getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
+            Platform.runLater(() -> {
+                logToConsole("\n Destination Database connection successful..");
+            });
+
+            stmt = conn.createStatement();
+            String sql = "SELECT * FROM location ";
+            Platform.runLater(() -> {
+                logToConsole("\n Fetching Locations..");
+            });
+            ResultSet rs = stmt.executeQuery(sql);
+            //STEP 5: Extract data from result set
+            while (rs.next()) {
+                KeyValueClass loc = new KeyValueClass();
+                loc.setKey(rs.getInt("location_id"));
+                loc.setValue(rs.getString("name"));
+                locations.add(loc);
+            }
+            rs.close();
+            Platform.runLater(() -> {
+                logToConsole("\n Done..");
+            });
+        }
+        catch (SQLException e) {
+            Platform.runLater(() -> {
+                logToConsole("\n Error: " + e.getMessage());
+            });
+            e.printStackTrace();
+        }
+        finally {
+            //finally block used to close resources
+            try {
+                if (stmt != null)
+                    stmt.close();
+            }
+            catch (Exception se) {
+            }// do nothing
+        }//end try
+        cboLocation.setItems(locations);
     }
 
     public void dataLoader(){
@@ -984,7 +1057,7 @@ public class Controller {
                                 encounter.setDate_created(rs.getDate("date_created"));
                                 encounter.setDate_voided(rs.getDate("date_voided"));
 
-                                encounter.setLocation_id(2);
+                                encounter.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
                                 encounter.setPatient_id(rs.getInt("patient_id"));
                                 if(v != null)
                                     encounter.setVisit_id(v.getVisit_id());
@@ -1079,7 +1152,7 @@ public class Controller {
                                         stmt.setInt(1, module.getEncounter_id());
                                         stmt.setInt(2, module.getEncounter_type());
                                         stmt.setInt(3, module.getPatient_id());
-                                        stmt.setInt(4, module.getLocation_id());
+                                        stmt.setInt(4, cboLocation.getSelectionModel().getSelectedItem().getKey());
                                         stmt.setInt(5, module.getForm_id());
                                         stmt.setDate(6, new java.sql.Date(module.getEncounter_datetime().getTime()));
                                         stmt.setInt(7, module.getCreator());
@@ -1327,7 +1400,7 @@ public class Controller {
                                             obs.setDate_voided(rs.getDate("date_voided"));
 
                                         obs.setEncounter_id(rs.getInt("encounter_id"));
-                                        obs.setLocation_id(2);
+                                        obs.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
                                         //obs.setForm_namespace_and_path(rs.getString("form_namespace_and_path"));
                                         // obs.setVisit_id(rs.getInt("visit_id"));
 
@@ -1404,7 +1477,7 @@ public class Controller {
                                         obs.setDate_voided(rs.getDate("date_voided"));
 
                                     obs.setEncounter_id(rs.getInt("encounter_id"));
-                                    obs.setLocation_id(2);
+                                    obs.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
                                     //obs.setForm_namespace_and_path(rs.getString("form_namespace_and_path"));
                                     // obs.setVisit_id(rs.getInt("visit_id"));
 
@@ -1544,10 +1617,7 @@ public class Controller {
                                         stmt.setDate(5, new java.sql.Date(module.getObs_datetime().getTime()));
                                     else
                                         stmt.setDate(5, null);
-                                    if (module.getLocation_id() >= 0)
-                                        stmt.setInt(6, module.getLocation_id());
-                                    else
-                                        stmt.setInt(6, 0);
+                                    stmt.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
                                     if(module.getAccession_number() != null)
                                         stmt.setString(7, module.getAccession_number());
                                     else
@@ -1902,7 +1972,7 @@ public class Controller {
                                 //patientIdentifier.setDate_changed(rs.getDate("date_changed"));
                                 patientIdentifier.setDate_created(rs.getDate("date_created"));
                                 patientIdentifier.setDate_voided(rs.getDate("date_voided"));
-                                patientIdentifier.setLocation_id(2);
+                                patientIdentifier.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
                                 patientIdentifier.setPatient_id(rs.getInt("patient_id"));
                                 patientIdentifier.setVoid_reason(rs.getString("void_reason"));
                                 patientIdentifier.setVoided(rs.getBoolean("voided"));
@@ -1988,7 +2058,7 @@ public class Controller {
                                     stmt.setString(3, module.getIdentifier());
                                     stmt.setInt(4, module.getIdentifier_type());
                                     stmt.setBoolean(5, module.isPreferred());
-                                    stmt.setInt(6, module.getLocation_id());
+                                    stmt.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
                                     stmt.setInt(7, module.getCreator());
                                     if (module.getDate_created() != null)
                                         stmt.setDate(8, new java.sql.Date(module.getDate_created().getTime()));
@@ -2101,7 +2171,7 @@ public class Controller {
 
 
                                 //patientProgram.setOutcome_concept_id(rs.getInt("outcome_concept_id"));
-                                patientProgram.setLocation_id(2);
+                                patientProgram.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
                                 patientProgram.setPatient_id(rs.getInt("patient_id"));
                                 patientProgram.setUuid(UUID.randomUUID());
                                 patientProgram.setCreator(1);
@@ -2201,7 +2271,7 @@ public class Controller {
                                     else
                                         stmt.setDate(5, null);
                                     //logToConsole("\n Loading Data....!!\n");
-                                    stmt.setInt(6, module.getLocation_id());
+                                    stmt.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
                                     //stmt.setInt(7, module.getOutcome_concept_id());
                                     stmt.setInt(7, module.getCreator());
                                     //logToConsole("\n Loading Data.....!!\n");
@@ -2385,10 +2455,7 @@ public class Controller {
                         String INSERT_SQL = "REPLACE INTO person"
                                 + "(person_id, gender, birthdate, birthdate_estimated, dead, death_date, creator, date_created, " +
                                 "date_changed, voided, date_voided, void_reason, uuid, deathdate_estimated, birthtime) " +
-                                "VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) " +
-                                "ON DUPLICATE KEY UPDATE " +
-                                "gender = VALUES(gender), " +
-                                "date_changed = NOW()";
+                                "VALUES ( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ";
 
                         String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
@@ -3151,7 +3218,7 @@ public class Controller {
                                     visit.setVisit_type_id(1);
                                     visit.setDate_started(rs.getDate("encounter_datetime"));
                                     visit.setDate_stopped(rs.getDate("encounter_datetime"));
-                                    visit.setLocation_id(2);
+                                    visit.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
                                     visit.setUuid(UUID.randomUUID());
                                     visit.setCreator(1);
                                     visit.setDate_changed(rs.getDate("date_changed"));
@@ -3180,7 +3247,7 @@ public class Controller {
                                     visit.setVisit_type_id(1);
                                     visit.setDate_started(rs.getDate("date_started"));
                                     visit.setDate_stopped(rs.getDate("date_stopped"));
-                                    visit.setLocation_id(2);
+                                    visit.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
                                     visit.setUuid(UUID.randomUUID());
                                     visit.setCreator(1);
                                     visit.setDate_changed(rs.getDate("date_changed"));
@@ -3276,7 +3343,7 @@ public class Controller {
                                             stmt.setDate(5, new java.sql.Date(module.getDate_stopped().getTime()));
                                         else
                                             stmt.setDate(5, null);
-                                        stmt.setInt(6, module.getLocation_id());
+                                        stmt.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
                                         stmt.setInt(7, module.getCreator());
                                         if (module.getDate_created() != null)
                                             stmt.setDate(8, new java.sql.Date(module.getDate_created().getTime()));
@@ -4425,7 +4492,7 @@ public class Controller {
                              permObs.setEncounter_id(encID);
                             else
                              permObs.setEncounter_id(rs3.getInt("encounter_id"));
-                            permObs.setLocation_id(2);
+                            permObs.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
                             //obs.setForm_namespace_and_path(rs3.getString("form_namespace_and_path"));
                             // obs.setVisit_id(rs3.getInt("visit_id"));
 
@@ -4619,7 +4686,7 @@ public class Controller {
                                 permObs.setDate_voided(rs3.getDate("date_voided"));
 
                             permObs.setEncounter_id(encID);
-                            permObs.setLocation_id(2);
+                            permObs.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
 
                             if (rs3.getString("void_reason") != null)
                                 permObs.setVoid_reason(rs3.getString("void_reason"));
@@ -4779,7 +4846,7 @@ public class Controller {
                     visit.setVisit_type_id(1);
                     visit.setDate_started(rs.getDate("date_started"));
                     visit.setDate_stopped(rs.getDate("date_stopped"));
-                    visit.setLocation_id(2);
+                    visit.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
                     visit.setUuid(UUID.fromString(rs.getString("uuid")));
                     visit.setCreator(1);
                     visit.setDate_changed(rs.getDate("date_changed"));

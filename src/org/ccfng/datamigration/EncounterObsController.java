@@ -66,7 +66,7 @@ public class EncounterObsController {
 	private Button btnMigrate;
 
 	@FXML
-	ComboBox<KeyValueClass> cboLocation;
+	private ComboBox<KeyValueClass> cboLocation;
 
 	@FXML
 	private TextField offset;
@@ -113,6 +113,7 @@ public class EncounterObsController {
 		ObservableList<KeyValueClass> migrationType = FXCollections.observableArrayList();
 
 		migrationType.add(new KeyValueClass(1, "Hiv Enrollment"));
+		migrationType.add(new KeyValueClass(9, "ART Commencement"));
 		migrationType.add(new KeyValueClass(2, "Adult Initial Clinical Evaluation"));
 		migrationType.add(new KeyValueClass(3, "Pediatric Initial Clinical Evaluation"));
 		migrationType.add(new KeyValueClass(4, "Care Card"));
@@ -127,6 +128,7 @@ public class EncounterObsController {
 	}
 
 	private void getLocations() {
+
 		ObservableList<KeyValueClass> locations = FXCollections.observableArrayList();
 
 		Platform.runLater(() -> {
@@ -799,36 +801,124 @@ public class EncounterObsController {
 	public void createHivEnrollmentEncounter(){
 
 		new Thread(()->{
-			verseEncounter("SELECT * FROM encounter WHERE encounter_type = 15 and voided = 0 "
+			verseEncounter("SELECT * FROM encounter WHERE form_id = 65 and voided = 0 "
 				, 23, 14,
-				"Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where encounter.encounter_type=15");
+				"Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1)"
+						+ " as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where encounter.form_id=65 AND encounter.voided = 0 ");
 		}).start();
 
 
 	}
+	public void createARTCommencement(){
+
+		System.out.println("ART COMENCEMENT#######################");
+		new Thread(()->{
+			verseEncounter("SELECT * FROM encounter WHERE form_id = 1 and voided = 0 "
+				, 56, 25,
+				"Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit "
+						+ "from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where encounter.form_id=1 AND encounter.voided = 0");
+		}).start();
+
+	}
 	public void createAdultInitialEncounter(){
-		String encSQL = "Select encounter.* from encounter left join person on encounter.patient_id=person.person_id where form_id = 1 and "
-				+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 >= 18 and encounter.voided = 0 ";
+		String encSQL = "Select encounter.* from encounter where form_id = 18 AND voided=0"
+//				+ " and "
+//				+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 >= 18 and encounter.voided = 0 "
+				;
 		int form_id= 22;
 		int encTYPE= 26;
-		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where (encounter.form_id=1 OR encounter.form_id=24)";
+		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit "
+				+ "from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where encounter.form_id=18 AND encounter.voided = 0 ";
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
 	public void createPedInitialEncounter(){
-		String encSQL = "Select encounter.* from encounter left join person on encounter.patient_id=person.person_id where form_id = 1 and "
-				+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 < 18 and encounter.voided = 0 "
-				+ "group by patient_id";
+		String encSQL = "Select encounter.* from encounter where form_id = 20 AND voided = 0"
+//				+ " and "
+//				+ "DATEDIFF(CURRENT_DATE, STR_TO_DATE(person.birthdate, '%Y-%m-%d'))/365 < 18 and encounter.voided = 0 "
+//				+ "group by patient_id"
+				;
 		int form_id= 20;
 		int encTYPE= 24;
-		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where (encounter.form_id=1 OR encounter.form_id=27)";
+		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit"
+				+ " from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where encounter.form_id=20 AND encounter.voided = 0 ";
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
 	public void createCareCardEncounter(){
-		String encSQL = "Select * from encounter where (form_id = 56) and voided = 0 ";
+		String subQ = "";
+		if(! offset.getText().equals("") && ! limit.getText().equals("")){
+			subQ += " LIMIT "+limit.getText()+ " OFFSET "+offset.getText();
+		}
+		String encSQL = "Select * from encounter where form_id = 56 and voided = 0 "
+				+subQ;
+
+		String result = getEncounterIDs(encSQL);
+
 		int form_id= 14;
 		int encTYPE= 12;
-		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where (encounter.form_id=56)";
+		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit FROM obs as ob"
+				+ " where ob.encounter_id IN ("+result+") ";
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
+	}
+
+	public String getEncounterIDs(String encSQL){
+
+		//#################################################
+
+		List<Integer> encIDs = new ArrayList<>();
+		String IDar = "";
+		Statement stmt = null;
+		try {
+			//STEP 2: Register JDBC driver
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (Exception exc) {
+			Platform.runLater(()->{
+				logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+			});
+		}
+		try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword())) {
+
+			Platform.runLater(()->{
+				logToConsole("\n Destination Database for Encounter connection successful..");
+			});
+
+			stmt = conn.createStatement();
+			//				String sql = "SELECT * FROM location ";
+			Platform.runLater(()->{
+				logToConsole("\n Fetching Encounter IDs..");
+			});
+			ResultSet rs = stmt.executeQuery(encSQL);
+			//STEP 5: Extract data from result set
+			while (rs.next()) {
+				IDar += rs.getInt("encounter_id")+",";
+				encIDs.add(rs.getInt("encounter_id"));
+			}
+			rs.close();
+			Platform.runLater(()->{
+				logToConsole("\n Done..");
+			});
+		} catch (SQLException e) {
+			Platform.runLater(()->{
+				logToConsole("\n Error: " + e.getMessage());
+			});
+			e.printStackTrace();
+		}finally {
+			//finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (Exception se) {
+			}// do nothing
+		}//end try
+		//#################################################
+		System.out.println("Encounter IDS "+ IDar);
+
+		String result = Optional.ofNullable(IDar)
+				.filter(sStr -> sStr.length() != 0)
+				.map(sStr -> sStr.substring(0, sStr.length() - 1))
+				.orElse(IDar);
+
+		return result;
+
 	}
 
 	public void createPharmacyEncounter(){
@@ -838,69 +928,17 @@ public class EncounterObsController {
 		}
 		String encSQL = "Select * from encounter where (form_id = 46 || form_id = 53) and voided = 0 "
 				+subQ;
+
+		String result = getEncounterIDs(encSQL);
+
 		int form_id= 27;
 		int encTYPE= 13;
 
-		//#################################################
-
-			List<Integer> encIDs = new ArrayList<>();
-			String IDar = "";
-			Statement stmt = null;
-			try {
-				//STEP 2: Register JDBC driver
-				Class.forName("com.mysql.jdbc.Driver");
-			} catch (Exception exc) {
-				Platform.runLater(()->{
-					logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
-				});
-			}
-			try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword())) {
-
-				Platform.runLater(()->{
-					logToConsole("\n Destination Database for Encounter connection successful..");
-				});
-
-				stmt = conn.createStatement();
-//				String sql = "SELECT * FROM location ";
-				Platform.runLater(()->{
-					logToConsole("\n Fetching Encounter IDs..");
-				});
-				ResultSet rs = stmt.executeQuery(encSQL);
-				//STEP 5: Extract data from result set
-				while (rs.next()) {
-					IDar += rs.getInt("encounter_id")+",";
-					encIDs.add(rs.getInt("encounter_id"));
-				}
-				rs.close();
-				Platform.runLater(()->{
-					logToConsole("\n Done..");
-				});
-			} catch (SQLException e) {
-				Platform.runLater(()->{
-					logToConsole("\n Error: " + e.getMessage());
-				});
-				e.printStackTrace();
-			}finally {
-				//finally block used to close resources
-				try {
-					if (stmt != null)
-						stmt.close();
-				} catch (Exception se) {
-				}// do nothing
-			}//end try
-		//#################################################
-		System.out.println("Encounter IDS "+ IDar);
-
-		String result = Optional.ofNullable(IDar)
-				.filter(sStr -> sStr.length() != 0)
-				.map(sStr -> sStr.substring(0, sStr.length() - 1))
-				.orElse(IDar);
-
 		System.out.println("Encounter IDS "+ result);
 
-		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where "
+		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit FROM obs as ob where "
 				//				+ "(form_id = 46 || form_id = 53) AND"
-				+ " encounter.encounter_id IN ("+result+")";
+				+ " ob.encounter_id IN ("+result+")";
 
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
@@ -1025,7 +1063,7 @@ public class EncounterObsController {
 //				encounter.setCreator(1);
 //				encounter.setDate_changed(rs.getDate("date_changed"));
 //				encounter.setDate_created(rs.getDate("date_created"));
-//				encounter.setLocation_id(8);
+//				encounter.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
 //				encounter.setPatient_id(rs.getInt("patient_id"));
 //				encounter.setVisit_id(vID);
 //				allEncounters.add(encounter);
@@ -1099,7 +1137,7 @@ public class EncounterObsController {
 //								stmt.setInt(1, module.getEncounter_id());
 //								stmt.setInt(2, module.getEncounter_type());
 //								stmt.setInt(3, module.getPatient_id());
-//								stmt.setInt(4, module.getLocation_id());
+//								stmt.setInt(4, cboLocation.getSelectionModel().getSelectedItem().getKey());
 //								stmt.setInt(5, module.getForm_id());
 //								stmt.setDate(6, new Date(module.getEncounter_datetime().getTime()));
 //								stmt.setInt(7, module.getCreator());
@@ -1197,10 +1235,20 @@ public class EncounterObsController {
 	public void createClientTrackingEncounter(){
 	}
 	public void createLabEncounter(){
-		String encSQL = "Select * from encounter where encounter_type=5 and voided = 0 ";
+
+		String subQ = "";
+		if(! offset.getText().equals("") && ! limit.getText().equals("")){
+			subQ += " LIMIT "+limit.getText()+ " OFFSET "+offset.getText();
+		}
+		String encSQL = "Select * from encounter where encounter_type=5 and voided = 0 "
+				+subQ;
+
+		String result = getEncounterIDs(encSQL);
+
 		int form_id= 21;
 		int encTYPE= 11;
-		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where encounter_type=5";
+		String obsSQL = "Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1) as unit FROM obs as ob"
+				+ " where ob.encounter_id IN ("+result+") ";
 		verseEncounter(encSQL,form_id,encTYPE,obsSQL);
 	}
 
@@ -1233,7 +1281,7 @@ public class EncounterObsController {
 //									stmt.setInt(1, module.getEncounter_id());
 //									stmt.setInt(2, module.getEncounter_type());
 //									stmt.setInt(3, module.getPatient_id());
-//									stmt.setInt(4, module.getLocation_id());
+//									stmt.setInt(4, cboLocation.getSelectionModel().getSelectedItem().getKey());
 //									stmt.setInt(5, module.getForm_id());
 //									stmt.setDate(6, new java.sql.Date(module.getEncounter_datetime().getTime()));
 //									stmt.setInt(7, module.getCreator());
@@ -1295,9 +1343,9 @@ public class EncounterObsController {
 ////												else
 ////													stmt_obs.setDate(5, null);
 ////												if (ob.getLocation_id() >= 0)
-////													stmt_obs.setInt(6, ob.getLocation_id());
+////													stmt_obs.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
 ////												else
-////													stmt_obs.setInt(6, 0);
+////													stmt_obs.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
 ////												if(ob.getAccession_number() != null)
 ////													stmt_obs.setString(7, ob.getAccession_number());
 ////												else
@@ -1601,6 +1649,8 @@ public class EncounterObsController {
 					createLabEncounter();
 				}else if(typeID == 8){
 					createClientIntakeEncounter();
+				}else if(typeID == 9){
+					createARTCommencement();
 				}
 			}else {
 				Platform.runLater(()->{
