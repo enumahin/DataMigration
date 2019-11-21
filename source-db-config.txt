@@ -1,5 +1,5 @@
-10.211.55.6
-3316
-shared
-openmrs
+localhost
+3306
+root
+root
 openmrs

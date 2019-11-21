@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import javafx.application.Platform;
@@ -42,6 +43,9 @@ import org.ccfng.global.KeyValueClass;
 public class EncounterObsController {
 
 	HashMap<Integer, Integer> concepts = new HashMap<>();
+	HashMap<Integer, Integer> commencemet = new HashMap<>();
+	HashMap<Integer, Integer> initial = new HashMap<>();
+	HashMap<Integer, Integer> enrollment = new HashMap<>();
 
 	ConnectionClass cc;
 
@@ -83,6 +87,9 @@ public class EncounterObsController {
 		cc = new ConnectionClass();
 		dd = new DestinationConnectionClass();
 		Path pathToFile = Paths.get("conceptMapping.csv");
+		Path initialToFile = Paths.get("adult_initial.csv");
+		Path commencementToFile = Paths.get("art_commencement.csv");
+		Path enrollmentToFile = Paths.get("hiv_enrollment.csv");
 		try (BufferedReader br = Files.newBufferedReader(pathToFile,
 				StandardCharsets.US_ASCII)) {
 			// read the first line from the text file
@@ -99,6 +106,87 @@ public class EncounterObsController {
 
 				// adding book into ArrayList
 				concepts.put(concept.getOpenmrs(), concept.getNmrs());
+
+				// read next line before looping
+				// if end of file reached, line would be null
+				line = br.readLine();
+			}
+
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+		try (BufferedReader br = Files.newBufferedReader(initialToFile,
+				StandardCharsets.US_ASCII)) {
+			// read the first line from the text file
+			String line = br.readLine();
+
+			// loop until all lines are read
+			while (line != null) {
+				// use string.split to load a string array with the values from
+				// each line of
+				// the file, using a comma as the delimiter
+				String[] attributes = line.split(",");
+
+				ConceptMap concept = createConceptMap(attributes);
+
+				// adding book into ArrayList
+				initial.put(concept.getOpenmrs(), concept.getNmrs());
+
+				// read next line before looping
+				// if end of file reached, line would be null
+				line = br.readLine();
+			}
+
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+		try (BufferedReader br = Files.newBufferedReader(commencementToFile,
+				StandardCharsets.US_ASCII)) {
+			// read the first line from the text file
+			String line = br.readLine();
+
+			// loop until all lines are read
+			while (line != null) {
+				// use string.split to load a string array with the values from
+				// each line of
+				// the file, using a comma as the delimiter
+				String[] attributes = line.split(",");
+
+				ConceptMap concept = createConceptMap(attributes);
+
+				// adding book into ArrayList
+				commencemet.put(concept.getOpenmrs(), concept.getNmrs());
+
+				// read next line before looping
+				// if end of file reached, line would be null
+				line = br.readLine();
+			}
+
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+		try (BufferedReader br = Files.newBufferedReader(enrollmentToFile,
+				StandardCharsets.US_ASCII)) {
+			// read the first line from the text file
+			String line = br.readLine();
+
+			// loop until all lines are read
+			while (line != null) {
+				// use string.split to load a string array with the values from
+				// each line of
+				// the file, using a comma as the delimiter
+				String[] attributes = line.split(",");
+
+				ConceptMap concept = createConceptMap(attributes);
+
+				// adding book into ArrayList
+				enrollment.put(concept.getOpenmrs(), concept.getNmrs());
 
 				// read next line before looping
 				// if end of file reached, line would be null
@@ -330,6 +418,15 @@ public class EncounterObsController {
 		List<Obs> getObs = new ArrayList<>();
 		Connection conn = null;
 		Statement stmt = null;
+
+		Map<Integer, Integer> concepts = this.concepts;
+		if(this.cboEncounter.getSelectionModel().getSelectedItem().getKey() == 1){
+			concepts = this.enrollment;
+		}else if(this.cboEncounter.getSelectionModel().getSelectedItem().getKey() == 9){
+			concepts = this.commencemet;
+		}else if(this.cboEncounter.getSelectionModel().getSelectedItem().getKey() == 2){
+			concepts = this.initial;
+		}
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
@@ -397,11 +494,20 @@ public class EncounterObsController {
 
 							if(rs.getString("unit") != null && rs.getInt("concept_id") == 7778370){
 
-								if(rs.getInt("unit") == 523){
+								if(rs.getInt("unit") == 523){//CHECK IF DURATION IS IN DAYS
+									if(rs.getDouble("value_numeric") > 180)
+										permObs.setValue_numeric(180d);
+									else
 									permObs.setValue_numeric(rs.getDouble("value_numeric"));
-								}else if(rs.getInt("unit") == 524){
-									permObs.setValue_numeric(rs.getDouble("value_numeric") * 30);
-								}else if(rs.getInt("unit") == 520){
+								}else if(rs.getInt("unit") == 524){ //CHECK IF DURATION IS IN MONTHS
+									if(rs.getDouble("value_numeric") > 6)
+										permObs.setValue_numeric(rs.getDouble("value_numeric"));
+									else
+										permObs.setValue_numeric(rs.getDouble("value_numeric") * 30);
+								}else if(rs.getInt("unit") == 520){ //CHECK IF DURATION IS IN WEEKS
+									if(rs.getDouble("value_numeric") > 6)
+										permObs.setValue_numeric(rs.getDouble("value_numeric"));
+									else
 									permObs.setValue_numeric(rs.getDouble("value_numeric") * 7);
 								}
 
@@ -806,7 +912,6 @@ public class EncounterObsController {
 				"Select ob.*, (Select value_coded from obs where obs_group_id = ob.obs_group_id AND concept_id = 7778371 Limit 1)"
 						+ " as unit from obs ob LEFT JOIN encounter on ob.encounter_id=encounter.encounter_id where encounter.form_id=65 AND encounter.voided = 0 ");
 		}).start();
-
 
 	}
 	public void createARTCommencement(){
@@ -1234,6 +1339,8 @@ public class EncounterObsController {
 
 	public void createClientTrackingEncounter(){
 	}
+
+
 	public void createLabEncounter(){
 
 		String subQ = "";

@@ -59,9 +59,7 @@
                   </Menu>
                   <Menu mnemonicParsing="false" text="Migration">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#activateDataMigration"
-                                          style="-fx-border-bottom-color: #336699; -fx-border-bottom-width: 2; -fx-border-bottom-style: solid;"
-                                          text="Data Migration" />
+                                <MenuItem mnemonicParsing="false" onAction="#activateDataMigration" style="-fx-border-bottom-color: #336699; -fx-border-bottom-width: 2; -fx-border-bottom-style: solid;" text="Data Migration" />
                                 <SeparatorMenuItem mnemonicParsing="false" />
                                 <MenuItem mnemonicParsing="false" onAction="#encObsDialog" text="Encounter / Obs" />
                                 <SeparatorMenuItem mnemonicParsing="false" />
@@ -144,7 +142,7 @@
                   </TextField>
                   <TextField fx:id="lastID" layoutX="10.0" layoutY="315.0" promptText="Where ID LT">
                      <VBox.margin>
-                        <Insets left="10.0" right="10.0" top="10.0" />
+                        <Insets left="10.0" right="10.0" top="20.0" />
                      </VBox.margin>
                   </TextField>
                     </children>
@@ -269,7 +267,7 @@
                                 </Button>
                         <Label text="Migrating Obs by Form" textFill="#336699">
                            <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
+                              <Insets left="10.0" right="10.0" top="5.0" />
                            </VBox.margin>
                            <font>
                               <Font size="14.0" />
@@ -277,12 +275,17 @@
                         </Label>
                         <CheckBox fx:id="loadByEnc" mnemonicParsing="false" text="Load Data By Form">
                            <VBox.margin>
-                              <Insets left="10.0" top="10.0" />
+                              <Insets left="10.0" top="5.0" />
                            </VBox.margin>
                         </CheckBox>
-                        <ComboBox fx:id="encounterTypes" prefHeight="27.0" prefWidth="205.0" promptText="Select Form">
+                        <ComboBox fx:id="encounterTypes" prefHeight="27.0" prefWidth="259.0" promptText="Select Form">
                            <VBox.margin>
-                              <Insets left="10.0" right="10.0" top="10.0" />
+                              <Insets left="10.0" right="10.0" top="5.0" />
+                           </VBox.margin>
+                        </ComboBox>
+                        <ComboBox fx:id="cboLocation" prefHeight="27.0" prefWidth="273.0" promptText="Select Location">
+                           <VBox.margin>
+                              <Insets left="10.0" right="10.0" top="5.0" />
                            </VBox.margin>
                         </ComboBox>
                             </children>
