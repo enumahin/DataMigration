@@ -1,40 +1,65 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="DataMigration:jar">
+  <artifact type="jar" build-on-make="true" name="DataMigration:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/DataMigration_jar</output-path>
     <root id="archive" name="DataMigration.jar">
       <element id="module-output" name="DataMigration" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/json-20190722.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/antlr-2.7.7.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/mysql-connector-java-5.1.40-bin.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/jaxb-api-2.2.jar" path-in-jar="/" />
-      <element id="library" level="project" name="joda-time-2.4-sources" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/jboss-transaction-api_1.2_spec-1.1.1.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/httpclient-4.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/httpclient-cache-4.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/byte-buddy-1.8.17.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/classmate-1.3.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/javax.persistence-api-2.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/lombok-0.11.8.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/org.ektorp-1.4.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/jboss-logging-3.3.2.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/joda-time-2.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/commons-io-2.0.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/sqljdbc4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/jackson-core-2.3.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/org-apache-commons-logging.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/slf4j-api-1.6.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../../Java_Files/javax.activation-api-1.2.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/dom4j-1.6.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/poi-4.1.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/hibernate-core-5.3.6.Final.jar" path-in-jar="/" />
-      <element id="library" level="project" name="joda-time-2.4-javadoc" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/hibernate-commons-annotations-5.0.4.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/jackson-databind-2.3.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../../Java_Files/poi-4.1.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/jandex-2.0.5.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/jackson-annotations-2.3.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/httpcore-4.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$USER_HOME$/Desktop/Java_Files/javassist-3.23.1-GA.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/sqljdbc4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/antlr-2.7.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/antlr.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/api-1.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/byte-buddy-1.8.17.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/byte-buddy-1.9.11.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/classmate-1.3.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/commons-codec-1.12.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/commons-codec-1.9.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/commons-collections4-4.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/commons-io-2.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/commons-io-2.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/commons-logging-1.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/commons-math3-3.6.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/dom4j-1.6.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/dom4j-2.1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/FastInfoset-1.2.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/guava-19.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/hibernate-commons-annotations-5.0.4.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/hibernate-commons-annotations-5.1.0.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/hibernate-core-5.3.6.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/hibernate-core-5.4.6.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/httpclient-4.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/httpcore-4.4.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/istack-commons-runtime-3.0.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/jackson-annotations-2.10.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/jackson-core-2.10.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/jackson-databind-2.10.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/jackson-datatype-joda-2.10.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/jandex-2.0.5.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/java-sdk-0.27.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/javafx-1.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/javafx-base-11.0.2-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/javafx-controls-11.0.2-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/javafx-graphics-11.0.2-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/javafx-media-11.0.2-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/javafx-web-11.0.2-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/javassist-3.23.1-GA.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/javassist-3.24.0-GA.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/javax.activation-api-1.2.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/javax.persistence-api-2.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/jaxb-api-2.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/jaxb-runtime-2.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/jboss-logging-3.3.1.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/jboss-logging-3.3.2.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/jboss-transaction-api_1.2_spec-1.1.1.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/joda-time-2.10.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/lombok-0.11.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/mysql-connector-java8-5.1.23.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/oauth-1.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/openid-1.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/poi-4.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/slf4j-api-1.7.25.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/slf4j-api-1.7.27.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/stax-ex-1.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/txw2-2.3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../libs/xml-apis-1.0.b2.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

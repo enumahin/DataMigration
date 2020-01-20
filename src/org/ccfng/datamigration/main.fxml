@@ -1,23 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.ProgressIndicator?>
-<?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<AnchorPane fx:id="mainLayer" maxHeight="800.0" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="641.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ccfng.datamigration.Controller">
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<AnchorPane fx:id="mainLayer" maxHeight="800.0" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="641.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.ccfng.datamigration.Controller">
     <children>
         <HBox prefHeight="38.0" prefWidth="800.0" style="-fx-background-color: #336699;">
             <children>
@@ -66,6 +53,11 @@
                                 <MenuItem mnemonicParsing="false" onAction="#openmrsMigration" text="OpenMRS Migration" />
                             </items>
                    </Menu>
+                  <Menu mnemonicParsing="false" text="NMRS Tools">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#nmrsLineList" text="Line List" />
+                    </items>
+                  </Menu>
                   <Menu mnemonicParsing="false" text="Help">
                      <items>
                         <MenuItem mnemonicParsing="false" text="About" />
@@ -135,7 +127,7 @@
                         <Insets left="10.0" top="10.0" />
                      </VBox.margin>
                   </Label>
-                  <TextField fx:id="firstID" promptText="Where ID GT or EQ">
+                  <TextField fx:id="firstID" promptText="Where ID GT or EQ" text="0">
                      <VBox.margin>
                         <Insets left="10.0" right="10.0" top="10.0" />
                      </VBox.margin>
@@ -161,11 +153,27 @@
                                         <Insets left="10.0" right="10.0" top="10.0" />
                                     </VBox.margin>
                                 </ProgressBar>
+                                <Label fx:id="obsCount" prefHeight="28.0" prefWidth="270.0" text="0" textFill="#336699">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" />
+                                    </VBox.margin>
+                                </Label>
                                 <ProgressIndicator fx:id="progressIndicator" prefHeight="45.0" prefWidth="270.0" progress="0.0">
                                     <VBox.margin>
                                         <Insets left="10.0" right="10.0" />
                                     </VBox.margin>
                                 </ProgressIndicator>
+                                <Label fx:id="totalObsCount" prefHeight="28.0" prefWidth="270.0" text="0" textFill="#000">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets left="10.0" right="10.0" />
+                                    </VBox.margin>
+                                </Label>
                                 <TextField fx:id="tableSuffix" promptText="Source Table Suffix">
                                     <VBox.margin>
                                         <Insets left="10.0" right="10.0" top="10.0" />

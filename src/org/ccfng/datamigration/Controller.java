@@ -1,33 +1,5 @@
 package org.ccfng.datamigration;
 
-import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,15 +7,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -87,6 +51,21 @@ import org.ccfng.global.DestinationConnectionClass;
 import org.ccfng.global.KeyValueClass;
 import org.ccfng.openmrscleanup.OpenmrsCleanupController;
 import org.hibernate.HibernateException;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.util.*;
+import java.util.stream.Stream;
+
+import static org.ccfng.datamigration.filepaths.FilePath.xsdDir;
 
 public class Controller {
 
@@ -261,6 +240,12 @@ public class Controller {
 
     @FXML
     private TextField lastID;
+
+    @FXML
+    private Label obsCount;
+
+    @FXML
+    private Label totalObsCount;
 
     @FXML
     private ComboBox<EncounterType> encounterTypes;
@@ -440,20 +425,28 @@ public class Controller {
     }
 
     public void dataLoader(){
-	    Platform.runLater(() -> {
-		    logToConsole("\n Loading Data from DB, please wait......");
-	    });
-        DBMiddleMan.getObs();
-        DBMiddleMan.getPatients();
-        DBMiddleMan.getPatientIdentifiers();
-        DBMiddleMan.getPatientProgram();
-        DBMiddleMan.getPeople();
-        DBMiddleMan.getPeopleNames();
-        DBMiddleMan.getAllPeopleAddresses();
-        DBMiddleMan.getEncounters();
-        Platform.runLater(() -> {
-            logToConsole("\n Data loaded successfully.");
-        });
+        if(cboLocation.getSelectionModel().getSelectedItem().getKey() > 0) {
+            Platform.runLater(() -> {
+                logToConsole("\n Loading Data from DB, please wait......");
+            });
+            Integer loc = cboLocation.getSelectionModel().getSelectedItem().getKey();
+            DBMiddleMan.getObs(loc);
+            DBMiddleMan.getPatients(loc);
+            DBMiddleMan.getPatientIdentifiers(loc);
+            DBMiddleMan.getPatientProgram(loc);
+            DBMiddleMan.getPeople();
+            DBMiddleMan.getPeopleNames();
+            DBMiddleMan.getAllPeopleAddresses();
+            DBMiddleMan.getPeopleAttributes();
+            DBMiddleMan.getEncounters(loc);
+            Platform.runLater(() -> {
+                logToConsole("\n Data loaded successfully.");
+            });
+        }else{
+            Platform.runLater(() -> {
+                logToConsole("\n Please select location first before loading data.....");
+            });
+        }
     }
 
     @FXML
@@ -545,8 +538,9 @@ public class Controller {
                             //new Thread(()->loadEncounter());
                             break;
                         case "obs":
-                            loadObs();
                             checkLastObs();
+                            //loadObs();
+                            loadObsSpecial();
                             //new Thread(()->loadObs());
                             break;
                         case "patient":
@@ -605,11 +599,6 @@ public class Controller {
                                         progressBar.progressProperty().bind(encounterTask.progressProperty());
                                         progressIndicator.progressProperty().bind(encounterTask.progressProperty());
                                         new Thread(encounterTask).start();
-                                        break;
-                                    case "obs":
-                                        progressBar.progressProperty().bind(obsTask.progressProperty());
-                                        progressIndicator.progressProperty().bind(obsTask.progressProperty());
-                                        new Thread(obsTask).start();
                                         break;
                                     case "patient":
                                         progressBar.progressProperty().bind(patientTask.progressProperty());
@@ -1276,47 +1265,24 @@ public class Controller {
 
     }
 
-    private void loadObs() {
+    private void loadObsSpecial(){
 
-        obsTask = new Task<ObservableList<Obs>>() {
+        Task<ObservableList<Obs>> obTask = new Task<ObservableList<Obs>>() {
             @Override
-            protected ObservableList<Obs> call() {
+            protected ObservableList<Obs> call() throws Exception {
+
                 try {
                     allObses = FXCollections.observableArrayList();
                     Obses obses = new Obses();
-                    if((encounterTypes.getSelectionModel().getSelectedItem().getId() == 19 ||
-                            encounterTypes.getSelectionModel().getSelectedItem().getId() == 28 ||
-                            encounterTypes.getSelectionModel().getSelectedItem().getId() == 65) &&
-                            sourceDB.getSelectionModel().getSelectedIndex() == 0
-                            ){
-                        logToConsole("\n Going for data merging!!!");
-                        //logToConsole(hivEnrollment().toString());
-                        for(Obs ob : hivEnrollment()) {
-                            allObses.add(ob);
-                        }
-                        //logToConsole("All Obs:" +allObses);
-
-                    }else if((encounterTypes.getSelectionModel().getSelectedItem().getId() == 1 ||
-                            encounterTypes.getSelectionModel().getSelectedItem().getId() == 20 ||
-                            encounterTypes.getSelectionModel().getSelectedItem().getId() == 18) &&
-                            sourceDB.getSelectionModel().getSelectedIndex() == 0
-                            ){
-                        logToConsole("\n Going for data merging!!!");
-                        //logToConsole(hivEnrollment().toString());
-                        for(Obs ob : initialEvaluation()) {
-                            allObses.add(ob);
-                        }
-                        //logToConsole("All Obs:" +allObses);
-
-                    }else if (sourceDB.getSelectionModel().getSelectedIndex() == 0 ||
+                    if(sourceDB.getSelectionModel().getSelectedIndex() == 0 ||
                             sourceDB.getSelectionModel().getSelectedIndex() == 1 ||
                             sourceDB.getSelectionModel().getSelectedIndex() == 2) {
-                        logToConsole("\n No data merging!!!");
+
                         connectionSettings();
 
                         Connection conn = null;
                         Statement stmt = null;
-                        try {
+                        try{
                             //STEP 2: Register JDBC driver
                             Class.forName(driver);
 
@@ -1329,221 +1295,79 @@ public class Controller {
 
                             stmt = conn.createStatement();
                             String sql = "";
-                            if (fromFile.isSelected()) {
+                            if(fromFile.isSelected()){
                                 sql = getSQL();
-                            } else {
-                                if(loadByEnc.isSelected()) {
-                                        if (encounterTypes.getSelectionModel().getSelectedItem() != null) {
-                                            if(! firstID.getText().isEmpty() && ! lastID.getText().isEmpty()) {
-                                                if (Integer.parseInt(firstID.getText()) > 0
-                                                        && Integer.parseInt(lastID.getText()) > 0) {
-                                                    logToConsole("\n Fetching Data from Range of ID: " + Integer
-                                                            .parseInt(firstID.getText()) + " TO " + lastID.getText() + "\n");
-                                                    sql = "SELECT * FROM " + suffix
-                                                            + "obs LEFT JOIN encounter on obs.encounter_id = encounter.encounter_id where obs_id >= "
-                                                            +
-                                                            Integer.parseInt(firstID.getText()) +
-                                                            " && obs_id < " + Integer.parseInt(lastID.getText()) +
-                                                            " && encounter.form_id = " +
-                                                            encounterTypes.getSelectionModel().getSelectedItem().getId();
-
-                                                    }
-                                                } else {
-                                                    sql = "SELECT * FROM " + suffix
-                                                            + "obs LEFT JOIN encounter on obs.encounter_id = encounter.encounter_id where form_id = "
-                                                            +
-                                                            encounterTypes.getSelectionModel().getSelectedItem().getId();
-                                                }
-
-                                        } else {
-                                            logToConsole(
-                                                    "\n Please select obs Encounter Type you want to migrate and try again!....");
-                                        }
-                                }else {
-                                    logToConsole("\n All Data...");
-                                    if (Integer.parseInt(firstID.getText()) > 0
-                                            && Integer.parseInt(lastID.getText()) > 0) {
-                                        sql = "SELECT * FROM " + suffix + "obs where obs_id >= "+
-                                                Integer.parseInt(firstID.getText()) +
-                                                " && obs_id < " + Integer.parseInt(lastID.getText());
-                                    }else{
-                                        sql = "SELECT * FROM " + suffix + "obs";
-                                    }
+                            }else{
+                                logToConsole("\n All Data...");
+                                if (Integer.parseInt(firstID.getText()) > 0
+                                        && Integer.parseInt(lastID.getText()) > 0) {
+                                    sql = "SELECT * FROM " + suffix + "obs where obs_id >= "+
+                                            Integer.parseInt(firstID.getText()) +
+                                            " && obs_id < " + Integer.parseInt(lastID.getText());
+                                }else{
+                                    sql = "SELECT * FROM " + suffix + "obs";
                                 }
-
                             }
-                            logToConsole("USING: "+sql);
                             logToConsole("\n Creating Select statement...");
                             ResultSet rs = stmt.executeQuery(sql);
                             //STEP 5: Extract data from result set
-                            while (rs.next()) {
+                            while(rs.next()){
                                 //Retrieve by column name
-                                if(sourceDB.getSelectionModel().getSelectedIndex() == 0) {
-                                   // logToConsole("\nFetching Obs ID: "+rs.getInt("obs_id"));
-                                  try (PrintWriter writer = new PrintWriter(encounterTypes.getSelectionModel().getSelectedItem().getName().toLowerCase().replaceAll("[^a-zA-Z0-9]", "_").toLowerCase()+".csv", "UTF-8")) {
-                                    if(concepts.containsKey(rs.getInt("concept_id"))){
-                                        Obs obs = new Obs();
-                                        if (rs.getString("accession_number") != null)
-                                            obs.setAccession_number(rs.getString("accession_number"));
-
-                                        if (rs.getString("comments") != null)
-                                            obs.setComments(rs.getString("comments"));
-
-                                        // DO Concept Mapping here
-                                            obs.setConcept_id(concepts.get(rs.getInt("concept_id")));
-
-                                        obs.setUuid(UUID.randomUUID());
-                                        obs.setCreator(1);
-                                        obs.setDate_created(rs.getDate("date_created"));
-
-                                        if (rs.getDate("date_voided") != null)
-                                            obs.setDate_voided(rs.getDate("date_voided"));
-
-                                        obs.setEncounter_id(rs.getInt("encounter_id"));
-                                        obs.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
-                                        //obs.setForm_namespace_and_path(rs.getString("form_namespace_and_path"));
-                                        // obs.setVisit_id(rs.getInt("visit_id"));
-
-                                        if (rs.getString("void_reason") != null)
-                                            obs.setVoid_reason(rs.getString("void_reason"));
-
-                                        obs.setVoided(rs.getBoolean("voided"));
-                                        obs.setObs_datetime(rs.getDate("obs_datetime"));
-
-                                        if (rs.getInt("obs_group_id") > 0)
-                                            obs.setObs_group_id(rs.getInt("obs_group_id"));
-
-                                        if (rs.getInt("obs_id") > 0)
-                                            obs.setObs_id(rs.getInt("obs_id"));
-                                        if (rs.getInt("order_id") > 0)
-                                            obs.setOrder_id(rs.getInt("order_id"));
-
-                                        obs.setPerson_id(rs.getInt("person_id"));
-                                        //obs.setPrevious_version(rs.getInt("previous_version"));
-                                        //Do Concept Mapping here
-                                        if(concepts.containsKey(rs.getInt("value_coded"))){
-                                            obs.setValue_coded(concepts.get(rs.getInt("value_coded")));
-                                        }else{
-                                            obs.setValue_coded(concepts.get(rs.getInt("value_coded")));
-                                            writer.println(rs.getInt("value_coded"));
-                                        }
-                                        //obs.setValue_coded(rs.getInt("value_coded"));
-                                        if (rs.getInt("value_coded_name_id") > 0)
-                                            obs.setValue_coded_name_id(rs.getInt("value_coded_name_id"));
-                                        if (rs.getString("value_complex") != null)
-                                            obs.setValue_complex(rs.getString("value_complex"));
-                                        if (rs.getDate("value_datetime") != null)
-                                            obs.setValue_datetime(rs.getDate("value_datetime"));
-                                        if (rs.getInt("value_drug") > 0)
-                                            obs.setValue_drug(rs.getInt("value_drug"));
-                                        if (rs.getInt("value_group_id") > 0)
-                                            obs.setValue_group_id(rs.getInt("value_group_id"));
-                                        if (rs.getString("value_modifier") != null)
-                                            obs.setValue_modifier(rs.getString("value_modifier"));
-                                        if (rs.getDouble("value_numeric") != 0)
-                                            obs.setValue_numeric(rs.getDouble("value_numeric"));
-                                        if (rs.getString("value_text") != null)
-                                            obs.setValue_text(rs.getString("value_text"));
-                                        if (rs.getInt("voided_by") > 0)
-                                            obs.setVoided_by(rs.getInt("voided_by"));
-                                        allObses.add(obs);
-                                    }else{
-                                        writer.println(rs.getInt("concept_id"));
-                                    }
-                                 } catch (IOException exc) {
-
-                                        logToConsole("Error writing Configs to file: " + exc.getMessage() + "..... \n");
-                                 }
-
-                                }else {
-                                    Obs obs = new Obs();
-                                    if (rs.getString("accession_number") != null)
-                                        obs.setAccession_number(rs.getString("accession_number"));
-                                    //                                else
-                                    //                                    obs.setAccession_number(null);
-
-                                    if (rs.getString("comments") != null)
-                                        obs.setComments(rs.getString("comments"));
-                                    //                                else
-                                    //                                    obs.setComments(null);
-
-                                        obs.setConcept_id(rs.getInt("concept_id"));
-
-                                    obs.setUuid(UUID.randomUUID());
-                                    obs.setCreator(1);
-                                    obs.setDate_created(rs.getDate("date_created"));
-
-                                    if (rs.getDate("date_voided") != null)
-                                        obs.setDate_voided(rs.getDate("date_voided"));
-
-                                    obs.setEncounter_id(rs.getInt("encounter_id"));
-                                    obs.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
-                                    //obs.setForm_namespace_and_path(rs.getString("form_namespace_and_path"));
-                                    // obs.setVisit_id(rs.getInt("visit_id"));
-
-                                    if (rs.getString("void_reason") != null)
-                                        obs.setVoid_reason(rs.getString("void_reason"));
-
-                                    obs.setVoided(rs.getBoolean("voided"));
-                                    obs.setObs_datetime(rs.getDate("obs_datetime"));
-
-                                    if (rs.getInt("obs_group_id") > 0)
-                                        obs.setObs_group_id(rs.getInt("obs_group_id"));
-
-                                    if (rs.getInt("obs_id") > 0)
-                                        obs.setObs_id(rs.getInt("obs_id"));
-                                    if (rs.getInt("order_id") > 0)
-                                        obs.setOrder_id(rs.getInt("order_id"));
-
-                                    obs.setPerson_id(rs.getInt("person_id"));
-                                    //obs.setPrevious_version(rs.getInt("previous_version"));
-                                    //Do Concept Mapping here
-
-                                        obs.setValue_coded(rs.getInt("value_coded"));
-
-                                    //obs.setValue_coded(rs.getInt("value_coded"));
-                                    if (rs.getInt("value_coded_name_id") > 0)
-                                        obs.setValue_coded_name_id(rs.getInt("value_coded_name_id"));
-                                    if (rs.getString("value_complex") != null)
-                                        obs.setValue_complex(rs.getString("value_complex"));
-                                    if (rs.getDate("value_datetime") != null)
-                                        obs.setValue_datetime(rs.getDate("value_datetime"));
-                                    if (rs.getInt("value_drug") > 0)
-                                        obs.setValue_drug(rs.getInt("value_drug"));
-                                    if (rs.getInt("value_group_id") > 0)
-                                        obs.setValue_group_id(rs.getInt("value_group_id"));
-                                    if (rs.getString("value_modifier") != null)
-                                        obs.setValue_modifier(rs.getString("value_modifier"));
-                                    if (rs.getDouble("value_numeric") != 0)
-                                        obs.setValue_numeric(rs.getDouble("value_numeric"));
-                                    if (rs.getString("value_text") != null)
-                                        obs.setValue_text(rs.getString("value_text"));
-                                    if (rs.getInt("voided_by") > 0)
-                                        obs.setVoided_by(rs.getInt("voided_by"));
-                                    allObses.add(obs);
-                                }
+                                Obs obs = new Obs();
+                                obs.setAccession_number(rs.getString("accession_number"));
+                                obs.setComments(rs.getString("comments"));
+                                obs.setConcept_id(rs.getInt("concept_id"));
+                                obs.setUuid(UUID.randomUUID());
+                                obs.setCreator(1);
+                                obs.setDate_created(rs.getDate("date_created"));
+                                obs.setDate_voided(rs.getDate("date_voided"));
+                                obs.setEncounter_id(rs.getInt("encounter_id"));
+                                obs.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
+                                obs.setForm_namespace_and_path(rs.getString("form_namespace_and_path"));
+//                                obs.setVisit_id(rs.getInt("visit_id"));
+                                obs.setVoid_reason(rs.getString("void_reason"));
+                                obs.setVoided(rs.getBoolean("voided"));
+                                obs.setObs_datetime(rs.getDate("obs_datetime"));
+                                if(null != rs.getString("obs_group_id"))
+                                    obs.setObs_group_id(rs.getInt("obs_group_id"));
+                                obs.setObs_id(rs.getInt("obs_id"));
+                                obs.setOrder_id(rs.getInt("order_id"));
+                                obs.setPerson_id(rs.getInt("person_id"));
+                                obs.setPrevious_version(rs.getInt("previous_version"));
+                                obs.setValue_coded(rs.getInt("value_coded"));
+                                obs.setValue_coded_name_id(rs.getInt("value_coded_name_id"));
+                                obs.setValue_complex(rs.getString("value_complex"));
+                                obs.setValue_datetime(rs.getDate("value_datetime"));
+                                obs.setValue_drug(rs.getInt("value_drug"));
+                                obs.setValue_group_id(rs.getInt("value_group_id"));
+                                obs.setValue_modifier(rs.getString("value_modifier"));
+                                obs.setValue_numeric(rs.getDouble("value_numeric"));
+                                obs.setValue_text(rs.getString("value_text"));
+                                obs.setVoided_by(rs.getInt("voided_by"));
+                                allObses.add(obs);
                             }
+                            ;
                             rs.close();
                             logToConsole("\n Data Successfully Fetched!\n");
-                        } catch (SQLException se) {
+                        }catch(SQLException se){
                             //Handle errors for JDBC
                             se.printStackTrace();
-                            logToConsole("\n Error: " + se.getMessage());
-                        } catch (Exception e) {
+                            logToConsole("\n Error: "+se.getMessage());
+                        }catch(Exception e){
                             //Handle errors for Class.forName
                             e.printStackTrace();
-                            logToConsole("\n Error: " + e.getMessage());
-                        } finally {
+                            logToConsole("\n Error: "+e.getMessage());
+                        }finally{
                             //finally block used to close resources
-                            try {
-                                if (stmt != null)
+                            try{
+                                if(stmt!=null)
                                     conn.close();
-                            } catch (SQLException se) {
+                            }catch(SQLException se){
                             }// do nothing
                             closeConnection(conn);
                         }//end try
 
-                    } else {
+                    }else{
                         logToConsole("#################### XML BASED MIGRATION!");
 
                         File file = null;
@@ -1568,155 +1392,375 @@ public class Controller {
                         }
 
                     }
-
-                    if (allObses.isEmpty()) {
+                    if(allObses.isEmpty()) {
                         for (Obs theObs : obses.getObses()) {
                             theObs.setUuid(UUID.randomUUID());
                             allObses.add(theObs);
                         }
                     }
 
-                    if (!allObses.isEmpty()) {
-
+                    if(! allObses.isEmpty()) {
+                        Integer finalTotObs = allObses.size();
+                        logToConsole("Total OBS:......\n");
+                        Platform.runLater(()->{
+                            logToConsole("Total OBS: "+finalTotObs.toString()+"\n");
+                            totalObsCount.setText(finalTotObs.toString());
+                        });
                         Obs currentObs = new Obs();
 
-                        String INSERT_SQL = "REPLACE INTO obs"
-                                + "(person_id, concept_id, encounter_id, order_id, obs_datetime, location_id," +
+                        String INSERT_SQL = "INSERT INTO obs"
+                                + "( person_id, concept_id, encounter_id, order_id, obs_datetime, location_id," +
                                 "accession_number, value_group_id, value_coded, value_coded_name_id, value_drug, value_datetime, " +
                                 "value_numeric, value_modifier, value_text, value_complex, comments," +
-                                "creator, date_created, voided, date_voided, void_reason, uuid, form_namespace_and_path, obs_group_id,obs_id) " +
-                                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                                "creator, date_created, voided, date_voided, void_reason, uuid, previous_version, form_namespace_and_path,obs_group_id,obs_id) " +
+                                "VALUES ( ? ,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
                         String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
                         String username = SessionManager.username;
                         String password = SessionManager.password;
-                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
 
                             conn.setAutoCommit(false);
-                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
                                 int wDone = 0;
                                 // Insert sample records
 
                                 for (Obs module : allObses) {
-                                    ///try {
-                                    currentObs = module;
-                                    stmt.setInt(26, module.getObs_id());
-                                    if(module.getObs_group_id() != null)
-                                        stmt.setInt(25, module.getObs_group_id());
-                                    else
-                                        stmt.setString(25, null);
-                                    stmt.setInt(1, module.getPerson_id());
-                                    stmt.setInt(2, module.getConcept_id());
-                                    stmt.setInt(3, module.getEncounter_id());
-                                    if(module.getOrder_id() != null)
+                                    try {
+                                        System.out.println("\n Loading Data.....");
+                                        currentObs = module;
+                                        stmt.setInt(27, module.getObs_id());
+                                        //stmt.setInt(1, module.getVisit_id());
+                                        stmt.setInt(1, module.getPerson_id());
+                                        stmt.setInt(2, module.getConcept_id());
+                                        stmt.setInt(3, module.getEncounter_id());
                                         stmt.setInt(4, module.getOrder_id());
-                                    else
-                                        stmt.setString(4, null);
-                                    if (module.getObs_datetime() != null)
-                                        stmt.setDate(5, new java.sql.Date(module.getObs_datetime().getTime()));
-                                    else
-                                        stmt.setDate(5, null);
-                                    stmt.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
-                                    if(module.getAccession_number() != null)
+                                        if (module.getObs_datetime() != null)
+                                            stmt.setDate(5, new java.sql.Date(module.getObs_datetime().getTime()));
+                                        else
+                                            stmt.setDate(5, null);
+                                        stmt.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
                                         stmt.setString(7, module.getAccession_number());
-                                    else
-                                        stmt.setString(7, null);
-                                    if(module.getValue_group_id() != null)
                                         stmt.setInt(8, module.getValue_group_id());
-                                    else
-                                        stmt.setString(8, null);
-                                    if(module.getValue_coded() != null)
                                         stmt.setInt(9, module.getValue_coded());
-                                    else
-                                        stmt.setString(9, null);
-                                    if(module.getValue_coded_name_id() != null)
                                         stmt.setInt(10, module.getValue_coded_name_id());
-                                    else
-                                        stmt.setString(10, null);
-                                    if(module.getValue_drug() != null)
                                         stmt.setInt(11, module.getValue_drug());
-                                    else
-                                        stmt.setString(11, null);
-                                    if (module.getValue_datetime() != null)
-                                        stmt.setDate(12, new java.sql.Date(module.getValue_datetime().getTime()));
-                                    else
-                                        stmt.setDate(12, null);
-                                    if(module.getValue_numeric() != null)
+                                        if (module.getValue_datetime() != null)
+                                            stmt.setDate(12, new java.sql.Date(module.getValue_datetime().getTime()));
+                                        else
+                                            stmt.setDate(12, null);
                                         stmt.setDouble(13, module.getValue_numeric());
-                                    else
-                                        stmt.setString(13, null);
-                                    if(module.getValue_modifier() != null)
                                         stmt.setString(14, module.getValue_modifier());
-                                    else
-                                        stmt.setString(14, null);
-                                    if(module.getValue_text() != null)
                                         stmt.setString(15, module.getValue_text());
-                                    else
-                                        stmt.setString(15, null);
-                                    if(module.getValue_complex() != null)
                                         stmt.setString(16, module.getValue_complex());
-                                    else
-                                        stmt.setString(16, null);
-                                    if(module.getComments() != null)
                                         stmt.setString(17, module.getComments());
-                                    else
-                                        stmt.setString(17, null);
                                         stmt.setInt(18, module.getCreator());
-                                    if (module.getDate_created() != null)
-                                        stmt.setDate(19, new java.sql.Date(module.getDate_created().getTime()));
-                                    else
-                                        stmt.setDate(19, null);
-                                    stmt.setBoolean(20, module.isVoided());
-                                    if (module.getDate_voided() != null)
-                                        stmt.setDate(21, new java.sql.Date(module.getDate_voided().getTime()));
-                                    else
-                                        stmt.setDate(21, null);
-                                    if(module.getVoid_reason() != null)
+                                        if (module.getDate_created() != null)
+                                            stmt.setDate(19, new java.sql.Date(module.getDate_created().getTime()));
+                                        else
+                                            stmt.setDate(19, null);
+                                        stmt.setBoolean(20, module.isVoided());
+                                        if (module.getDate_voided() != null)
+                                            stmt.setDate(21, new java.sql.Date(module.getDate_voided().getTime()));
+                                        else
+                                            stmt.setDate(21, null);
                                         stmt.setString(22, module.getVoid_reason());
-                                    else
-                                        stmt.setString(22, null);
-                                    stmt.setString(23, module.getUuid().toString());
-                                    //stmt.setInt(24, module.getPrevious_version());
-                                    if(module.getForm_namespace_and_path() != null)
-                                        stmt.setString(24, module.getForm_namespace_and_path());
-                                    else
-                                        stmt.setString(24, null);
-                                    //Add statement to batch
-                                    stmt.addBatch();
-                                    updateProgress(wDone + 1, allObses.size());
-                                    Integer pDone = ((wDone + 1) / allObses.size()) * 100;
-                                    wDone++;
-//                                    }catch(Exception ex){
-//                                        logToConsole("\n Exception Error: "+ ex.getMessage() + " in Obs with "+currentObs.getEncounter_id()+" Encounter ID!");
-//                                        ex.printStackTrace();
-//                                    }
+                                        stmt.setString(23, module.getUuid().toString());
+                                        stmt.setInt(24, module.getPrevious_version());
+                                        stmt.setString(25, module.getForm_namespace_and_path());
+                                        if( module.getObs_group_id() != null)
+                                            stmt.setInt(26, module.getObs_group_id());
+                                        else
+                                            stmt.setString(26, null);
+                                        //Add statement to batch
+                                        stmt.addBatch();
+
+                                        Integer finalWDone = wDone;
+                                        new Thread(()->{
+                                            Platform.runLater(()->{
+                                                updateProgress(finalWDone + 1, allObses.size());
+                                                obsCount.setText(finalWDone.toString());
+                                            });
+                                        }).start();
+
+                                        Integer pDone = ((wDone + 1) / allObses.size()) * 100;
+                                        wDone++;
+                                    }catch(Exception ex){
+                                        logToConsole("\n Exception Error: "+ ex.getMessage() + " in Obs with "+currentObs.getEncounter_id()+" Encounter ID!");
+                                        ex.printStackTrace();
+                                    }
                                 }
                                 //execute batch
                                 stmt.executeBatch();
                                 conn.commit();
                                 logToConsole("Transaction is committed successfully.");
                             } catch (SQLException e) {
-                                logToConsole(e.getMessage());
                                 e.printStackTrace();
                                 rollbackTransaction(conn, e);
                             }
                         } catch (SQLException e) {
-                            logToConsole(e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                return FXCollections.observableArrayList(allObses);
+                }catch (ArrayIndexOutOfBoundsException ex){
+                    logToConsole("ArrayIndexOutOfBoundsException Error: "+ex.getMessage());
+                    ex.printStackTrace();
+                }catch (HibernateException ex){
+                    logToConsole("HibernateException Error: "+ex.getMessage());
+                    ex.printStackTrace();
+                }catch (Exception ex){
+                    logToConsole("Exception Error: "+ex.getMessage());
+                    ex.printStackTrace();
+                }
+                 return FXCollections.observableArrayList(allObses);
+            }
+
+        };
+
+        if(progressBar.progressProperty().isBound()){
+            progressBar.progressProperty().unbind();
+            progressIndicator.progressProperty().unbind();
+        }
+        progressBar.progressProperty().bind(obTask.progressProperty());
+        progressIndicator.progressProperty().bind(obTask.progressProperty());
+
+        new Thread(obTask).start();
+
+    }
+
+    private void loadObs(){
+        obsTask = new Task<ObservableList<Obs>>() {
+            @Override
+            protected ObservableList<Obs> call() throws Exception {
+                try {
+                    allObses = FXCollections.observableArrayList();
+                    Obses obses = new Obses();
+                    if(sourceDB.getSelectionModel().getSelectedIndex() == 0 ||
+                            sourceDB.getSelectionModel().getSelectedIndex() == 1 ||
+                            sourceDB.getSelectionModel().getSelectedIndex() == 2) {
+
+                        connectionSettings();
+
+                        Connection conn = null;
+                        Statement stmt = null;
+                        try{
+                            //STEP 2: Register JDBC driver
+                            Class.forName(driver);
+
+                            //STEP 3: Open a connection
+                            logToConsole("\n Connecting to Source Database!!");
+                            conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);
+                            logToConsole("\n Connected to database successfully...");
+
+                            //STEP 4: Execute a query
+
+                            stmt = conn.createStatement();
+                            String sql = "";
+                            if(fromFile.isSelected()){
+                                sql = getSQL();
+                            }else{
+                                logToConsole("\n All Data...");
+                                if (Integer.parseInt(firstID.getText()) > 0
+                                        && Integer.parseInt(lastID.getText()) > 0) {
+                                    sql = "SELECT * FROM " + suffix + "obs where obs_id >= "+
+                                            Integer.parseInt(firstID.getText()) +
+                                            " && obs_id < " + Integer.parseInt(lastID.getText());
+                                }else{
+                                    sql = "SELECT * FROM " + suffix + "obs";
+                                }
+                            }
+                            logToConsole("\n Creating Select statement...");
+                            ResultSet rs = stmt.executeQuery(sql);
+                            //STEP 5: Extract data from result set
+                            while(rs.next()){
+                                //Retrieve by column name
+                                Obs obs = new Obs();
+                                obs.setAccession_number(rs.getString("accession_number"));
+                                obs.setComments(rs.getString("comments"));
+                                obs.setConcept_id(rs.getInt("concept_id"));
+                                obs.setUuid(UUID.randomUUID());
+                                obs.setCreator(1);
+                                obs.setDate_created(rs.getDate("date_created"));
+                                obs.setDate_voided(rs.getDate("date_voided"));
+                                obs.setEncounter_id(rs.getInt("encounter_id"));
+                                obs.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
+                                obs.setForm_namespace_and_path(rs.getString("form_namespace_and_path"));
+//                                obs.setVisit_id(rs.getInt("visit_id"));
+                                obs.setVoid_reason(rs.getString("void_reason"));
+                                obs.setVoided(rs.getBoolean("voided"));
+                                obs.setObs_datetime(rs.getDate("obs_datetime"));
+                                if(null != rs.getString("obs_group_id"))
+                                    obs.setObs_group_id(rs.getInt("obs_group_id"));
+                                obs.setObs_id(rs.getInt("obs_id"));
+                                obs.setOrder_id(rs.getInt("order_id"));
+                                obs.setPerson_id(rs.getInt("person_id"));
+                                obs.setPrevious_version(rs.getInt("previous_version"));
+                                obs.setValue_coded(rs.getInt("value_coded"));
+                                obs.setValue_coded_name_id(rs.getInt("value_coded_name_id"));
+                                obs.setValue_complex(rs.getString("value_complex"));
+                                obs.setValue_datetime(rs.getDate("value_datetime"));
+                                obs.setValue_drug(rs.getInt("value_drug"));
+                                obs.setValue_group_id(rs.getInt("value_group_id"));
+                                obs.setValue_modifier(rs.getString("value_modifier"));
+                                obs.setValue_numeric(rs.getDouble("value_numeric"));
+                                obs.setValue_text(rs.getString("value_text"));
+                                obs.setVoided_by(rs.getInt("voided_by"));
+                                allObses.add(obs);
+                            }
+                            rs.close();
+                            logToConsole("\n Data Successfully Fetched!\n");
+                        }catch(SQLException se){
+                            //Handle errors for JDBC
+                            se.printStackTrace();
+                            logToConsole("\n Error: "+se.getMessage());
+                        }catch(Exception e){
+                            //Handle errors for Class.forName
+                            e.printStackTrace();
+                            logToConsole("\n Error: "+e.getMessage());
+                        }finally{
+                            //finally block used to close resources
+                            try{
+                                if(stmt!=null)
+                                    conn.close();
+                            }catch(SQLException se){
+                            }// do nothing
+                            closeConnection(conn);
+                        }//end try
+
+                    }else{
+                        logToConsole("#################### XML BASED MIGRATION!");
+
+                        File file = null;
+
+                        try {
+                            logToConsole("Fetching obs.xml file......\n");
+                            file = new File(xsdDir + "/obs.xml");
+                            logToConsole("File fetched......\n");
+                        } catch (Exception e) {
+                            logToConsole("Error opening file obs.xml: " + e.getMessage() + "\n");
+                        }
+
+                        try {
+                            logToConsole("Converting file to a Model......\n");
+                            JAXBContext jaxbContext = JAXBContext.newInstance(Obses.class);
+                            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+                            obses = (Obses) unmarshaller.unmarshal(file);
+                            logToConsole("Conversion Done......\n");
+                        } catch (Exception exc) {
+                            logToConsole("Error Loading File Content to a Model: " + exc.getMessage() + "\n");
+                        }
+
+                    }
+                    if(allObses.isEmpty()) {
+                        for (Obs theObs : obses.getObses()) {
+                            theObs.setUuid(UUID.randomUUID());
+                            allObses.add(theObs);
+                        }
+                    }
+
+                    if(! allObses.isEmpty()) {
+                        Obs currentObs = new Obs();
+
+                        String INSERT_SQL = "INSERT INTO obs"
+                                + "( person_id, concept_id, encounter_id, order_id, obs_datetime, location_id," +
+                                "accession_number, value_group_id, value_coded, value_coded_name_id, value_drug, value_datetime, " +
+                                "value_numeric, value_modifier, value_text, value_complex, comments," +
+                                "creator, date_created, voided, date_voided, void_reason, uuid, previous_version, form_namespace_and_path,obs_group_id,obs_id) " +
+                                "VALUES ( ? ,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+                        String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
+                                "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
+                        String username = SessionManager.username;
+                        String password = SessionManager.password;
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+
+                            conn.setAutoCommit(false);
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                                int wDone = 0;
+                                // Insert sample records
+
+                                for (Obs module : allObses) {
+                                    try {
+                                        currentObs = module;
+                                        stmt.setInt(27, module.getObs_id());
+                                        //stmt.setInt(1, module.getVisit_id());
+                                        stmt.setInt(1, module.getPerson_id());
+                                        stmt.setInt(2, module.getConcept_id());
+                                        stmt.setInt(3, module.getEncounter_id());
+                                        stmt.setInt(4, module.getOrder_id());
+                                        if (module.getObs_datetime() != null)
+                                            stmt.setDate(5, new java.sql.Date(module.getObs_datetime().getTime()));
+                                        else
+                                            stmt.setDate(5, null);
+                                            stmt.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
+                                        stmt.setString(7, module.getAccession_number());
+                                        stmt.setInt(8, module.getValue_group_id());
+                                        stmt.setInt(9, module.getValue_coded());
+                                        stmt.setInt(10, module.getValue_coded_name_id());
+                                        stmt.setInt(11, module.getValue_drug());
+                                        if (module.getValue_datetime() != null)
+                                            stmt.setDate(12, new java.sql.Date(module.getValue_datetime().getTime()));
+                                        else
+                                            stmt.setDate(12, null);
+                                        stmt.setDouble(13, module.getValue_numeric());
+                                        stmt.setString(14, module.getValue_modifier());
+                                        stmt.setString(15, module.getValue_text());
+                                        stmt.setString(16, module.getValue_complex());
+                                        stmt.setString(17, module.getComments());
+                                        stmt.setInt(18, module.getCreator());
+                                        if (module.getDate_created() != null)
+                                            stmt.setDate(19, new java.sql.Date(module.getDate_created().getTime()));
+                                        else
+                                            stmt.setDate(19, null);
+                                        stmt.setBoolean(20, module.isVoided());
+                                        if (module.getDate_voided() != null)
+                                            stmt.setDate(21, new java.sql.Date(module.getDate_voided().getTime()));
+                                        else
+                                            stmt.setDate(21, null);
+                                        stmt.setString(22, module.getVoid_reason());
+                                        stmt.setString(23, module.getUuid().toString());
+                                        stmt.setInt(24, module.getPrevious_version());
+                                        stmt.setString(25, module.getForm_namespace_and_path());
+                                        if( module.getObs_group_id() != null)
+                                                stmt.setInt(26, module.getObs_group_id());
+                                        else
+                                            stmt.setString(26, null);
+                                        //Add statement to batch
+                                        stmt.addBatch();
+                                        updateProgress(wDone + 1, allObses.size());
+                                        Integer pDone = ((wDone + 1) / allObses.size()) * 100;
+                                        wDone++;
+                                    }catch(Exception ex){
+                                        logToConsole("\n Exception Error: "+ ex.getMessage() + " in Obs with "+currentObs.getEncounter_id()+" Encounter ID!");
+                                        ex.printStackTrace();
+                                    }
+                                }
+                                //execute batch
+                                stmt.executeBatch();
+                                conn.commit();
+                                logToConsole("Transaction is committed successfully.");
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                rollbackTransaction(conn, e);
+                            }
+                        } catch (SQLException e) {
                             e.printStackTrace();
                         }
                     }
                     return FXCollections.observableArrayList(allObses);
-                } catch (ArrayIndexOutOfBoundsException ex) {
-                    logToConsole("ArrayIndexOutOfBoundsException Error: " + ex.getMessage());
+                }catch (ArrayIndexOutOfBoundsException ex){
+                    logToConsole("ArrayIndexOutOfBoundsException Error: "+ex.getMessage());
                     ex.printStackTrace();
                     return null;
-                } catch (HibernateException ex) {
-                    logToConsole("HibernateException Error: " + ex.getMessage());
+                }catch (HibernateException ex){
+                    logToConsole("HibernateException Error: "+ex.getMessage());
                     ex.printStackTrace();
                     return null;
-                } catch (Exception ex) {
-                    logToConsole("Exception Error: " + ex.getMessage());
+                }catch (Exception ex){
+                    logToConsole("Exception Error: "+ex.getMessage());
                     ex.printStackTrace();
                     return null;
                 }
@@ -1725,6 +1769,8 @@ public class Controller {
 
         };
     }
+
+    //########################### End of Obs ###################################
 
     //########################### End of Obs ###################################
 
@@ -5062,6 +5108,33 @@ public class Controller {
 
             stage.setScene(scene);
             stage.setTitle("OpenMRS Migration!");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void nmrsLineList(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = fxmlLoader.load(getClass().getResource("/org/ccfng/nmrs/linelist/linelist.fxml").openStream());
+
+            org.ccfng.nmrs.linelist.Controller controller = fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("NMRS LineList!");
             stage.setResizable(false);
             stage.alwaysOnTopProperty();
             stage.show();

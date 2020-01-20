@@ -1,15 +1,5 @@
 package org.ccfng.global;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.ccfng.datamigration.encounter.Encounter;
@@ -19,13 +9,22 @@ import org.ccfng.datamigration.patientidentifier.PatientIdentifier;
 import org.ccfng.datamigration.patientprogram.PatientProgram;
 import org.ccfng.datamigration.person.Person;
 import org.ccfng.datamigration.personaddress.PersonAddress;
+import org.ccfng.datamigration.personattribute.PersonAttribute;
 import org.ccfng.datamigration.personname.PersonName;
+
+import java.sql.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class DBMiddleMan {
 
+	
+
 	private static final String DRIVER = "com.mysql.jdbc.Driver";
 
-	static final ConnectionClass cc = new ConnectionClass();
+	static final DestinationConnectionClass cc = new DestinationConnectionClass();
 
 	public static ObservableList<Obs> allObs;
 
@@ -37,6 +36,7 @@ public class DBMiddleMan {
 	public static ObservableList<PatientProgram> allPatientPrograms;
 	public static ObservableList<Person> allPeople;
 	public static ObservableList<PersonName> allPeopleNames;
+	public static ObservableList<PersonAttribute> allPeopleAttributes;
 	public static ObservableList<PersonAddress> allPeopleAddresses;
 	public static ObservableList<Encounter> allEncounters;
 
@@ -76,7 +76,7 @@ public class DBMiddleMan {
 //		allObs = FXCollections.observableArrayList();
 //	}
 
-	public static void getObs() {
+	public static void getObs(Integer loc) {
 
 		allObs = FXCollections.observableArrayList();
 //		Thread obsThread = new Thread(() -> {
@@ -84,7 +84,7 @@ public class DBMiddleMan {
 			String sql = "select obs.*, encounter.encounter_datetime from obs"
 					+ " left join encounter on "
 					+ "obs.encounter_id = encounter.encounter_id "
-					+ " where obs.voided=0 || encounter.voided = 0 ORDER BY encounter_datetime ASC";
+					+ " where encounter.location_id = "+loc+" AND ( obs.voided=0 || encounter.voided = 0 ) ORDER BY encounter_datetime ASC";
 			PreparedStatement stmt = null;
 			try {
 				//STEP 2: Register JDBC driver
@@ -93,7 +93,7 @@ public class DBMiddleMan {
 			catch (Exception exc) {
 			}
 //			System.out.println(cc.getSource_jdbcUrl()+ " "+ cc.getSourceDb()+" "+cc.getSourceUsername()+" "+cc.getSourcePassword());
-			try (Connection conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword())) {
+			try (Connection conn = DriverManager.getConnection(cc.getDestination_jdbcUrl(), cc.getDestinationUsername(), cc.getDestinationPassword())) {
 				stmt = conn.prepareStatement(sql);
 				stmt.setFetchSize(500);
 				ResultSet rs = stmt.executeQuery(sql);
@@ -118,7 +118,7 @@ public class DBMiddleMan {
 						obs.setDate_voided(rs.getDate("date_voided"));
 
 					obs.setEncounter_id(rs.getInt("encounter_id"));
-					obs.setLocation_id(2);
+					obs.setLocation_id(loc);
 					//obs.setForm_namespace_and_path(rs.getString("form_namespace_and_path"));
 					// obs.setVisit_id(rs.getInt("visit_id"));
 
@@ -186,7 +186,7 @@ public class DBMiddleMan {
 
 	}
 
-	public static void getPatients(){
+	public static void getPatients(Integer loc){
 		allPatients = FXCollections.observableArrayList();
 		Connection conn = null;
 		Statement stmt = null;
@@ -195,12 +195,14 @@ public class DBMiddleMan {
 			Class.forName(DRIVER);
 
 			//STEP 3: Open a connection
-			conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
+
+			conn = DriverManager.getConnection(cc.getDestination_jdbcUrl(), cc.getDestinationUsername(), cc.getDestinationPassword());
 
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * from patient where voided=0";
+			String sql = "SELECT patient.*, patient_program.program_id, patient_program.location_id from patient_program left join patient on patient_program.patient_id = patient.patient_id " +
+					"  where patient.voided = 0 AND patient_program.voided = 0 AND patient_program.location_id = "+loc;
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -244,7 +246,7 @@ public class DBMiddleMan {
 //		FXCollections.sort(allPatientsOnArt,comparator2);
 	}
 
-	public static void getPatientIdentifiers(){
+	public static void getPatientIdentifiers(Integer loc){
 		allPatientIdentifiers = FXCollections.observableArrayList();
 		Connection conn = null;
 		Statement stmt = null;
@@ -253,12 +255,12 @@ public class DBMiddleMan {
 			Class.forName(DRIVER);
 
 			//STEP 3: Open a connection
-			conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
+			conn = DriverManager.getConnection(cc.getDestination_jdbcUrl(), cc.getDestinationUsername(), cc.getDestinationPassword());
 
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * from patient_identifier where voided =0";
+			String sql = "SELECT * from patient_identifier where voided =0 AND location_id="+loc;
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -302,7 +304,7 @@ public class DBMiddleMan {
 		FXCollections.sort(allPatientIdentifiers,comparator);
 	}
 
-	public static void getPatientProgram(){
+	public static void getPatientProgram(Integer loc){
 		allPatientPrograms = FXCollections.observableArrayList();
 		Connection conn = null;
 		Statement stmt = null;
@@ -311,12 +313,12 @@ public class DBMiddleMan {
 			Class.forName(DRIVER);
 
 			//STEP 3: Open a connection
-			conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
+			conn = DriverManager.getConnection(cc.getDestination_jdbcUrl(), cc.getDestinationUsername(), cc.getDestinationPassword());
 
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM patient_program where voided=0";
+			String sql = "SELECT * FROM patient_program where voided=0 AND location_id = "+loc;
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -328,7 +330,7 @@ public class DBMiddleMan {
 				patientProgram.setProgram_id(rs.getInt("program_id"));
 
 				//patientProgram.setOutcome_concept_id(rs.getInt("outcome_concept_id"));
-				patientProgram.setLocation_id(2);
+				patientProgram.setLocation_id(loc);
 				patientProgram.setPatient_id(rs.getInt("patient_id"));
 				patientProgram.setUuid(UUID.randomUUID());
 				patientProgram.setCreator(1);
@@ -341,7 +343,7 @@ public class DBMiddleMan {
 				patientProgram.setDate_enrolled(rs.getDate("date_enrolled"));
 				allPatientPrograms.add(patientProgram);
 
-				if(patientProgram.getProgram_id() == 3){
+				if(patientProgram.getProgram_id() == 1){
 					allPatients.stream()
 							.filter(patient -> patient.getPatient_id().equals(patientProgram.getPatient_id()))
 							.findFirst().ifPresent(p -> allPatientsOnArt.add(p));
@@ -380,7 +382,7 @@ public class DBMiddleMan {
 			Class.forName(DRIVER);
 
 			//STEP 3: Open a connection
-			conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
+			conn = DriverManager.getConnection(cc.getDestination_jdbcUrl(), cc.getDestinationUsername(), cc.getDestinationPassword());
 
 			//STEP 4: Execute a query
 
@@ -411,9 +413,69 @@ public class DBMiddleMan {
 		//		return allPatientPrograms;
 	}
 
-	public static void getPeople(){
+    public static void getPeople(){
 
-		allPeople = FXCollections.observableArrayList();
+        allPeople = FXCollections.observableArrayList();
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName(DRIVER);
+
+            //STEP 3: Open a connection
+            conn = DriverManager.getConnection(cc.getDestination_jdbcUrl(), cc.getDestinationUsername(), cc.getDestinationPassword());
+
+            //STEP 4: Execute a query
+
+            stmt = conn.createStatement();
+            String sql = "SELECT * FROM person where voided=0";
+
+            ResultSet rs = stmt.executeQuery(sql);
+            //STEP 5: Extract data from result set
+            while (rs.next()) {
+                //Retrieve by column name
+                Person person = new Person();
+                person.setPerson_id(rs.getInt("person_id"));
+                person.setGender(rs.getString("gender"));
+                if (rs.getDate("birthdate") != null)
+                    person.setBirthdate(rs.getDate("birthdate"));
+                person.setBirthdate_estimated(rs.getBoolean("birthdate_estimated"));
+                person.setDead(rs.getBoolean("dead"));
+                person.setUuid(UUID.randomUUID());
+                person.setCreator(1);
+                person.setDate_changed(rs.getDate("date_changed"));
+                person.setDate_created(rs.getDate("date_created"));
+                //person.setDate_voided(rs.getDate("date_voided"));
+                person.setDate_voided(null);
+                person.setVoid_reason(rs.getString("void_reason"));
+                person.setVoided(rs.getBoolean("voided"));
+
+                allPeople.add(person);
+            }
+            rs.close();
+        } catch (SQLException se) {
+            //Handle errors for JDBC
+            se.printStackTrace();
+        } catch (Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        } finally {
+            //finally block used to close resources
+            try {
+                if (stmt != null)
+                    conn.close();
+            } catch (SQLException se) {
+            }// do nothing
+        }//end try
+//		return allPeople;
+
+        Comparator<Person> comparator = Comparator.comparing(Person::getPerson_id);
+        FXCollections.sort(allPeople,comparator);
+    }
+
+	public static void getPeopleAttributes(){
+
+		allPeopleAttributes = FXCollections.observableArrayList();
 		Connection conn = null;
 		Statement stmt = null;
 		try {
@@ -421,34 +483,24 @@ public class DBMiddleMan {
 			Class.forName(DRIVER);
 
 			//STEP 3: Open a connection
-			conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
+			conn = DriverManager.getConnection(cc.getDestination_jdbcUrl(), cc.getDestinationUsername(), cc.getDestinationPassword());
 
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM person where voided=0";
+			String sql = "SELECT * FROM person_attribute where voided=0";
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
 			while (rs.next()) {
 				//Retrieve by column name
-				Person person = new Person();
-				person.setPerson_id(rs.getInt("person_id"));
-				person.setGender(rs.getString("gender"));
-				if (rs.getDate("birthdate") != null)
-					person.setBirthdate(rs.getDate("birthdate"));
-				person.setBirthdate_estimated(rs.getBoolean("birthdate_estimated"));
-				person.setDead(rs.getBoolean("dead"));
-				person.setUuid(UUID.randomUUID());
-				person.setCreator(1);
-				person.setDate_changed(rs.getDate("date_changed"));
-				person.setDate_created(rs.getDate("date_created"));
-				//person.setDate_voided(rs.getDate("date_voided"));
-				person.setDate_voided(null);
-				person.setVoid_reason(rs.getString("void_reason"));
-				person.setVoided(rs.getBoolean("voided"));
+				PersonAttribute personArt = new PersonAttribute();
+				personArt.setPerson_attribute_id(rs.getInt("person_attribute_id"));
+				personArt.setPerson_id(rs.getInt("person_id"));
+				personArt.setValue(rs.getString("value"));
+				personArt.setPerson_attribute_type_id(rs.getInt("person_attribute_type_id"));
 
-				allPeople.add(person);
+				allPeopleAttributes.add(personArt);
 			}
 			rs.close();
 		} catch (SQLException se) {
@@ -467,8 +519,8 @@ public class DBMiddleMan {
 		}//end try
 //		return allPeople;
 
-		Comparator<Person> comparator = Comparator.comparing(Person::getPerson_id);
-		FXCollections.sort(allPeople,comparator);
+		Comparator<PersonAttribute> comparator = Comparator.comparing(PersonAttribute::getPerson_id);
+		FXCollections.sort(allPeopleAttributes,comparator);
 	}
 
 	public static void getPeopleNames(){
@@ -481,7 +533,7 @@ public class DBMiddleMan {
 			Class.forName(DRIVER);
 
 			//STEP 3: Open a connection
-			conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
+			conn = DriverManager.getConnection(cc.getDestination_jdbcUrl(), cc.getDestinationUsername(), cc.getDestinationPassword());
 
 			//STEP 4: Execute a query
 
@@ -535,7 +587,7 @@ public class DBMiddleMan {
 		FXCollections.sort(allPeopleNames,comparator);
 	}
 
-	public static void getEncounters(){
+	public static void getEncounters(Integer loc){
 		allEncounters = FXCollections.observableArrayList();
 		Connection conn = null;
 		Statement stmt = null;
@@ -544,13 +596,13 @@ public class DBMiddleMan {
 			Class.forName(DRIVER);
 
 			//STEP 3: Open a connection
-			conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
+			conn = DriverManager.getConnection(cc.getDestination_jdbcUrl(), cc.getDestinationUsername(), cc.getDestinationPassword());
 
 			//STEP 4: Execute a query
 
 			stmt = conn.createStatement();
 			String sql = "SELECT encounter.* FROM encounter left join patient on encounter.patient_id = patient.patient_id "
-					+ "where encounter.voided=0 AND patient.voided=0 ORDER BY encounter_datetime ASC";
+					+ "where encounter.voided=0 AND patient.voided=0 AND location_id = "+loc+" ORDER BY encounter_datetime ASC";
 
 			ResultSet rs = stmt.executeQuery(sql);
 			//STEP 5: Extract data from result set
@@ -603,7 +655,7 @@ public class DBMiddleMan {
 			Class.forName(DRIVER);
 
 			//STEP 3: Open a connection
-			conn = DriverManager.getConnection(cc.getSource_jdbcUrl(), cc.getSourceUsername(), cc.getSourcePassword());
+			conn = DriverManager.getConnection(cc.getDestination_jdbcUrl(), cc.getDestinationUsername(), cc.getDestinationPassword());
 
 			//STEP 4: Execute a query
 

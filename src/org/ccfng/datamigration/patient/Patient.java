@@ -1,16 +1,17 @@
 package org.ccfng.datamigration.patient;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Date;
 import lombok.EqualsAndHashCode;
 import org.ccfng.datamigration.encounter.Encounter;
 import org.ccfng.datamigration.obs.Obs;
 import org.ccfng.datamigration.patientidentifier.PatientIdentifier;
 import org.ccfng.datamigration.person.Person;
 import org.ccfng.global.DBMiddleMan;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
 
 @XmlRootElement(name = "Patient")
 @EqualsAndHashCode(exclude = {"Voided"})
@@ -128,7 +129,7 @@ public class Patient
         return DBMiddleMan.allPatientIdentifiers.stream()
                 .filter(patientIdentifier ->
                         patientIdentifier.getPatient_id().equals(this.getPatient_id()) &&
-                                patientIdentifier.getIdentifier_type() == 3
+                                patientIdentifier.getIdentifier_type() == 5
                 ).findFirst().orElse(null);
     }
 
@@ -139,15 +140,21 @@ public class Patient
 
     public Encounter lastArtCareCardEncounter(){
        return DBMiddleMan.allEncounters.stream()
-                .filter(encounter -> encounter.getForm_id() == 56 && encounter.getPatient_id().equals(this.getPatient_id())
-                        && encounter.getOb(7778111) != null)
+                .filter(encounter -> encounter.getForm_id() == 14 && encounter.getPatient_id().equals(this.getPatient_id())
+                        && encounter.getOb(165708) != null)
                 .reduce((first, second) -> second).orElse(null);
     }
 
     public Obs exited(){
-        return DBMiddleMan.allObs.stream().filter(obs -> obs.getPerson_id()
-                .equals(this.getPatient_id()) && (obs.getConcept_id() == 1737 || obs.getConcept_id() == 977))
+       return DBMiddleMan.allObs.stream().filter(obs -> obs.getPerson_id()
+                .equals(this.getPatient_id()) && (obs.getConcept_id() == 165470))
                 .findFirst().orElse(null);
+//       if(null != terminated){
+//            return DBMiddleMan.allObs.stream().filter(obs -> obs.getEncounter_id()
+//                    .equals(terminated.getEncounter_id()) && (obs.getConcept_id() == 165470))
+//                    .findFirst().orElse(null);
+//        }
+//        return null;
     }
 
 
