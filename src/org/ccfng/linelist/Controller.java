@@ -1,21 +1,11 @@
 package org.ccfng.linelist;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -24,6 +14,13 @@ import org.ccfng.datamigration.obs.Obs;
 import org.ccfng.datamigration.patient.Patient;
 import org.ccfng.global.ConnectionClass;
 import org.ccfng.global.DBMiddleMan;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class Controller extends org.ccfng.datamigration.Controller {
 
@@ -97,8 +94,15 @@ public class Controller extends org.ccfng.datamigration.Controller {
 //						.toList())
 						) {
 					final int[] ddUnit = { 1 };
+
+					Platform.runLater(() -> {
+						System.out.println("Processing Patient with ID: "+patient.getPatient_id()+"\n");
+					});
+
+
 					updateProgress(wDone[0] + 1, total);
 					Platform.runLater(()->{
+						System.out.println("Processing Patient with ID: "+patient.getPatient_id()+"\n");
 						lblCount.setText(String.valueOf(wDone[0]));
 					});
 					wDone[0]++;

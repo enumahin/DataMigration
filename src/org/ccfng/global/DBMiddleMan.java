@@ -22,9 +22,10 @@ public class DBMiddleMan {
 
 	
 
-	private static final String DRIVER = "com.mysql.jdbc.Driver";
+	public static final String DRIVER = "com.mysql.jdbc.Driver";
 
 	static final DestinationConnectionClass cc = new DestinationConnectionClass();
+	static final DestinationConnectionClass dd = new DestinationConnectionClass();
 
 	public static ObservableList<Obs> allObs;
 
@@ -39,6 +40,8 @@ public class DBMiddleMan {
 	public static ObservableList<PersonAttribute> allPeopleAttributes;
 	public static ObservableList<PersonAddress> allPeopleAddresses;
 	public static ObservableList<Encounter> allEncounters;
+	public static ObservableList<org.ccfng.global.KeyValueClass> allLocations;
+	public static ObservableList<org.ccfng.global.KeyValueClass> allForms;
 
 
 	public static class KeyValueClass{
@@ -49,9 +52,6 @@ public class DBMiddleMan {
 		public KeyValueClass(Integer id, String value) {
 			this.id = id;
 			this.value = value;
-		}
-
-		public KeyValueClass() {
 		}
 
 		public Integer getId() {
@@ -75,6 +75,104 @@ public class DBMiddleMan {
 //	public DBMiddleMan(){
 //		allObs = FXCollections.observableArrayList();
 //	}
+
+	public static void getLocations() {
+//		ObservableList<KeyValueClass> locations = FXCollections.observableArrayList();
+		allLocations = FXCollections.observableArrayList();
+		Statement stmt = null;
+		try {
+			//STEP 2: Register JDBC driver
+			Class.forName("com.mysql.jdbc.Driver");
+		}
+		catch (Exception exc) {
+
+		}
+		try (Connection conn = DriverManager
+				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
+
+			stmt = conn.createStatement();
+			String sql = "SELECT * FROM location ";
+//			Platform.runLater(() -> {
+//				logToConsole("\n Fetching Locations..");
+//			});
+			ResultSet rs = stmt.executeQuery(sql);
+			//STEP 5: Extract data from result set
+			while (rs.next()) {
+				org.ccfng.global.KeyValueClass loc = new org.ccfng.global.KeyValueClass();
+				loc.setKey(rs.getInt("location_id"));
+				loc.setValue(rs.getString("name"));
+				allLocations.add(loc);
+			}
+			rs.close();
+//			Platform.runLater(() -> {
+//				logToConsole("\n Done..");
+//			});
+		}
+		catch (SQLException e) {
+//			Platform.runLater(() -> {
+//				logToConsole("\n Error: " + e.getMessage());
+//			});
+			e.printStackTrace();
+		}
+		finally {
+			//finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			}
+			catch (Exception se) {
+			}// do nothing
+		}//end try
+	}
+
+	public static void getForms() {
+//		ObservableList<KeyValueClass> locations = FXCollections.observableArrayList();
+		allForms = FXCollections.observableArrayList();
+		Statement stmt = null;
+		try {
+			//STEP 2: Register JDBC driver
+			Class.forName("com.mysql.jdbc.Driver");
+		}
+		catch (Exception exc) {
+
+		}
+		try (Connection conn = DriverManager
+				.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
+
+			stmt = conn.createStatement();
+			String sql = "SELECT * FROM form ";
+//			Platform.runLater(() -> {
+//				logToConsole("\n Fetching Locations..");
+//			});
+			ResultSet rs = stmt.executeQuery(sql);
+			//STEP 5: Extract data from result set
+			while (rs.next()) {
+				org.ccfng.global.KeyValueClass loc = new org.ccfng.global.KeyValueClass();
+				loc.setKey(rs.getInt("form_id"));
+				loc.setValue(rs.getString("name"));
+				allForms.add(loc);
+			}
+			rs.close();
+//			Platform.runLater(() -> {
+//				logToConsole("\n Done..");
+//			});
+		}
+		catch (SQLException e) {
+//			Platform.runLater(() -> {
+//				logToConsole("\n Error: " + e.getMessage());
+//			});
+			e.printStackTrace();
+		}
+		finally {
+			//finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			}
+			catch (Exception se) {
+			}// do nothing
+		}//end try
+	}
 
 	public static void getObs(Integer loc) {
 

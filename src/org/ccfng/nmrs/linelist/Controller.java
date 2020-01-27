@@ -52,7 +52,6 @@ public class Controller extends org.ccfng.datamigration.Controller {
 	public Controller(){}
 
 	public void initialize(){
-
 		dd = new DestinationConnectionClass();
 	}
 
@@ -95,132 +94,139 @@ public class Controller extends org.ccfng.datamigration.Controller {
 //						.toList())
 						) {
 //					final int[] ddUnit = { 1 };
-					updateProgress(wDone[0] + 1, total);
-					Platform.runLater(()->{
-						lblCount.setText(String.valueOf(wDone[0]));
-					});
-					wDone[0]++;
-					LineList lineList = new LineList();
-					lineList.setPatientID(patient.getPatient_id());
+					try {
+						updateProgress(wDone[0] + 1, total);
+						Platform.runLater(() -> {
+							System.out.println("Processing Patient with ID: " + patient.getPatient_id() + "\n");
+							lblCount.setText(String.valueOf(wDone[0]));
+						});
+						wDone[0]++;
+						LineList lineList = new LineList();
+						lineList.setPatientID(patient.getPatient_id());
 
-					DBMiddleMan.allPatientIdentifiers.stream()
-							.filter(patientIdentifier ->
-									patientIdentifier.getPatient_id().equals(patient.getPatient_id()) &&
-									patientIdentifier.getIdentifier_type() == 4
-							).findFirst().ifPresent(patientIdentifier -> lineList.setPepfarID(patientIdentifier.getIdentifier()));
+						DBMiddleMan.allPatientIdentifiers.stream()
+								.filter(patientIdentifier ->
+										patientIdentifier.getPatient_id().equals(patient.getPatient_id()) &&
+												patientIdentifier.getIdentifier_type() == 4
+								).findFirst().ifPresent(patientIdentifier -> lineList.setPepfarID(patientIdentifier.getIdentifier()));
 
-					DBMiddleMan.allPeopleNames.stream()
-							.filter(personName ->
-									personName.getPerson_id().equals(patient.getPatient_id())
-											&& personName.isPreferred()
-							).findAny().ifPresent(pName -> lineList.setPatientName(pName.getGiven_name()+ " "+ pName.getFamily_name()));
-
-					if (null == lineList.getPatientName()){
 						DBMiddleMan.allPeopleNames.stream()
 								.filter(personName ->
 										personName.getPerson_id().equals(patient.getPatient_id())
-								).findFirst().ifPresent(pName -> lineList.setPatientName(pName.getGiven_name()+ " "+ pName.getFamily_name()));
+												&& personName.isPreferred()
+								).findAny().ifPresent(pName -> lineList.setPatientName(pName.getGiven_name() + " " + pName.getFamily_name()));
 
-					}
-//
-////					DBMiddleMan.allObs.stream()
-////							.filter(obs ->
-////									obs.getPerson_id().equals(patient.getPatient_id()) &&
-////											(obs.getConcept_id() == 7778430 || obs.getConcept_id() == 891)
-////							).findAny().ifPresent(phone -> lineList.setPatientPhoneNumber(phone.getValue_text()));
-//
-					DBMiddleMan.allPeopleAttributes.stream()
-							.filter(personAttribute ->
-									personAttribute.getPerson_id().equals(patient.getPatient_id()) &&
-											personAttribute.getPerson_attribute_type_id() == 8
-							).findFirst().ifPresent(personAttribute -> lineList.setPatientPhoneNumber(personAttribute.getValue()));
+						if (null == lineList.getPatientName()) {
+							DBMiddleMan.allPeopleNames.stream()
+									.filter(personName ->
+											personName.getPerson_id().equals(patient.getPatient_id())
+									).findFirst().ifPresent(pName -> lineList.setPatientName(pName.getGiven_name() + " " + pName.getFamily_name()));
 
-					DBMiddleMan.allPeopleAddresses.stream()
-							.filter(personAdd ->
-									personAdd.getPerson_id().equals(patient.getPatient_id())
-											&& personAdd.isPreferred()
-							).findAny().ifPresent(pAdd -> lineList.setAddress(pAdd.getAddress1() != null ? pAdd.getAddress1() : pAdd.getAddress2()));
+						}
 
-					if (null == lineList.getAddress()){
+						DBMiddleMan.allPeopleAttributes.stream()
+								.filter(personAttribute ->
+										personAttribute.getPerson_id().equals(patient.getPatient_id()) &&
+												personAttribute.getPerson_attribute_type_id() == 8
+								).findFirst().ifPresent(personAttribute -> lineList.setPatientPhoneNumber(personAttribute.getValue()));
+
 						DBMiddleMan.allPeopleAddresses.stream()
 								.filter(personAdd ->
 										personAdd.getPerson_id().equals(patient.getPatient_id())
-								).reduce((first, second)->second).ifPresent(pAdd ->
-								lineList.setAddress(pAdd.getAddress1() != null ? pAdd.getAddress1() : pAdd.getAddress2()));
-					}
+												&& personAdd.isPreferred()
+								).findAny().ifPresent(pAdd -> lineList.setAddress(pAdd.getAddress1() != null ? pAdd.getAddress1() : pAdd.getAddress2()));
+
+						if (null == lineList.getAddress()) {
+							DBMiddleMan.allPeopleAddresses.stream()
+									.filter(personAdd ->
+											personAdd.getPerson_id().equals(patient.getPatient_id())
+									).reduce((first, second) -> second).ifPresent(pAdd ->
+									lineList.setAddress(pAdd.getAddress1() != null ? pAdd.getAddress1() : pAdd.getAddress2()));
+						}
 
 
-					DBMiddleMan.allPatientIdentifiers.stream()
-							.filter(patientIdentifier ->
-									patientIdentifier.getPatient_id().equals(patient.getPatient_id()) &&
-											patientIdentifier.getIdentifier_type() == 5
-							).findFirst().ifPresent(patientIdentifier -> lineList.setHospitalNumber(patientIdentifier.getIdentifier()));
+						DBMiddleMan.allPatientIdentifiers.stream()
+								.filter(patientIdentifier ->
+										patientIdentifier.getPatient_id().equals(patient.getPatient_id()) &&
+												patientIdentifier.getIdentifier_type() == 5
+								).findFirst().ifPresent(patientIdentifier -> lineList.setHospitalNumber(patientIdentifier.getIdentifier()));
 
 
-					DBMiddleMan.allPeople.stream().filter(person ->
-						person.getPerson_id().equals(patient.getPatient_id())
-					).findFirst().ifPresent(pers -> {
-						lineList.setSex(pers.getGender());
-						lineList.setPatientAge(
-								ChronoUnit.YEARS.between(LocalDate.parse(pers.getBirthdate().toString()), LocalDate.now())
-						);
-					});
+						DBMiddleMan.allPeople.stream().filter(person ->
+								person.getPerson_id().equals(patient.getPatient_id())
+						).findFirst().ifPresent(pers -> {
+							lineList.setSex(pers.getGender());
+							lineList.setPatientAge(
+									ChronoUnit.YEARS.between(LocalDate.parse(pers.getBirthdate().toString()), LocalDate.now())
+							);
+						});
 
-					DBMiddleMan.allObs.stream()
-							.filter(obs ->
-									obs.getPerson_id().equals(patient.getPatient_id()) &&
-											(obs.getConcept_id() == 159599)
-							).findAny().ifPresent(art -> {
-								lineList.setArtStartDate(art.getValue_datetime());
-								if(null != art.getValue_datetime()) {
+						DBMiddleMan.allObs.stream()
+								.filter(obs ->
+										obs.getPerson_id().equals(patient.getPatient_id()) &&
+												(obs.getConcept_id() == 159599)
+								).findAny().ifPresent(art -> {
+							lineList.setArtStartDate(art.getValue_datetime());
+							if (null != art.getValue_datetime()) {
 //									System.out.println(currentPerson.getBirthdate());
-									DBMiddleMan.allPeople.stream().filter(pSon -> pSon.getPerson_id().equals(patient.getPatient_id()))
-											.findFirst().ifPresent(person -> lineList.setAgeAtArtStart(
-											ChronoUnit.YEARS
-													.between(LocalDate.parse(person.getBirthdate().toString()),
-															LocalDate.parse(art.getValue_datetime().toString()))
-									));
+								DBMiddleMan.allPeople.stream().filter(pSon -> pSon.getPerson_id().equals(patient.getPatient_id()))
+										.findFirst().ifPresent(person -> lineList.setAgeAtArtStart(
+										ChronoUnit.YEARS
+												.between(LocalDate.parse(person.getBirthdate().toString()),
+														LocalDate.parse(art.getValue_datetime().toString()))
+								));
 
-								}
-					});
+							}
+						});
 
-					DBMiddleMan.allObs.stream().filter(obs7 ->
-						obs7.getPerson_id().equals(patient.getPatient_id()) && (obs7.getValue_coded() == 165048 || obs7.getValue_coded() == 165685))
-							.reduce((first, second) ->second).ifPresent(o -> {
-								if(ChronoUnit.DAYS.between(LocalDate.parse(o.getEncounter().getEncounter_datetime().toString()),LocalDate.now()) < 270){
-									lineList.setPregnancyStatus("Yes");
-								}else{
-									lineList.setPregnancyStatus("No");
-								}
-					});
+						DBMiddleMan.allObs.stream().filter(obs7 ->
+								obs7.getPerson_id().equals(patient.getPatient_id()) && (obs7.getValue_coded() == 165048 || obs7.getValue_coded() == 165685))
+								.reduce((first, second) -> second).ifPresent(o -> {
+							if (ChronoUnit.DAYS.between(LocalDate.parse(o.getEncounter().getEncounter_datetime().toString()), LocalDate.now()) < 270) {
+								lineList.setPregnancyStatus("Yes");
+							} else {
+								lineList.setPregnancyStatus("No");
+							}
+						});
 
-					DBMiddleMan.allObs.stream()
-							.filter(obs -> obs.getConcept_id() == 165708 && obs.getPerson_id().equals(patient.getPatient_id())
-									&& obs.getEncounter().getEncounter_type() == 13)
-							.reduce((first, second) -> second).ifPresent(obs -> {
+						DBMiddleMan.allObs.stream()
+								.filter(obs -> obs.getConcept_id() == 165724 && obs.getPerson_id().equals(patient.getPatient_id())
+										&& obs.getEncounter().getEncounter_type() == 13)
+								.reduce((first, second) -> second).ifPresent(obs -> {
 
-						lineList.setLastPickUpDate(
-								Date.valueOf(obs.getEncounter().getEncounter_datetime().toString()));
+                            DBMiddleMan.allObs.stream()
+                                    .filter(obss -> obss.getConcept_id() == 165708 && obss.getEncounter_id().equals(obs.getEncounter_id()))
+                                    .findFirst().ifPresent(ob -> {
 
+                                        lineList.setLastPickUpDate(
+                                                Date.valueOf(ob.getEncounter().getEncounter_datetime().toString()));
 
-						Obs unit = DBMiddleMan.allObs.stream()
-								.filter(ob -> ob.getConcept_id() == 1732 &&
-										obs.getEncounter_id().equals(ob.getEncounter_id()))
-								.findFirst().orElse(null);
+                                    });
+//						Obs unit = DBMiddleMan.allObs.stream()
+//								.filter(ob -> ob.getConcept_id() == 1732 &&
+//										obs.getEncounter_id().equals(ob.getEncounter_id()))
+//								.findFirst().orElse(null);
 
-						Obs drugDuration = DBMiddleMan.allObs.stream()
-								.filter(ob -> ob.getConcept_id() == 159368 &&
-										obs.getEncounter_id().equals(ob.getEncounter_id()))
-								.findFirst().orElse(null);
+							Obs arvReg = obs.getEncounter().getObs().stream()
+									.filter(ob -> ob.getConcept_id() == 162240)
+									.findFirst().orElse(null);
 
-						Obs careObs = DBMiddleMan.allObs.stream()
-								.filter(ob -> ob.getConcept_id() == 165708 && ob.getPerson_id()
-										.equals(obs.getPerson_id())
-										&& ob.getEncounter().getForm_id() == 14 &&
-										obs.getEncounter().getEncounter_datetime().equals(ob.getEncounter().getEncounter_datetime()))
-								.findFirst().orElse(null);
+							Obs drugDuration = null;
+							try {
+								 drugDuration = obs.getEncounter().getObs().stream()
+										.filter(obs1 -> obs1.getConcept_id().equals(159368) && obs1.getObs_group_id().equals(arvReg.getObs_id()))
+										.findFirst().orElse(null);
+							}catch (Exception ex){
 
-							if(drugDuration != null){
+							}
+//						Obs careObs = DBMiddleMan.allObs.stream()
+//								.filter(ob -> ob.getConcept_id() == 165708 && ob.getPerson_id()
+//										.equals(obs.getPerson_id())
+//										&& ob.getEncounter().getForm_id() == 14 &&
+//										obs.getEncounter().getEncounter_datetime().equals(ob.getEncounter().getEncounter_datetime()))
+//								.findFirst().orElse(null);
+
+							if (drugDuration != null) {
 //
 //								if(unit != null){
 //									if(unit.getValue_coded() == 524){
@@ -246,15 +252,15 @@ public class Controller extends org.ccfng.datamigration.Controller {
 
 								Obs exited = patient.exited();
 
-								if(exited != null) {
-											DBMiddleMan.conceptNames.stream().filter(concept -> concept.getId().equals(exited.getValue_coded()))
-													.findFirst().ifPresent(concept -> {
-														lineList.setCurrentArtStatus(concept.getValue());
-														lineList.setActiveBy28(concept.getValue());
-														lineList.setActiveBy90(concept.getValue());
-											});
+								if (exited != null) {
+									DBMiddleMan.conceptNames.stream().filter(concept -> concept.getId().equals(exited.getValue_coded()))
+											.findFirst().ifPresent(concept -> {
+										lineList.setCurrentArtStatus(concept.getValue());
+										lineList.setActiveBy28(concept.getValue());
+										lineList.setActiveBy90(concept.getValue());
+									});
 
-								}else if (numMissed >= 0) {
+								} else if (numMissed >= 0) {
 									lineList.setCurrentArtStatus("Active");
 									lineList.setActiveBy28("Active");
 									lineList.setActiveBy90("Active");
@@ -280,123 +286,130 @@ public class Controller extends org.ccfng.datamigration.Controller {
 									lineList.setActiveBy90("InActive");
 								}
 
-							}else if(careObs != null){
-								Obs nextAppointmentObs = careObs.getEncounter().getOb(5096);
+							}
 
-								if (nextAppointmentObs != null) {
+//							else if(careObs != null){
+//								Obs nextAppointmentObs = careObs.getEncounter().getOb(5096);
+//
+//								if (nextAppointmentObs != null) {
+//
+//									lineList.setNextAppointmentDate(nextAppointmentObs.getValue_datetime());
+//
+//									lineList.setDaysOfArtRefill(
+//											ChronoUnit.DAYS
+//													.between(LocalDate
+//																	.parse(obs.getEncounter().getEncounter_datetime().toString()),
+//															LocalDate.parse(nextAppointmentObs.getValue_datetime().toString()))
+//									);
+//
+//									Long numMissed = ChronoUnit.DAYS
+//											.between(LocalDate.now(), nextAppointmentObs.getValue_datetime().toLocalDate());
+//									lineList.setNumberOfDaysMissedAppointment(numMissed);
+//
+//									Obs exited = patient.exited();
+//
+//									if(exited != null) {
+//										DBMiddleMan.conceptNames.stream().filter(concept -> concept.getId().equals(exited.getValue_coded()))
+//												.findFirst().ifPresent(concept -> {
+//											lineList.setCurrentArtStatus(concept.getValue());
+//											lineList.setActiveBy28(concept.getValue());
+//											lineList.setActiveBy90(concept.getValue());
+//										});
+//
+//									}else if (numMissed >= 0) {
+//										lineList.setCurrentArtStatus("Active");
+//										lineList.setActiveBy28("Active");
+//										lineList.setActiveBy90("Active");
+//										activeBy28[0]++;
+//										Platform.runLater(() -> {
+//											lblActiveBy28.setText(String.valueOf(activeBy28[0]));
+//										});
+//									} else if (numMissed >= -28) {
+//										lineList.setCurrentArtStatus("Missed Appointment");
+//										lineList.setActiveBy28("Active");
+//										lineList.setActiveBy90("Active");
+//										activeBy28[0]++;
+//										Platform.runLater(() -> {
+//											lblActiveBy28.setText(String.valueOf(activeBy28[0]));
+//										});
+//									} else if (numMissed >= -90) {
+//										lineList.setCurrentArtStatus("LTFU");
+//										lineList.setActiveBy28("InActive");
+//										lineList.setActiveBy90("Active");
+//									} else {
+//										lineList.setCurrentArtStatus("LTFU");
+//										lineList.setActiveBy28("InActive");
+//										lineList.setActiveBy90("InActive");
+//									}
+//								}
+//						}
+						});
 
-									lineList.setNextAppointmentDate(nextAppointmentObs.getValue_datetime());
+						DBMiddleMan.allObs.stream()
+								.filter(obs -> obs.getConcept_id() == 165708 && obs.getPerson_id().equals(patient.getPatient_id()))
+								.findFirst().ifPresent(obs ->
+								DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
+										.ifPresent(concept -> lineList.setRegimenLineAtStart(concept.getValue()))
+						);
 
-									lineList.setDaysOfArtRefill(
-											ChronoUnit.DAYS
-													.between(LocalDate
-																	.parse(obs.getEncounter().getEncounter_datetime().toString()),
-															LocalDate.parse(nextAppointmentObs.getValue_datetime().toString()))
-									);
+						DBMiddleMan.allObs.stream()
+								.filter(obs -> (obs.getConcept_id() == 164506 || obs.getConcept_id() == 164513 || obs.getConcept_id() == 165702) && obs.getPerson_id().equals(patient.getPatient_id()))
+								.findFirst().ifPresent(obs ->
+								DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
+										.ifPresent(concept -> lineList.setRegimenAtStart(concept.getValue()))
+						);
 
-									Long numMissed = ChronoUnit.DAYS
-											.between(LocalDate.now(), nextAppointmentObs.getValue_datetime().toLocalDate());
-									lineList.setNumberOfDaysMissedAppointment(numMissed);
 
-									Obs exited = patient.exited();
+						DBMiddleMan.allObs.stream()
+								.filter(obs -> obs.getConcept_id() == 165708 && obs.getPerson_id().equals(patient.getPatient_id()))
+								.reduce((first, second) -> second).ifPresent(obs ->
+								DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
+										.ifPresent(concept ->
+												lineList.setCurrentRegimenLine(concept.getValue())
+										)
+						);
 
-									if(exited != null) {
-										DBMiddleMan.conceptNames.stream().filter(concept -> concept.getId().equals(exited.getValue_coded()))
-												.findFirst().ifPresent(concept -> {
-											lineList.setCurrentArtStatus(concept.getValue());
-											lineList.setActiveBy28(concept.getValue());
-											lineList.setActiveBy90(concept.getValue());
-										});
+						DBMiddleMan.allObs.stream()
+								.filter(obs -> (obs.getConcept_id() == 164506 || obs.getConcept_id() == 164513 || obs.getConcept_id() == 165702) && obs.getPerson_id().equals(patient.getPatient_id()))
+								.reduce((first, second) -> second).ifPresent(obs -> {
+									if (obs.getConcept_id().equals(165702) && obs.getValue_coded().equals(165131)) {
+										DBMiddleMan.allObs.stream().filter(ob -> ob.getEncounter_id().equals(obs.getEncounter_id()) &&
+												ob.getConcept_id().equals(163101)).findFirst().ifPresent(o -> lineList.setCurrentRegimen(o.getValue_text()));
 
-									}else if (numMissed >= 0) {
-										lineList.setCurrentArtStatus("Active");
-										lineList.setActiveBy28("Active");
-										lineList.setActiveBy90("Active");
-										activeBy28[0]++;
-										Platform.runLater(() -> {
-											lblActiveBy28.setText(String.valueOf(activeBy28[0]));
-										});
-									} else if (numMissed >= -28) {
-										lineList.setCurrentArtStatus("Missed Appointment");
-										lineList.setActiveBy28("Active");
-										lineList.setActiveBy90("Active");
-										activeBy28[0]++;
-										Platform.runLater(() -> {
-											lblActiveBy28.setText(String.valueOf(activeBy28[0]));
-										});
-									} else if (numMissed >= -90) {
-										lineList.setCurrentArtStatus("LTFU");
-										lineList.setActiveBy28("InActive");
-										lineList.setActiveBy90("Active");
 									} else {
-										lineList.setCurrentArtStatus("LTFU");
-										lineList.setActiveBy28("InActive");
-										lineList.setActiveBy90("InActive");
+										DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded()))
+												.findFirst()
+												.ifPresent(concept -> lineList.setCurrentRegimen(concept.getValue()));
 									}
 								}
-						}
-					});
+						);
 
-					DBMiddleMan.allObs.stream()
-							.filter(obs -> obs.getConcept_id() == 165708 && obs.getPerson_id().equals(patient.getPatient_id()))
-							.findFirst().ifPresent(obs ->
-							DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
-							.ifPresent(concept -> lineList.setRegimenLineAtStart(concept.getValue()))
-					);
-
-					DBMiddleMan.allObs.stream()
-							.filter(obs -> (obs.getConcept_id() == 164506 || obs.getConcept_id() == 164513 || obs.getConcept_id() == 165702) && obs.getPerson_id().equals(patient.getPatient_id()))
-							.findFirst().ifPresent(obs ->
-							DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
-									.ifPresent(concept -> lineList.setRegimenAtStart(concept.getValue()))
-					);
-
-
-					DBMiddleMan.allObs.stream()
-							.filter(obs -> obs.getConcept_id() == 165708 && obs.getPerson_id().equals(patient.getPatient_id()))
-							.reduce((first, second) -> second).ifPresent(obs ->
-							DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
-									.ifPresent(concept ->
-											lineList.setCurrentRegimenLine(concept.getValue())
-									)
-					);
-
-					DBMiddleMan.allObs.stream()
-							.filter(obs -> (obs.getConcept_id() == 164506 || obs.getConcept_id() == 164513 || obs.getConcept_id() == 165702) && obs.getPerson_id().equals(patient.getPatient_id()))
-							.reduce((first, second) -> second).ifPresent(obs -> {
-						if (obs.getConcept_id().equals(165702) && obs.getValue_coded().equals(165131)) {
-							DBMiddleMan.allObs.stream().filter(ob -> ob.getEncounter_id().equals(obs.getEncounter_id()) &&
-							   ob.getConcept_id().equals(163101)).findFirst().ifPresent( o -> lineList.setCurrentRegimen(o.getValue_text()));
-
-						} else {
-							DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded()))
-									.findFirst()
-									.ifPresent(concept -> lineList.setCurrentRegimen(concept.getValue()));
-						}
-							}
-					);
-
-					DBMiddleMan.allObs.stream()
-							.filter(obs -> obs.getConcept_id() == 856 && obs.getPerson_id().equals(patient.getPatient_id()))
-							.reduce((first, second) -> second).ifPresent(obs -> {
-						DBMiddleMan.allEncounters.stream().filter(enc -> enc.getEncounter_id().equals(obs.getEncounter_id()))
-								.findFirst().ifPresent(encounter -> {
-									lineList.setCurrentViralLoad(obs.getValue_numeric().intValue());
-							lineList.setDateOfCurrentViralLoad(
-									Date.valueOf(LocalDate.parse(encounter.getEncounter_datetime().toString())));
+						DBMiddleMan.allObs.stream()
+								.filter(obs -> obs.getConcept_id() == 856 && obs.getPerson_id().equals(patient.getPatient_id()))
+								.reduce((first, second) -> second).ifPresent(obs -> {
+							DBMiddleMan.allEncounters.stream().filter(enc -> enc.getEncounter_id().equals(obs.getEncounter_id()))
+									.findFirst().ifPresent(encounter -> {
+								lineList.setCurrentViralLoad(obs.getValue_numeric().intValue());
+								lineList.setDateOfCurrentViralLoad(
+										Date.valueOf(LocalDate.parse(encounter.getEncounter_datetime().toString())));
+							});
 						});
-					});
 
-					DBMiddleMan.allObs.stream()
-							.filter(obs -> obs.getConcept_id() == 164980 && obs.getPerson_id().equals(patient.getPatient_id()))
-							.reduce((first, second) -> second).ifPresent(obs ->
-							DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
-									.ifPresent(concept -> lineList.setViralLoadIndication(concept.getValue()))
-					);
+						DBMiddleMan.allObs.stream()
+								.filter(obs -> obs.getConcept_id() == 164980 && obs.getPerson_id().equals(patient.getPatient_id()))
+								.reduce((first, second) -> second).ifPresent(obs ->
+								DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
+										.ifPresent(concept -> lineList.setViralLoadIndication(concept.getValue()))
+						);
 
-					lineLists.add(lineList);
+						lineLists.add(lineList);
+					}catch (Exception ex){
+						Platform.runLater(()->{
+							System.out.println(ex.getMessage());
+							ex.printStackTrace();
+						});
+					}
 				}
-
 				return lineLists;
 			}
 

@@ -62,6 +62,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -214,6 +215,8 @@ public class Controller {
 
     private static String tab = null;
 
+    private static final String DRIVER = "com.mysql.jdbc.Driver";
+
     //Set<ConceptMap> concepts = new HashSet<>();
 
 //    private ToggleGroup sourceType = new ToggleGroup();
@@ -266,7 +269,7 @@ public class Controller {
 
         vBoxTables.setDisable(true);
 
-        vBoxDestination.setDisable(true);
+//        vBoxDestination.setDisable(true);
 
         //this.concepts =
         readConceptMapsFromCSV("conceptMapping.csv");
@@ -439,6 +442,8 @@ public class Controller {
             DBMiddleMan.getAllPeopleAddresses();
             DBMiddleMan.getPeopleAttributes();
             DBMiddleMan.getEncounters(loc);
+            DBMiddleMan.getLocations();
+            DBMiddleMan.getForms();
             Platform.runLater(() -> {
                 logToConsole("\n Data loaded successfully.");
             });
@@ -5135,6 +5140,322 @@ public class Controller {
 
             stage.setScene(scene);
             stage.setTitle("NMRS LineList!");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    private Integer createVisit(Integer patientID, Date encounterDate) {
+
+        Integer t3d_id = null;
+        appConsole.clear();
+        logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+
+        Statement stmt = null;
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+        }
+        catch (Exception exc) {
+            logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+        }
+        String INSERT_SQL = "INSERT IGNORE INTO visit"
+                + "(visit_id, patient_id, visit_type_id, date_started, date_stopped, location_id," +
+                " creator, date_created, uuid) " +
+                "VALUES ( ?,?,?,?,?,?,?,?,?)";
+
+        try (Connection conn = DriverManager
+                .getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
+
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt1 = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+                // Insert sample records
+                try {
+                    stmt1.setString(1, null);
+                    stmt1.setInt(2, patientID);
+                    stmt1.setInt(3, 1);
+                    stmt1.setDate(4, encounterDate);
+                    stmt1.setDate(5, encounterDate);
+                    stmt1.setInt(6, cboLocation.getSelectionModel().getSelectedItem().getKey());
+                    stmt1.setInt(7, 1);
+                    stmt1.setDate(8, encounterDate);
+                    stmt1.setString(9, UUID.randomUUID().toString());
+
+                    //Add statement to batch
+                    stmt1.execute();
+                    ResultSet rs = stmt1.getGeneratedKeys();
+                    if (rs.next()) {
+                        t3d_id = rs.getInt(1);
+                    }
+                    rs.close();
+                }
+                catch (Exception ex) {
+                    logToConsole("\n Error: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+                conn.commit();
+                logToConsole("\n Transaction is committed successfully.");
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+                rollbackTransaction(conn, e);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return t3d_id;
+    }
+
+    private Integer getVisit(Integer patientID, Date encounterDate) {
+        Visit visit = null;
+        appConsole.clear();
+        logToConsole("#################### CHECKING DESTINATION DATABASE! \n");
+
+        Statement stmt = null;
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+        }
+        catch (Exception exc) {
+            logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+        }
+        try (Connection conn = DriverManager
+                .getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
+            logToConsole("\n Destination Database connection successful..");
+
+            stmt = conn.createStatement();
+            String sql =
+                    "SELECT * FROM visit where patient_id=" + patientID + " and " + "date_started='" + encounterDate + "' AND location_id = "+ cboLocation.getSelectionModel().getSelectedItem().getKey();
+            logToConsole("\n Fetching Visits..");
+            ResultSet rs = stmt.executeQuery(sql);
+            //STEP 5: Extract data from result set
+            while (rs.next()) {
+                visit = new Visit();
+                visit.setVisit_id(rs.getInt("visit_id"));
+                visit.setPatient_id(rs.getInt("patient_id"));
+                visit.setVisit_type_id(1);
+                visit.setDate_started(rs.getDate("date_started"));
+                visit.setDate_stopped(rs.getDate("date_stopped"));
+                visit.setLocation_id(cboLocation.getSelectionModel().getSelectedItem().getKey());
+                visit.setUuid(UUID.fromString(rs.getString("uuid")));
+                visit.setCreator(1);
+                visit.setDate_changed(rs.getDate("date_changed"));
+                visit.setDate_created(rs.getDate("date_created"));
+                visit.setDate_voided(rs.getDate("date_voided"));
+                visit.setVoid_reason(rs.getString("void_reason"));
+                visit.setVoided(rs.getBoolean("voided"));
+
+            }
+            rs.close();
+        }
+        catch (SQLException e) {
+            logToConsole("\n Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        finally {
+            //finally block used to close resources
+            try {
+                if (stmt != null)
+                    stmt.close();
+            }
+            catch (Exception se) {
+            }// do nothing
+        }//end try
+
+        if (visit != null) {
+            return visit.getVisit_id();
+        } else {
+            return createVisit(patientID, encounterDate);
+        }
+    }
+
+    @FXML
+    private void fixVisits(){
+        Integer loc = 0;
+        if(cboLocation.getSelectionModel().getSelectedItem() == null){
+            logToConsole("\n "+ "PLEASE SELECT LOCATION AND TRY AGAIN...");
+            return;
+        }else{
+            loc = cboLocation.getSelectionModel().getSelectedItem().getKey();
+        }
+        // DELETE DUPLICATE FORM ENTRIES WITH NULL VISIT_ID
+
+            // VOID DUPLICATE FORM ENTRY WHERE 1 HAS NO VISITID
+            String sql = "UPDATE encounter enc INNER JOIN encounter realenc " +
+                    " ON DATE(enc.encounter_datetime) = DATE(realenc.encounter_datetime) AND realenc.patient_id = enc.patient_id AND realenc.visit_id IS NOT NULL AND realenc.voided=0 AND realenc.location_id = "+ loc + " AND  realenc.form_id = enc.form_id" +
+                    "  SET enc.voided=1 where enc.visit_id IS NULL AND enc.voided = 0 AND enc.location_id = "+ loc;
+
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (Exception exc) {
+            logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+        }
+        try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
+
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                //execute batch
+                stmt.execute(sql);
+                conn.commit();
+                logToConsole(" Encounter voided!");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                rollbackTransaction(conn, e);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        //GET ALL ENCOUNTERS WITH NULL VISIT_ID
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName(DRIVER);
+
+            //STEP 3: Open a connection
+            conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword());
+
+            //STEP 4: Execute a query
+
+            stmt = conn.createStatement();
+
+            //SELECT ALL ENCOUNTER WITHOUT VISITID
+            sql = "SELECT * from encounter where visit_id IS NULL AND location_id = "+ loc + " AND  voided=0";
+
+            ResultSet rs = stmt.executeQuery(sql);
+            //STEP 5: Extract data from result set
+            Integer tot = 0;
+            while (rs.next()) {
+                tot++;
+                //Retrieve by column name
+                Integer finalTot = tot;
+                Platform.runLater(()->{
+                    logToConsole(finalTot.toString()+"\n");
+                });
+
+                Integer vID = getVisit(rs.getInt("patient_id"), rs.getDate("encounter_datetime"));
+                // UPDATE SINGLE FORM ENTRY THAT HAS NO VISIT ID
+                String  update_sql = "UPDATE encounter enc SET enc.visit_id="+vID+" Where enc.encounter_id="+ rs.getInt("encounter_id");
+
+                try (Connection conn1 = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
+
+                    conn1.setAutoCommit(false);
+                    try (PreparedStatement stmt1 = conn1.prepareStatement(update_sql)) {
+                        //execute batch
+                        stmt1.execute(update_sql);
+                        conn1.commit();
+                        Platform.runLater(()->{
+                            logToConsole(" Encounter Updated!"+"\n");
+                        });
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        rollbackTransaction(conn1, e);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            rs.close();
+        } catch (SQLException se) {
+            //Handle errors for JDBC
+            se.printStackTrace();
+        } catch (Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        } finally {
+            //finally block used to close resources
+            try {
+                if (stmt != null)
+                    conn.close();
+            } catch (SQLException se) {
+            }// do nothing
+        }
+
+    }
+
+    @FXML
+    private void fixLocations(){
+        Integer loc = 0;
+        if(cboLocation.getSelectionModel().getSelectedItem() == null){
+            logToConsole("\n "+ "PLEASE SELECT LOCATION AND TRY AGAIN...");
+            return;
+        }else{
+            loc = cboLocation.getSelectionModel().getSelectedItem().getKey();
+        }
+        // DELETE DUPLICATE FORM ENTRIES WITH NULL VISIT_ID
+
+        // VOID DUPLICATE FORM ENTRY WHERE 1 HAS NO VISITID
+        String sql = "UPDATE patient_program SET location_id= "+loc+" where location_id IS NULL";
+        String sql1 = "UPDATE patient_identifier SET location_id= "+loc+" where location_id IS NULL";
+
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (Exception exc) {
+            logToConsole("\n Error Registering DB Driver " + exc.getMessage() + "..");
+        }
+        try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
+
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                //execute batch
+                stmt.execute(sql);
+                conn.commit();
+                logToConsole(" Program Locations Fixed ! \n");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                rollbackTransaction(conn, e);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try (Connection conn = DriverManager.getConnection(dd.getDestination_jdbcUrl(), dd.getDestinationUsername(), dd.getDestinationPassword())) {
+
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement(sql1)) {
+                //execute batch
+                stmt.execute(sql1);
+                conn.commit();
+                logToConsole(" Identifiers Locations Fixed ! \n");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                rollbackTransaction(conn, e);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @FXML
+    private void editForm(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = fxmlLoader.load(getClass().getResource("/org/ccfng/nmrs/editform/editform.fxml").openStream());
+
+            org.ccfng.nmrs.editform.Controller controller = fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("NMRS Edit Form!");
             stage.setResizable(false);
             stage.alwaysOnTopProperty();
             stage.show();

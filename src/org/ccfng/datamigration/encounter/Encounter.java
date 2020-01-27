@@ -1,5 +1,11 @@
 package org.ccfng.datamigration.encounter;
 
+import lombok.EqualsAndHashCode;
+import org.ccfng.datamigration.obs.Obs;
+import org.ccfng.datamigration.patient.Patient;
+import org.ccfng.global.DBMiddleMan;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,11 +18,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import lombok.EqualsAndHashCode;
-import org.ccfng.datamigration.obs.Obs;
-import org.ccfng.datamigration.patient.Patient;
-import org.ccfng.global.DBMiddleMan;
-import org.hibernate.annotations.Type;
 
 @XmlRootElement(name = "Encounter")
 @EqualsAndHashCode(exclude = {"Date_changed","Uuid",
@@ -285,11 +286,11 @@ public class Encounter {
     }
 
     public List<Obs> getObs(){
-       return DBMiddleMan.allObs.stream().filter(obs -> obs.getEncounter_id().equals(this.getEncounter_id())).collect(Collectors.toList());
+       return DBMiddleMan.allObs.stream().filter(obs -> obs.getEncounter_id().equals(this.getEncounter_id()) && ! obs.isVoided()).collect(Collectors.toList());
     }
 
     public Obs getOb(int concept_id){
         return DBMiddleMan.allObs.stream().filter(obs -> obs.getEncounter_id().equals(this.getEncounter_id())
-                && obs.getConcept_id() == concept_id).findFirst().orElse(null);
+                && obs.getConcept_id() == concept_id && ! obs.isVoided()).findFirst().orElse(null);
     }
 }

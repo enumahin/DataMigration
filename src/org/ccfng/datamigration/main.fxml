@@ -55,7 +55,13 @@
                    </Menu>
                   <Menu mnemonicParsing="false" text="NMRS Tools">
                     <items>
+                        <MenuItem mnemonicParsing="false" onAction="#fixLocations" text="Fix Location" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#fixVisits" text="Fix Visits" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
                       <MenuItem mnemonicParsing="false" onAction="#nmrsLineList" text="Line List" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#editForm" text="Edit Form" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Help">
