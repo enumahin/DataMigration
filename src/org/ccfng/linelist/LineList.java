@@ -1,7 +1,8 @@
 package org.ccfng.linelist;
 
-import java.sql.Date;
 import org.ccfng.global.Demographics;
+
+import java.sql.Date;
 
 public class LineList extends Demographics {
 

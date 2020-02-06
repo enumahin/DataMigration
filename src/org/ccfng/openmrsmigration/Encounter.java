@@ -1,8 +1,9 @@
 package org.ccfng.openmrsmigration;
 
+import org.ccfng.datamigration.obs.Obs;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.ccfng.datamigration.obs.Obs;
 
 public class Encounter extends org.ccfng.datamigration.encounter.Encounter {
   List<Obs> obs = new ArrayList<>();

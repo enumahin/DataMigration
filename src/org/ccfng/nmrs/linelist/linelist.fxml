@@ -79,6 +79,16 @@
 										<PropertyValueFactory property="nextAppointmentDate" />
 									</cellValueFactory>
 								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Care Card Next Appointment Date">
+									<cellValueFactory>
+										<PropertyValueFactory property="careCardnextAppointmentDate" />
+									</cellValueFactory>
+								</TableColumn>
+								<TableColumn prefWidth="166.0" text="Much Difference">
+									<cellValueFactory>
+										<PropertyValueFactory property="SameDate" />
+									</cellValueFactory>
+								</TableColumn>
 								<TableColumn prefWidth="166.0" text="Regimen Line At Start">
 									<cellValueFactory>
 										<PropertyValueFactory property="regimenLineAtStart" />

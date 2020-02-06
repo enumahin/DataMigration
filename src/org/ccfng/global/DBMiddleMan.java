@@ -182,7 +182,7 @@ public class DBMiddleMan {
 			String sql = "select obs.*, encounter.encounter_datetime from obs"
 					+ " left join encounter on "
 					+ "obs.encounter_id = encounter.encounter_id "
-					+ " where encounter.location_id = "+loc+" AND ( obs.voided=0 || encounter.voided = 0 ) ORDER BY encounter_datetime ASC";
+					+ " where encounter.location_id = "+loc+" AND  obs.voided=0 AND encounter.voided = 0  ORDER BY encounter_datetime ASC";
 			PreparedStatement stmt = null;
 			try {
 				//STEP 2: Register JDBC driver

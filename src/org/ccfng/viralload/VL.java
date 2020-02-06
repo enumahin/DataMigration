@@ -1,8 +1,9 @@
 package org.ccfng.viralload;
 
 
-import java.sql.Date;
 import org.ccfng.global.Demographics;
+
+import java.sql.Date;
 
 public class VL extends Demographics {
 

@@ -21,6 +21,8 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Controller extends org.ccfng.datamigration.Controller {
 
@@ -93,15 +95,18 @@ public class Controller extends org.ccfng.datamigration.Controller {
 //								|| patient.getPatient_id() == 20952).collect(Collectors
 //						.toList())
 						) {
+					LineList lineList = new LineList();
 //					final int[] ddUnit = { 1 };
 					try {
+					    List<Obs> patientObs = DBMiddleMan.allObs.stream().filter(obs -> obs.getPerson_id().equals(patient.getPatient_id())).collect(Collectors.toList());
+
 						updateProgress(wDone[0] + 1, total);
 						Platform.runLater(() -> {
-							System.out.println("Processing Patient with ID: " + patient.getPatient_id() + "\n");
+//							System.out.println("Processing Patient with ID: " + patient.getPatient_id() + "\n");
 							lblCount.setText(String.valueOf(wDone[0]));
 						});
 						wDone[0]++;
-						LineList lineList = new LineList();
+
 						lineList.setPatientID(patient.getPatient_id());
 
 						DBMiddleMan.allPatientIdentifiers.stream()
@@ -161,10 +166,8 @@ public class Controller extends org.ccfng.datamigration.Controller {
 							);
 						});
 
-						DBMiddleMan.allObs.stream()
-								.filter(obs ->
-										obs.getPerson_id().equals(patient.getPatient_id()) &&
-												(obs.getConcept_id() == 159599)
+                        patientObs.stream()
+								.filter(obs -> (obs.getConcept_id() == 159599)
 								).findAny().ifPresent(art -> {
 							lineList.setArtStartDate(art.getValue_datetime());
 							if (null != art.getValue_datetime()) {
@@ -179,8 +182,7 @@ public class Controller extends org.ccfng.datamigration.Controller {
 							}
 						});
 
-						DBMiddleMan.allObs.stream().filter(obs7 ->
-								obs7.getPerson_id().equals(patient.getPatient_id()) && (obs7.getValue_coded() == 165048 || obs7.getValue_coded() == 165685))
+                        patientObs.stream().filter(obs7 -> (obs7.getValue_coded() == 165048 || obs7.getValue_coded() == 165685))
 								.reduce((first, second) -> second).ifPresent(o -> {
 							if (ChronoUnit.DAYS.between(LocalDate.parse(o.getEncounter().getEncounter_datetime().toString()), LocalDate.now()) < 270) {
 								lineList.setPregnancyStatus("Yes");
@@ -189,19 +191,18 @@ public class Controller extends org.ccfng.datamigration.Controller {
 							}
 						});
 
-						DBMiddleMan.allObs.stream()
-								.filter(obs -> obs.getConcept_id() == 165724 && obs.getPerson_id().equals(patient.getPatient_id())
+                        patientObs.stream()
+								.filter(obs -> obs.getConcept_id() == 165724
 										&& obs.getEncounter().getEncounter_type() == 13)
 								.reduce((first, second) -> second).ifPresent(obs -> {
 
-                            DBMiddleMan.allObs.stream()
-                                    .filter(obss -> obss.getConcept_id() == 165708 && obss.getEncounter_id().equals(obs.getEncounter_id()))
-                                    .findFirst().ifPresent(ob -> {
+//                            patientObs.stream()
+//                                    .filter(obss -> obss.getConcept_id() == 165708 && obss.getEncounter_id().equals(obs.getEncounter_id()))
+//                                    .findFirst().ifPresent(ob -> {
 
                                         lineList.setLastPickUpDate(
-                                                Date.valueOf(ob.getEncounter().getEncounter_datetime().toString()));
-
-                                    });
+                                                Date.valueOf(obs.getEncounter().getEncounter_datetime().toString()));
+//                                    });
 //						Obs unit = DBMiddleMan.allObs.stream()
 //								.filter(ob -> ob.getConcept_id() == 1732 &&
 //										obs.getEncounter_id().equals(ob.getEncounter_id()))
@@ -243,6 +244,25 @@ public class Controller extends org.ccfng.datamigration.Controller {
 
 								lineList.setNextAppointmentDate(nextAppointmentDate);
 
+								patientObs.stream().filter(obs1 -> obs1.getConcept_id().equals(5096)
+												&& obs1.getEncounter().getForm_id().equals(14)
+//													&& obs1.getEncounter().getVisit_id().equals(obs.getEncounter().getVisit_id())
+										).reduce((first, second) -> second).ifPresent(obs1 -> {
+											Platform.runLater(()-> {
+												System.out.println("Date: "+ obs1.getValue_datetime());
+												lineList.setCareCardnextAppointmentDate(obs1.getValue_datetime());
+											});
+
+//										if(obs1.getValue_datetime().equals(nextAppointmentDate)){
+										if((ChronoUnit.DAYS
+												.between(obs1.getValue_datetime().toLocalDate(),nextAppointmentDate.toLocalDate())) < -20){
+											lineList.setSameDate("Yes");
+										}else{
+											lineList.setSameDate("No");
+										}
+								});
+
+
 								lineList.setDaysOfArtRefill(drugDuration.getValue_numeric().longValue());
 
 								Long numMissed = ChronoUnit.DAYS
@@ -250,17 +270,10 @@ public class Controller extends org.ccfng.datamigration.Controller {
 
 								lineList.setNumberOfDaysMissedAppointment(numMissed);
 
-								Obs exited = patient.exited();
 
-								if (exited != null) {
-									DBMiddleMan.conceptNames.stream().filter(concept -> concept.getId().equals(exited.getValue_coded()))
-											.findFirst().ifPresent(concept -> {
-										lineList.setCurrentArtStatus(concept.getValue());
-										lineList.setActiveBy28(concept.getValue());
-										lineList.setActiveBy90(concept.getValue());
-									});
 
-								} else if (numMissed >= 0) {
+
+								if (numMissed >= 0) {
 									lineList.setCurrentArtStatus("Active");
 									lineList.setActiveBy28("Active");
 									lineList.setActiveBy90("Active");
@@ -285,6 +298,8 @@ public class Controller extends org.ccfng.datamigration.Controller {
 									lineList.setActiveBy28("InActive");
 									lineList.setActiveBy90("InActive");
 								}
+
+
 
 							}
 
@@ -343,25 +358,42 @@ public class Controller extends org.ccfng.datamigration.Controller {
 //									}
 //								}
 //						}
+
+
 						});
 
-						DBMiddleMan.allObs.stream()
-								.filter(obs -> obs.getConcept_id() == 165708 && obs.getPerson_id().equals(patient.getPatient_id()))
+						Obs exited = patient.exited();
+
+						if (exited != null) {
+							DBMiddleMan.conceptNames.stream().filter(concept -> concept.getId().equals(exited.getValue_coded()))
+									.findFirst().ifPresent(concept -> {
+								lineList.setCurrentArtStatus(concept.getValue());
+							});
+						}
+
+
+                        DBMiddleMan.allPeople.stream().filter(pip -> pip.getDead() && pip.getPerson_id().equals(patient.getPatient_id()))
+								.findFirst().ifPresent(dead -> {
+									lineList.setCurrentArtStatus("Dead");
+						});
+
+                        patientObs.stream()
+								.filter(obs -> obs.getConcept_id() == 165708)
 								.findFirst().ifPresent(obs ->
 								DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
 										.ifPresent(concept -> lineList.setRegimenLineAtStart(concept.getValue()))
 						);
 
-						DBMiddleMan.allObs.stream()
-								.filter(obs -> (obs.getConcept_id() == 164506 || obs.getConcept_id() == 164513 || obs.getConcept_id() == 165702) && obs.getPerson_id().equals(patient.getPatient_id()))
+                        patientObs.stream()
+								.filter(obs -> (obs.getConcept_id() == 164506 || obs.getConcept_id() == 164513 || obs.getConcept_id() == 165702))
 								.findFirst().ifPresent(obs ->
 								DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
 										.ifPresent(concept -> lineList.setRegimenAtStart(concept.getValue()))
 						);
 
 
-						DBMiddleMan.allObs.stream()
-								.filter(obs -> obs.getConcept_id() == 165708 && obs.getPerson_id().equals(patient.getPatient_id()))
+                        patientObs.stream()
+								.filter(obs -> obs.getConcept_id() == 165708 )
 								.reduce((first, second) -> second).ifPresent(obs ->
 								DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
 										.ifPresent(concept ->
@@ -369,11 +401,11 @@ public class Controller extends org.ccfng.datamigration.Controller {
 										)
 						);
 
-						DBMiddleMan.allObs.stream()
-								.filter(obs -> (obs.getConcept_id() == 164506 || obs.getConcept_id() == 164513 || obs.getConcept_id() == 165702) && obs.getPerson_id().equals(patient.getPatient_id()))
+                        patientObs.stream()
+								.filter(obs -> (obs.getConcept_id() == 164506 || obs.getConcept_id() == 164513 || obs.getConcept_id() == 165702))
 								.reduce((first, second) -> second).ifPresent(obs -> {
 									if (obs.getConcept_id().equals(165702) && obs.getValue_coded().equals(165131)) {
-										DBMiddleMan.allObs.stream().filter(ob -> ob.getEncounter_id().equals(obs.getEncounter_id()) &&
+                                        patientObs.stream().filter(ob -> ob.getEncounter_id().equals(obs.getEncounter_id()) &&
 												ob.getConcept_id().equals(163101)).findFirst().ifPresent(o -> lineList.setCurrentRegimen(o.getValue_text()));
 
 									} else {
@@ -384,8 +416,8 @@ public class Controller extends org.ccfng.datamigration.Controller {
 								}
 						);
 
-						DBMiddleMan.allObs.stream()
-								.filter(obs -> obs.getConcept_id() == 856 && obs.getPerson_id().equals(patient.getPatient_id()))
+                        patientObs.stream()
+								.filter(obs -> obs.getConcept_id() == 856)
 								.reduce((first, second) -> second).ifPresent(obs -> {
 							DBMiddleMan.allEncounters.stream().filter(enc -> enc.getEncounter_id().equals(obs.getEncounter_id()))
 									.findFirst().ifPresent(encounter -> {
@@ -395,8 +427,8 @@ public class Controller extends org.ccfng.datamigration.Controller {
 							});
 						});
 
-						DBMiddleMan.allObs.stream()
-								.filter(obs -> obs.getConcept_id() == 164980 && obs.getPerson_id().equals(patient.getPatient_id()))
+                        patientObs.stream()
+								.filter(obs -> obs.getConcept_id() == 164980 )
 								.reduce((first, second) -> second).ifPresent(obs ->
 								DBMiddleMan.conceptNames.stream().filter(cName -> cName.getId().equals(obs.getValue_coded())).findFirst()
 										.ifPresent(concept -> lineList.setViralLoadIndication(concept.getValue()))
@@ -404,12 +436,23 @@ public class Controller extends org.ccfng.datamigration.Controller {
 
 						lineLists.add(lineList);
 					}catch (Exception ex){
+//						lineList.setPatientID(patient.getPatient_id());
+//
+//						DBMiddleMan.allPatientIdentifiers.stream()
+//								.filter(patientIdentifier ->
+//										patientIdentifier.getPatient_id().equals(patient.getPatient_id()) &&
+//												patientIdentifier.getIdentifier_type() == 4
+//								).findFirst().ifPresent(patientIdentifier -> lineList.setPepfarID(patientIdentifier.getIdentifier()));
+						lineLists.add(lineList);
 						Platform.runLater(()->{
 							System.out.println(ex.getMessage());
+							System.out.println(patient.getPatient_id());
+							logToConsole(patient.getPatient_id().toString()+"\n");
 							ex.printStackTrace();
 						});
 					}
 				}
+
 				return lineLists;
 			}
 

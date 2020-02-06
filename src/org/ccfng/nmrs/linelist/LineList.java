@@ -16,6 +16,10 @@ public class LineList extends Demographics {
 
 	private Date nextAppointmentDate;
 
+	private Date careCardnextAppointmentDate;
+
+	private String SameDate;
+
 	private String regimenLineAtStart;
 
 	private String regimenAtStart;
@@ -81,6 +85,22 @@ public class LineList extends Demographics {
 
 	public void setNextAppointmentDate(Date nextAppointmentDate) {
 		this.nextAppointmentDate = nextAppointmentDate;
+	}
+
+	public Date getCareCardnextAppointmentDate() {
+		return careCardnextAppointmentDate;
+	}
+
+	public void setCareCardnextAppointmentDate(Date careCardnextAppointmentDate) {
+		this.careCardnextAppointmentDate = careCardnextAppointmentDate;
+	}
+
+	public String getSameDate() {
+		return SameDate;
+	}
+
+	public void setSameDate(String sameDate) {
+		SameDate = sameDate;
 	}
 
 	public String getRegimenLineAtStart() {
@@ -178,4 +198,6 @@ public class LineList extends Demographics {
 	public void setActiveBy90(String activeBy90) {
 		this.activeBy90 = activeBy90;
 	}
+
+
 }

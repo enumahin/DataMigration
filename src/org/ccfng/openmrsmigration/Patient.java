@@ -1,12 +1,13 @@
 package org.ccfng.openmrsmigration;
 
-import java.util.List;
 import org.ccfng.datamigration.patientidentifier.PatientIdentifier;
 import org.ccfng.datamigration.patientprogram.PatientProgram;
 import org.ccfng.datamigration.person.Person;
 import org.ccfng.datamigration.personaddress.PersonAddress;
 import org.ccfng.datamigration.personattribute.PersonAttribute;
 import org.ccfng.datamigration.personname.PersonName;
+
+import java.util.List;
 
 public class Patient extends org.ccfng.datamigration.patient.Patient {
 
