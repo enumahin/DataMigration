@@ -5384,6 +5384,11 @@ public class Controller {
     }
 
     @FXML
+    private void setLocation(){
+        DBMiddleMan.presentLocation = cboLocation.getSelectionModel().getSelectedItem().getKey();
+    }
+
+    @FXML
     private void fixLocations(){
         Integer loc = 0;
         if(cboLocation.getSelectionModel().getSelectedItem() == null){
@@ -5456,6 +5461,33 @@ public class Controller {
 
             stage.setScene(scene);
             stage.setTitle("NMRS Edit Form!");
+            stage.setResizable(false);
+            stage.alwaysOnTopProperty();
+            stage.show();
+        }catch (Exception ex){
+            logToConsole(ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void query(){
+        try {
+
+            checkConnection();
+
+            Stage stage = new Stage();
+
+            FXMLLoader fxmlLoader = new FXMLLoader();
+
+            Pane root = fxmlLoader.load(getClass().getResource("/org/ccfng/nmrs/query/query.fxml").openStream());
+
+            org.ccfng.nmrs.query.Controller controller = fxmlLoader.getController();
+
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.setTitle("Custom Query!");
             stage.setResizable(false);
             stage.alwaysOnTopProperty();
             stage.show();

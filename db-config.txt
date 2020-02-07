@@ -1,6 +1,6 @@
 /Users/mac/Documents
 localhost
-3306
-root
-root
+3316
+openmrs
+wHoAOYe.1Pm1
 openmrs

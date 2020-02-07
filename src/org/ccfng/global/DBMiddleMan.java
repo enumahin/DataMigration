@@ -42,6 +42,7 @@ public class DBMiddleMan {
 	public static ObservableList<Encounter> allEncounters;
 	public static ObservableList<org.ccfng.global.KeyValueClass> allLocations;
 	public static ObservableList<org.ccfng.global.KeyValueClass> allForms;
+	public static Integer presentLocation = 0;
 
 
 	public static class KeyValueClass{
