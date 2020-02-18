@@ -31,7 +31,7 @@ public class Controller {
     private void executeQuery(){
         Integer loc = 0;
         if(DBMiddleMan.presentLocation == 0){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "PLEASE SELECT LOCATION AND TRY AGAIN...", ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "PLEASE SELECT LOCATION AND TRY AGAIN....", ButtonType.OK);
             alert.showAndWait();
             return;
         }else{

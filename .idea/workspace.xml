@@ -12,6 +12,7 @@
     <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/conceptMapping.csv" beforeDir="false" afterPath="$PROJECT_DIR$/conceptMapping.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/org/ccfng/nmrs/query/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/org/ccfng/nmrs/query/Controller.java" afterDir="false" />
     </list>
     <ignored path="JavaFxApplication.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -113,7 +114,7 @@
       <file leaf-file-name="Controller.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/Controller.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="79695">
+            <state relative-caret-position="78750">
               <caret line="5387" column="97" selection-start-line="5387" selection-start-column="97" selection-end-line="5387" selection-end-column="97" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -134,8 +135,8 @@
       <file leaf-file-name="Controller.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/org/ccfng/nmrs/query/Controller.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="945">
-              <caret line="63" selection-start-line="63" selection-end-line="63" />
+            <state relative-caret-position="392">
+              <caret line="33" column="100" selection-start-line="33" selection-start-column="100" selection-end-line="33" selection-end-column="100" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -325,18 +326,6 @@
     </navigator>
     <panes>
       <pane id="AndroidView" />
-      <pane id="Scope" />
-      <pane id="PackagesPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="DataMigration" type="58d84e3e:PackageViewProjectNode" />
-              <item name="DataMigration" type="616d4139:PackageViewModuleNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -434,6 +423,18 @@
               <item name="ccfng" type="462c0819:PsiDirectoryNode" />
               <item name="nmrs" type="462c0819:PsiDirectoryNode" />
               <item name="query" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+      <pane id="PackagesPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="DataMigration" type="58d84e3e:PackageViewProjectNode" />
+              <item name="DataMigration" type="616d4139:PackageViewModuleNode" />
             </path>
           </expand>
           <select />
@@ -693,6 +694,7 @@
       <workItem from="1580990379814" duration="4116000" />
       <workItem from="1581032247036" duration="4375000" />
       <workItem from="1581934654781" duration="925000" />
+      <workItem from="1582009607966" duration="104000" />
     </task>
     <task id="LOCAL-00001" summary="Just Finished DTG Implementation.">
       <created>1562484567844</created>
@@ -883,14 +885,22 @@
       <option name="project" value="LOCAL" />
       <updated>1581037088690</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="NMRS TOOLS Implemented Custom Query">
+      <created>1582009662531</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1582009662531</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1334525000" />
+    <option name="totallyTimeSpent" value="1334629000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="67" y="25" width="1853" height="1055" extended-state="7" />
+    <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -905,7 +915,7 @@
       <window_info anchor="bottom" id="Terminal" order="14" sideWeight="0.49642345" weight="0.30260304" />
       <window_info id="Capture Tool" order="6" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.8352" visible="true" weight="0.19424461" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.8352" visible="true" weight="0.19645822" />
       <window_info anchor="right" id="Database" order="5" />
       <window_info id="Structure" order="1" sideWeight="0.1648" side_tool="true" weight="0.17266187" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -1240,7 +1250,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/ccfng/datamigration/Controller.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="79695">
+        <state relative-caret-position="78750">
           <caret line="5387" column="97" selection-start-line="5387" selection-start-column="97" selection-end-line="5387" selection-end-column="97" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -1283,8 +1293,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/ccfng/nmrs/query/Controller.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="945">
-          <caret line="63" selection-start-line="63" selection-end-line="63" />
+        <state relative-caret-position="392">
+          <caret line="33" column="100" selection-start-line="33" selection-start-column="100" selection-end-line="33" selection-end-column="100" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
