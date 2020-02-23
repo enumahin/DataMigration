@@ -1,6 +1,6 @@
 /Users/mac/Documents
 localhost
-3316
+3306
 openmrs
-wHoAOYe.1Pm1
 openmrs
+fmc_asaba
