@@ -14,8 +14,6 @@ import java.util.Date;
 public class Patient
 {
     @Id
-    //@GeneratedValue(strategy = GenerationType.AUTO, generator = "Patient_id_seq_gen")
-    //@SequenceGenerator(name = "Patient_id_seq_gen", sequenceName = "Patient_id_seq", allocationSize = 800)
     @XmlElement(name = "Patient_id")
     private Integer Patient_id;
 

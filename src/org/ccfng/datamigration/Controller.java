@@ -1,6 +1,5 @@
 package org.ccfng.datamigration;
 
-import com.mysql.jdbc.StringUtils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +10,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import org.ccfng.datamigration.encounter.Encounter;
 import org.ccfng.datamigration.encounter.Encounters;
+import org.ccfng.datamigration.encounterprovider.EncounterProvider;
+import org.ccfng.datamigration.encounterprovider.EncounterProviders;
 import org.ccfng.datamigration.filepaths.FilePath;
 import org.ccfng.datamigration.filepaths.tables;
 import org.ccfng.datamigration.obs.Obs;
@@ -29,8 +30,12 @@ import org.ccfng.datamigration.personattribute.PersonAttribute;
 import org.ccfng.datamigration.personattribute.PersonAttributes;
 import org.ccfng.datamigration.personname.PersonName;
 import org.ccfng.datamigration.personname.PersonNames;
+import org.ccfng.datamigration.provider.Provider;
+import org.ccfng.datamigration.provider.Providers;
 import org.ccfng.datamigration.session.SessionManager;
+import org.ccfng.datamigration.users.Users;
 import org.ccfng.datamigration.visit.Visit;
+import org.ccfng.datamigration.users.User;
 import org.ccfng.datamigration.visit.Visits;
 import org.hibernate.HibernateException;
 
@@ -104,6 +109,12 @@ public class Controller {
     private ComboBox<String> fileComboBox;
 
     @FXML
+    private ComboBox<String> targetComboBox;
+
+    @FXML
+    private ComboBox<String> actionComboBox;
+
+    @FXML
     private ComboBox<String> sourceDB;
 
     private ObservableList<Encounter> allEncounters;
@@ -146,6 +157,18 @@ public class Controller {
 
     private ObservableList<Visit> allVisits;
 
+    private Task<ObservableList<User>> userTask;
+
+    private ObservableList<User> allUsers;
+
+    private Task<ObservableList<Provider>> providerTask;
+
+    private ObservableList<Provider> allProviders;
+
+    private Task<ObservableList<EncounterProvider>> encounterProviderTask;
+
+    private ObservableList<EncounterProvider> allEncounterProviders;
+
     private static Encounters ArrayOfEncounter = new Encounters();
     private static Obses ArrayOfObs = new Obses();
     private static Patients ArrayOfPatient = new Patients();
@@ -173,8 +196,17 @@ public class Controller {
     public Controller(){}
 
     public void initialize(){
-//        fromDB.setToggleGroup(sourceType);
-//        fromSQL.setToggleGroup(sourceType);
+        ObservableList<String> targets = FXCollections.observableArrayList();
+        targets.add("Source");
+        targets.add("Destination");
+        targetComboBox.setItems(FXCollections.observableList(targets));
+
+        ObservableList<String> action = FXCollections.observableArrayList();
+        action.add("Create");
+        action.add("Insert");
+        action.add("Update");
+        action.add("Delete");
+        actionComboBox.setItems(FXCollections.observableList(action));
         try {
             File textFile = new File("db-config.txt");
             if(!textFile.exists()) {
@@ -333,11 +365,11 @@ public class Controller {
                             loadPatient();
                             //new Thread(()->loadPatient());
                             break;
-                        case "patientidentifier":
+                        case "patient_identifier":
                             loadPatientIdentifier();
                             //new Thread(()->loadPatientIdentifier());
                             break;
-                        case "patientprogram":
+                        case "patient_program":
                             loadPatientProgram();
                             //new Thread(()->loadPatientProgram());
                             break;
@@ -345,15 +377,15 @@ public class Controller {
                             loadPerson();
                             //new Thread(()->loadPerson());
                             break;
-                        case "personaddress":
+                        case "person_address":
                             loadPersonAddress();
                             //new Thread(()->loadPersonAddress());
                             break;
-                        case "personattribute":
+                        case "person_attribute":
                             loadPersonAttribute();
                             //new Thread(()->loadPersonAttribute());
                             break;
-                        case "personname":
+                        case "person_name":
                             loadPersonName();
                             //new Thread(()->loadPersonName());
                             break;
@@ -361,6 +393,16 @@ public class Controller {
                             loadVisit();
                             //new Thread(()->loadVisit());
                             break;
+                        case "users":
+                            loadUsers();
+                            break;
+                        case "provider":
+                            loadProvider();
+                            break;
+                        case "encounter_provider":
+                            loadEncounterProvider();
+                            break;
+
                     }
 
                     Platform.runLater(new Runnable() {
@@ -383,12 +425,12 @@ public class Controller {
                                         progressIndicator.progressProperty().bind(patientTask.progressProperty());
                                         new Thread(patientTask).start();
                                         break;
-                                    case "patientidentifier":
+                                    case "patient_identifier":
                                         progressBar.progressProperty().bind(patientIdentifierTask.progressProperty());
                                         progressIndicator.progressProperty().bind(patientIdentifierTask.progressProperty());
                                         new Thread(patientIdentifierTask).start();
                                         break;
-                                    case "patientprogram":
+                                    case "patient_program":
                                         progressBar.progressProperty().bind(patientProgramTask.progressProperty());
                                         progressIndicator.progressProperty().bind(patientProgramTask.progressProperty());
                                         new Thread(patientProgramTask).start();
@@ -398,17 +440,17 @@ public class Controller {
                                         progressIndicator.progressProperty().bind(personTask.progressProperty());
                                         new Thread(personTask).start();
                                         break;
-                                    case "personaddress":
+                                    case "person_address":
                                         progressBar.progressProperty().bind(personAddressTask.progressProperty());
                                         progressIndicator.progressProperty().bind(personAddressTask.progressProperty());
                                         new Thread(personAddressTask).start();
                                         break;
-                                    case "personattribute":
+                                    case "person_attribute":
                                         progressBar.progressProperty().bind(personAttributeTask.progressProperty());
                                         progressIndicator.progressProperty().bind(personAttributeTask.progressProperty());
                                         new Thread(personAttributeTask).start();
                                         break;
-                                    case "personname":
+                                    case "person_name":
                                         progressBar.progressProperty().bind(personNameTask.progressProperty());
                                         progressIndicator.progressProperty().bind(personNameTask.progressProperty());
                                         new Thread(personNameTask).start();
@@ -417,6 +459,21 @@ public class Controller {
                                         progressBar.progressProperty().bind(visitTask.progressProperty());
                                         progressIndicator.progressProperty().bind(visitTask.progressProperty());
                                         new Thread(visitTask).start();
+                                        break;
+                                    case "users":
+                                        progressBar.progressProperty().bind(userTask.progressProperty());
+                                        progressIndicator.progressProperty().bind(userTask.progressProperty());
+                                        new Thread(userTask).start();
+                                        break;
+                                    case "provider":
+                                        progressBar.progressProperty().bind(providerTask.progressProperty());
+                                        progressIndicator.progressProperty().bind(providerTask.progressProperty());
+                                        new Thread(providerTask).start();
+                                        break;
+                                    case "encounter_provider":
+                                        progressBar.progressProperty().bind(encounterProviderTask.progressProperty());
+                                        progressIndicator.progressProperty().bind(encounterProviderTask.progressProperty());
+                                        new Thread(encounterProviderTask).start();
                                         break;
                                 }
 
@@ -431,6 +488,7 @@ public class Controller {
             }
         }
     }
+
 
     private void checkConnection(){
 
@@ -838,12 +896,13 @@ public class Controller {
                                 obs.setEncounter_id(rs.getInt("encounter_id"));
                                 obs.setLocation_id(2);
                                 obs.setForm_namespace_and_path(rs.getString("form_namespace_and_path"));
-                                obs.setVisit_id(rs.getInt("visit_id"));
+                                //obs.setVisit_id(rs.getInt("visit_id"));
                                 obs.setVoid_reason(rs.getString("void_reason"));
                                 obs.setVoided(rs.getBoolean("voided"));
                                 obs.setObs_datetime(rs.getDate("obs_datetime"));
                                 obs.setObs_group_id(rs.getInt("obs_group_id"));
-                                obs.setObs_id(rs.getInt("obs_id"));
+                                if(rs.getInt("obs_id") > 0)
+                                    obs.setObs_id(rs.getInt("obs_id"));
                                 obs.setOrder_id(rs.getInt("order_id"));
                                 obs.setPerson_id(rs.getInt("person_id"));
                                 obs.setPrevious_version(rs.getInt("previous_version"));
@@ -918,8 +977,8 @@ public class Controller {
                                 + "(obs_id, person_id, concept_id, encounter_id, order_id, obs_datetime, location_id," +
                                 "accession_number, value_group_id, value_coded, value_coded_name_id, value_drug, value_datetime, " +
                                 "value_numeric, value_modifier, value_text, value_complex, comments," +
-                                "creator, date_created, voided, date_voided, void_reason, uuid, previous_version, form_namespace_and_path) " +
-                                "VALUES ( NULL ,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                                "creator, date_created, voided, date_voided, void_reason, uuid, previous_version, form_namespace_and_path, obs_group_id) " +
+                                "VALUES ( NULL ,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
                         String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
                                 "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
@@ -933,10 +992,10 @@ public class Controller {
                                 // Insert sample records
 
                                 for (Obs module : allObses) {
-                                    try {
+                                    ///try {
                                         currentObs = module;
                                         //stmt.setInt(1, module.getObs_id());
-                                        //stmt.setInt(1, module.getVisit_id());
+                                        stmt.setInt(26, module.getObs_group_id());
                                         stmt.setInt(1, module.getPerson_id());
                                         stmt.setInt(2, module.getConcept_id());
                                         stmt.setInt(3, module.getEncounter_id());
@@ -983,10 +1042,10 @@ public class Controller {
                                         updateProgress(wDone + 1, allObses.size());
                                         Integer pDone = ((wDone + 1) / allObses.size()) * 100;
                                         wDone++;
-                                    }catch(Exception ex){
-                                        logToConsole("\n Exception Error: "+ ex.getMessage() + " in Obs with "+currentObs.getEncounter_id()+" Encounter ID!");
-                                        ex.printStackTrace();
-                                    }
+//                                    }catch(Exception ex){
+//                                        logToConsole("\n Exception Error: "+ ex.getMessage() + " in Obs with "+currentObs.getEncounter_id()+" Encounter ID!");
+//                                        ex.printStackTrace();
+//                                    }
                                 }
                                 //execute batch
                                 stmt.executeBatch();
@@ -1256,7 +1315,7 @@ public class Controller {
                                 PatientIdentifier patientIdentifier = new PatientIdentifier();
                                 patientIdentifier.setPatient_identifier_id(rs.getInt("patient_identifier_id"));
                                 patientIdentifier.setPreferred(rs.getBoolean("preferred"));
-                                if(rs.getInt("identifier_type") == 3)
+                                if(rs.getInt("identifier_type") == 3 && sourceDB.getSelectionModel().getSelectedIndex() == 0)
                                     patientIdentifier.setIdentifier_type(5);
                                 else
                                     patientIdentifier.setIdentifier_type(rs.getInt("identifier_type"));
@@ -2476,11 +2535,13 @@ public class Controller {
                             //STEP 4: Execute a query
 
                             stmt = conn.createStatement();
-                            if(tablesComboBox.getSelectionModel().getSelectedIndex() == 0) {
+                            if(sourceDB.getSelectionModel().getSelectedIndex() == 0) {
                                 String sql = "";
                                 if(fromFile.isSelected()){
+                                    logToConsole("\n Loading Visits from file...");
                                     sql = getSQL();
                                 }else{
+                                    logToConsole("\n Fetching visit from OpenMRS through encounter...");
                                     sql = "SELECT * FROM " + suffix + "encounter";
                                 }
                                 logToConsole("\n Creating Select statement...");
@@ -2502,7 +2563,6 @@ public class Controller {
                                     visit.setDate_voided(rs.getDate("date_voided"));
                                     visit.setVoid_reason(rs.getString("void_reason"));
                                     visit.setVoided(rs.getBoolean("voided"));
-
                                     allVisits.add(visit);
                                 }
                                 rs.close();
@@ -2532,7 +2592,6 @@ public class Controller {
                                     visit.setDate_voided(rs.getDate("date_voided"));
                                     visit.setVoid_reason(rs.getString("void_reason"));
                                     visit.setVoided(rs.getBoolean("voided"));
-
                                     allVisits.add(visit);
                                 }
                                 rs.close();
@@ -2648,7 +2707,7 @@ public class Controller {
                                 //execute batch
                                 stmt.executeBatch();
                                 conn.commit();
-                                logToConsole("Transaction is committed successfully.");
+                                logToConsole("\n Transaction is committed successfully.");
                             } catch (SQLException e) {
                                 e.printStackTrace();
                                 rollbackTransaction(conn, e);
@@ -2669,6 +2728,569 @@ public class Controller {
     }
 
     //########################### End of Visit ###################################
+
+
+    private void loadUsers() {
+        userTask = new Task<ObservableList<User>>() {
+            @Override
+            protected ObservableList<User> call() throws Exception {
+                try {
+                    allUsers = FXCollections.observableArrayList();
+                    Users users = new Users();
+
+                    if(sourceDB.getSelectionModel().getSelectedIndex() == 0 ||
+                            sourceDB.getSelectionModel().getSelectedIndex() == 1 ||
+                            sourceDB.getSelectionModel().getSelectedIndex() == 2) {
+
+                        connectionSettings();
+
+                        Connection conn = null;
+                        Statement stmt = null;
+                        try{
+                            //STEP 2: Register JDBC driver
+                            Class.forName(driver);
+
+                            //STEP 3: Open a connection
+                            logToConsole("\n Connecting to Source Database!!");
+                            conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);
+                            logToConsole("\n Connected to database successfully...");
+
+                            //STEP 4: Execute a query
+
+                            stmt = conn.createStatement();
+                            String sql = "";
+                            if(fromFile.isSelected()){
+                                sql = getSQL();
+                            }else{
+                                sql = "SELECT * FROM "+suffix+"users";
+                            }
+                            logToConsole("\n Creating Select statement...");
+                            ResultSet rs = stmt.executeQuery(sql);
+                            //STEP 5: Extract data from result set
+                            while(rs.next()){
+                                //Retrieve by column name
+                                User user = new User();
+                                user.setUser_id(rs.getInt("user_id"));
+                                user.setSystem_id(rs.getString("system_id"));
+                                user.setUsername(rs.getString("username"));
+                                user.setPassword(rs.getString("password"));
+                                user.setSalt(rs.getString("salt"));
+                                user.setSecret_question(rs.getString("secret_question"));
+                                user.setSecret_answer(rs.getString("secret_answer"));
+                                user.setPerson_id(rs.getInt("person_id"));
+                                user.setRetired(rs.getBoolean("retired"));
+                                user.setRetired_by(rs.getInt("retired_by"));
+                                user.setChanged_by(rs.getInt("changed_by"));
+                                user.setCreator(1);
+                                user.setDate_changed(rs.getDate("date_changed"));
+                                user.setDate_created(rs.getDate("date_created"));
+                                user.setDate_retired(rs.getDate("date_retired"));
+                                user.setRetire_reason(rs.getString("retire_reason"));
+                                user.setUuid(UUID.randomUUID());
+                                allUsers.add(user);
+                            }
+                            rs.close();
+                            logToConsole("\n Data Successfully Fetched!\n");
+                        }catch(SQLException se){
+                            //Handle errors for JDBC
+                            se.printStackTrace();
+                            logToConsole("\n Error: "+se.getMessage());
+                        }catch(Exception e){
+                            //Handle errors for Class.forName
+                            e.printStackTrace();
+                            logToConsole("\n Error: "+e.getMessage());
+                        }finally{
+                            //finally block used to close resources
+                            try{
+                                if(stmt!=null)
+                                    conn.close();
+                            }catch(SQLException se){
+                            }// do nothing
+                            closeConnection(conn);
+                        }//end try
+
+                    }else{
+                        logToConsole("#################### XML BASED MIGRATION!");
+
+                        File file = null;
+
+                        try {
+                            logToConsole("Fetching patient.xml file......\n");
+                            file = new File(xsdDir + "/users.xml");
+                            logToConsole("File fetched......\n");
+                        } catch (Exception e) {
+                            logToConsole("Error opening file users.xml: " + e.getMessage() + "\n");
+                        }
+
+                        try {
+                            logToConsole("Converting file to a Model......\n");
+                            JAXBContext jaxbContext = JAXBContext.newInstance(Users.class);
+                            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+                            users = (Users) unmarshaller.unmarshal(file);
+                            logToConsole("Conversion Done......\n");
+                        } catch (Exception exc) {
+                            logToConsole("Error Loading File Content to a Model: " + exc.getMessage() + "\n");
+                        }
+
+                    }
+                    if(allUsers.isEmpty()) {
+                        for (User theUser : users.getUsers()) {
+                            //thePatient.setUuid(UUID.randomUUID());
+                            allUsers.add(theUser);
+                        }
+                    }
+
+                    if(! allUsers.isEmpty()) {
+                        logToConsole("\n Loading Data.!\n");
+                        String INSERT_SQL = "INSERT INTO users"
+                                + "(user_id, system_id, username, password, salt, secret_question, secret_answer, person_id," +
+                                " retired, retired_by, changed_by, creator, date_changed, date_created, date_retired, retire_reason," +
+                                "uuid) " +
+                                "VALUES (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+                        String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
+                                "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
+                        String username = SessionManager.username;
+                        String password = SessionManager.password;
+                        Class.forName("com.mysql.jdbc.Driver");
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                            logToConsole("\n Loading Data..!\n");
+                            conn.setAutoCommit(false);
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                                logToConsole("\n Loading Data...!\n");
+                                int wDone = 0;
+                                // Insert sample records
+                                for (User module : allUsers) {
+                                    //logToConsole("\n Loading Data...!!\n");
+                                    stmt.setInt(1, module.getUser_id());
+                                    stmt.setString(2, module.getSystem_id());
+                                    stmt.setString(3, module.getUsername());
+                                    stmt.setString(4, module.getPassword());
+                                    stmt.setString(5, module.getSalt());
+                                    stmt.setString(6, module.getSecret_question());
+                                    stmt.setString(7, module.getSecret_answer());
+                                    stmt.setInt(8, module.getPerson_id());
+                                    stmt.setBoolean(9, module.getRetired());
+                                    stmt.setInt(10, module.getRetired_by());
+                                    stmt.setInt(11, module.getChanged_by());
+                                    stmt.setInt(12, module.getCreator());
+                                    if(module.getDate_changed() != null)
+                                        stmt.setDate(13, new java.sql.Date(module.getDate_changed().getTime()));
+                                    else
+                                        stmt.setDate(13, null);
+                                    if(module.getDate_created() != null)
+                                        stmt.setDate(14, new java.sql.Date(module.getDate_created().getTime()));
+                                    else
+                                        stmt.setDate(14, null);
+                                    if(module.getDate_retired() != null)
+                                        stmt.setDate(15, new java.sql.Date(module.getDate_retired().getTime()));
+                                    else
+                                        stmt.setDate(15, null);
+                                    stmt.setString(16, module.getRetire_reason());
+                                    stmt.setString(17, module.getUuid().toString());
+
+                                    //Add statement to batch
+                                    stmt.addBatch();
+                                    updateProgress(wDone + 1, allUsers.size());
+                                    Integer pDone = ((wDone + 1) / allUsers.size()) * 100;
+                                    wDone++;
+                                }
+                                //execute batch
+                                logToConsole("\n Loading Data....!\n");
+                                stmt.executeBatch();
+                                logToConsole("\n Loading Data.....!\n");
+                                conn.commit();
+                                logToConsole("Data Loaded successfully.");
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                rollbackTransaction(conn, e);
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return FXCollections.observableArrayList(allUsers);
+                }catch (ArrayIndexOutOfBoundsException ex){
+                    logToConsole("Error: "+ex.getMessage());
+                    return null;
+                }
+
+            }
+
+        };
+    }
+
+
+    private void loadProvider() {
+        providerTask = new Task<ObservableList<Provider>>() {
+            @Override
+            protected ObservableList<Provider> call() throws Exception {
+                try {
+                    allProviders = FXCollections.observableArrayList();
+                    Providers providers = new Providers();
+
+                    if(sourceDB.getSelectionModel().getSelectedIndex() == 0 ||
+                            sourceDB.getSelectionModel().getSelectedIndex() == 1 ||
+                            sourceDB.getSelectionModel().getSelectedIndex() == 2) {
+
+                        connectionSettings();
+
+                        Connection conn = null;
+                        Statement stmt = null;
+                        try{
+                            //STEP 2: Register JDBC driver
+                            Class.forName(driver);
+
+                            //STEP 3: Open a connection
+                            logToConsole("\n Connecting to Source Database!!");
+                            conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);
+                            logToConsole("\n Connected to database successfully...");
+
+                            //STEP 4: Execute a query
+
+                            stmt = conn.createStatement();
+                            String sql = "";
+                            if(fromFile.isSelected()){
+                                sql = getSQL();
+                            }else{
+                                sql = "SELECT * FROM "+suffix+"provider";
+                            }
+                            logToConsole("\n Creating Select statement...");
+                            ResultSet rs = stmt.executeQuery(sql);
+                            //STEP 5: Extract data from result set
+                            while(rs.next()){
+                                //Retrieve by column name
+                                Provider provider = new Provider();
+                                provider.setProvider_id(rs.getInt("provider_id"));
+                                provider.setName(rs.getString("name"));
+                                provider.setIdentifier(rs.getString("identifier"));
+                                provider.setProvider_role_id(rs.getInt("provider_role_id"));
+                                provider.setPerson_id(rs.getInt("person_id"));
+                                provider.setRetired(rs.getBoolean("retired"));
+                                provider.setRetired_by(rs.getInt("retired_by"));
+                                provider.setChanged_by(rs.getInt("changed_by"));
+                                provider.setCreator(1);
+                                provider.setDate_changed(rs.getDate("date_changed"));
+                                provider.setDate_created(rs.getDate("date_created"));
+                                provider.setDate_retired(rs.getDate("date_retired"));
+                                provider.setRetire_reason(rs.getString("retire_reason"));
+                                provider.setUuid(UUID.randomUUID());
+                                allProviders.add(provider);
+                            }
+                            rs.close();
+                            logToConsole("\n Data Successfully Fetched!\n");
+                        }catch(SQLException se){
+                            //Handle errors for JDBC
+                            se.printStackTrace();
+                            logToConsole("\n Error: "+se.getMessage());
+                        }catch(Exception e){
+                            //Handle errors for Class.forName
+                            e.printStackTrace();
+                            logToConsole("\n Error: "+e.getMessage());
+                        }finally{
+                            //finally block used to close resources
+                            try{
+                                if(stmt!=null)
+                                    conn.close();
+                            }catch(SQLException se){
+                            }// do nothing
+                            closeConnection(conn);
+                        }//end try
+
+                    }else{
+                        logToConsole("#################### XML BASED MIGRATION!");
+
+                        File file = null;
+
+                        try {
+                            logToConsole("Fetching patient.xml file......\n");
+                            file = new File(xsdDir + "/provider.xml");
+                            logToConsole("File fetched......\n");
+                        } catch (Exception e) {
+                            logToConsole("Error opening file provider.xml: " + e.getMessage() + "\n");
+                        }
+
+                        try {
+                            logToConsole("Converting file to a Model......\n");
+                            JAXBContext jaxbContext = JAXBContext.newInstance(Providers.class);
+                            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+                            providers = (Providers) unmarshaller.unmarshal(file);
+                            logToConsole("Conversion Done......\n");
+                        } catch (Exception exc) {
+                            logToConsole("Error Loading File Content to a Model: " + exc.getMessage() + "\n");
+                        }
+
+                    }
+                    if(allProviders.isEmpty()) {
+                        for (Provider theProvider : providers.getProviders()) {
+                            //thePatient.setUuid(UUID.randomUUID());
+                            allProviders.add(theProvider);
+                        }
+                    }
+
+                    if(! allProviders.isEmpty()) {
+                        logToConsole("\n Loading Data.!\n");
+                        String INSERT_SQL = "INSERT INTO provider"
+                                + "(provider_id, name, identifier, provider_role_id, person_id," +
+                                " retired, retired_by, changed_by, creator, date_changed, date_created, date_retired, retire_reason," +
+                                "uuid) " +
+                                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+                        String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
+                                "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
+                        String username = SessionManager.username;
+                        String password = SessionManager.password;
+                        Class.forName("com.mysql.jdbc.Driver");
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                            logToConsole("\n Loading Data..!\n");
+                            conn.setAutoCommit(false);
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                                logToConsole("\n Loading Data...!\n");
+                                int wDone = 0;
+                                // Insert sample records
+                                for (Provider module : allProviders) {
+                                    //logToConsole("\n Loading Data...!!\n");
+                                    stmt.setInt(1, module.getProvider_id());
+                                    stmt.setString(2, module.getName());
+                                    stmt.setString(3, module.getIdentifier());
+                                    stmt.setInt(4, module.getProvider_role_id());
+                                    stmt.setInt(5, module.getPerson_id());
+                                    stmt.setBoolean(6, module.isRetired());
+                                    stmt.setInt(7, module.getRetired_by());
+                                    stmt.setInt(8, module.getChanged_by());
+                                    stmt.setInt(9, module.getCreator());
+                                    if(module.getDate_changed() != null)
+                                        stmt.setDate(10, new java.sql.Date(module.getDate_changed().getTime()));
+                                    else
+                                        stmt.setDate(10, null);
+                                    if(module.getDate_created() != null)
+                                        stmt.setDate(11, new java.sql.Date(module.getDate_created().getTime()));
+                                    else
+                                        stmt.setDate(11, null);
+                                    if(module.getDate_retired() != null)
+                                        stmt.setDate(12, new java.sql.Date(module.getDate_retired().getTime()));
+                                    else
+                                        stmt.setDate(12, null);
+                                    stmt.setString(13, module.getRetire_reason());
+                                    stmt.setString(14, module.getUuid().toString());
+
+                                    //Add statement to batch
+                                    stmt.addBatch();
+                                    updateProgress(wDone + 1, allProviders.size());
+                                    Integer pDone = ((wDone + 1) / allProviders.size()) * 100;
+                                    wDone++;
+                                }
+                                //execute batch
+                                logToConsole("\n Loading Data....!\n");
+                                stmt.executeBatch();
+                                logToConsole("\n Loading Data.....!\n");
+                                conn.commit();
+                                logToConsole("Data Loaded successfully.");
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                rollbackTransaction(conn, e);
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return FXCollections.observableArrayList(allProviders);
+                }catch (ArrayIndexOutOfBoundsException ex){
+                    logToConsole("Error: "+ex.getMessage());
+                    return null;
+                }
+
+            }
+
+        };
+    }
+
+
+    private void loadEncounterProvider() {
+        encounterProviderTask = new Task<ObservableList<EncounterProvider>>() {
+            @Override
+            protected ObservableList<EncounterProvider> call() throws Exception {
+                try {
+                    allEncounterProviders = FXCollections.observableArrayList();
+                    EncounterProviders encounterProviders = new EncounterProviders();
+
+                    if(sourceDB.getSelectionModel().getSelectedIndex() == 0 ||
+                            sourceDB.getSelectionModel().getSelectedIndex() == 1 ||
+                            sourceDB.getSelectionModel().getSelectedIndex() == 2) {
+
+                        connectionSettings();
+
+                        Connection conn = null;
+                        Statement stmt = null;
+                        try{
+                            //STEP 2: Register JDBC driver
+                            Class.forName(driver);
+
+                            //STEP 3: Open a connection
+                            logToConsole("\n Connecting to Source Database!!");
+                            conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);
+                            logToConsole("\n Connected to database successfully...");
+
+                            //STEP 4: Execute a query
+
+                            stmt = conn.createStatement();
+                            String sql = "";
+                            if(fromFile.isSelected()){
+                                sql = getSQL();
+                            }else{
+                                sql = "SELECT * FROM "+suffix+"encounter_provider";
+                            }
+                            logToConsole("\n Creating Select statement...");
+                            ResultSet rs = stmt.executeQuery(sql);
+                            //STEP 5: Extract data from result set
+                            while(rs.next()){
+                                //Retrieve by column name
+                                EncounterProvider encounterProvider = new EncounterProvider();
+                                encounterProvider.setEncounter_provider_id(rs.getInt("encounter_provider_id"));
+                                encounterProvider.setProvider_id(rs.getInt("provider_id"));
+                                encounterProvider.setEncounter_id(rs.getInt("encounter_id"));
+                                encounterProvider.setEncounter_role_id(rs.getInt("encounter_role_id"));
+                                encounterProvider.setVoided(rs.getBoolean("voided"));
+                                encounterProvider.setVoided_by(rs.getInt("voided_by"));
+                                encounterProvider.setChanged_by(rs.getInt("changed_by"));
+                                encounterProvider.setCreator(1);
+                                encounterProvider.setDate_changed(rs.getDate("date_changed"));
+                                encounterProvider.setDate_created(rs.getDate("date_created"));
+                                encounterProvider.setDate_voided(rs.getDate("date_voided"));
+                                encounterProvider.setVoid_reason(rs.getString("void_reason"));
+                                encounterProvider.setUuid(UUID.randomUUID());
+                                allEncounterProviders.add(encounterProvider);
+                            }
+                            rs.close();
+                            logToConsole("\n Data Successfully Fetched!\n");
+                        }catch(SQLException se){
+                            //Handle errors for JDBC
+                            se.printStackTrace();
+                            logToConsole("\n Error: "+se.getMessage());
+                        }catch(Exception e){
+                            //Handle errors for Class.forName
+                            e.printStackTrace();
+                            logToConsole("\n Error: "+e.getMessage());
+                        }finally{
+                            //finally block used to close resources
+                            try{
+                                if(stmt!=null)
+                                    conn.close();
+                            }catch(SQLException se){
+                            }// do nothing
+                            closeConnection(conn);
+                        }//end try
+
+                    }else{
+                        logToConsole("#################### XML BASED MIGRATION!");
+
+                        File file = null;
+
+                        try {
+                            logToConsole("Fetching patient.xml file......\n");
+                            file = new File(xsdDir + "/encounter_provider.xml");
+                            logToConsole("File fetched......\n");
+                        } catch (Exception e) {
+                            logToConsole("Error opening file encounter_provider.xml: " + e.getMessage() + "\n");
+                        }
+
+                        try {
+                            logToConsole("Converting file to a Model......\n");
+                            JAXBContext jaxbContext = JAXBContext.newInstance(EncounterProviders.class);
+                            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+                            encounterProviders = (EncounterProviders) unmarshaller.unmarshal(file);
+                            logToConsole("Conversion Done......\n");
+                        } catch (Exception exc) {
+                            logToConsole("Error Loading File Content to a Model: " + exc.getMessage() + "\n");
+                        }
+
+                    }
+                    if(allEncounterProviders.isEmpty()) {
+                        for (EncounterProvider theEncounterProvider : encounterProviders.getEncounterProviders()) {
+                            //thePatient.setUuid(UUID.randomUUID());
+                            allEncounterProviders.add(theEncounterProvider);
+                        }
+                    }
+
+                    if(! allEncounterProviders.isEmpty()) {
+                        logToConsole("\n Loading Data.!\n");
+                        String INSERT_SQL = "INSERT INTO encounter_provider"
+                                + "(encounter_provider_id, provider_id, encounter_id, encounter_role_id," +
+                                " voided, voided_by, changed_by, creator, date_changed, date_created, date_voided, void_reason," +
+                                "uuid) " +
+                                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+                        String jdbcUrl = "jdbc:mysql://" + SessionManager.host + ":" + SessionManager.port + "/" + SessionManager.db +
+                                "?useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false";
+                        String username = SessionManager.username;
+                        String password = SessionManager.password;
+                        Class.forName("com.mysql.jdbc.Driver");
+                        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password);) {
+                            logToConsole("\n Loading Data..!\n");
+                            conn.setAutoCommit(false);
+                            try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL);) {
+                                logToConsole("\n Loading Data...!\n");
+                                int wDone = 0;
+                                // Insert sample records
+                                for (EncounterProvider module : allEncounterProviders) {
+                                    //logToConsole("\n Loading Data...!!\n");
+                                    stmt.setInt(1, module.getEncounter_provider_id());
+                                    stmt.setInt(2, module.getProvider_id());
+                                    stmt.setInt(3, module.getEncounter_id());
+                                    stmt.setInt(4, module.getEncounter_role_id());
+                                    stmt.setBoolean(5, module.isVoided());
+                                    stmt.setInt(6, module.getVoided_by());
+                                    stmt.setInt(7, module.getChanged_by());
+                                    stmt.setInt(8, module.getCreator());
+                                    if(module.getDate_changed() != null)
+                                        stmt.setDate(9, new java.sql.Date(module.getDate_changed().getTime()));
+                                    else
+                                        stmt.setDate(9, null);
+                                    if(module.getDate_created() != null)
+                                        stmt.setDate(10, new java.sql.Date(module.getDate_created().getTime()));
+                                    else
+                                        stmt.setDate(10, null);
+                                    if(module.getDate_voided() != null)
+                                        stmt.setDate(11, new java.sql.Date(module.getDate_voided().getTime()));
+                                    else
+                                        stmt.setDate(11, null);
+                                    stmt.setString(12, module.getVoid_reason());
+                                    stmt.setString(13, module.getUuid().toString());
+
+                                    //Add statement to batch
+                                    stmt.addBatch();
+                                    updateProgress(wDone + 1, allEncounterProviders.size());
+                                    Integer pDone = ((wDone + 1) / allEncounterProviders.size()) * 100;
+                                    wDone++;
+                                }
+                                //execute batch
+                                logToConsole("\n Loading Data....!\n");
+                                stmt.executeBatch();
+                                logToConsole("\n Loading Data.....!\n");
+                                conn.commit();
+                                logToConsole("Data Loaded successfully.");
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                rollbackTransaction(conn, e);
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return FXCollections.observableArrayList(allEncounterProviders);
+                }catch (ArrayIndexOutOfBoundsException ex){
+                    logToConsole("Error: "+ex.getMessage());
+                    return null;
+                }
+
+            }
+
+        };
+    }
+
 
     @FXML
     public void closeApp(){
@@ -2877,5 +3499,81 @@ public class Controller {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @FXML
+    private void executeQuery(){
+        appConsole.clear();
+        logToConsole("#################### RUN QUERY! \n");
+
+        String sql = getSQL();
+
+        suffix = tableSuffix.getText();
+        source_username = username.getText();
+        source_password = password.getText();
+
+
+        if (targetComboBox.getSelectionModel().getSelectedItem() == "Destination") {
+            source_username = username.getText();
+            source_password = password.getText();
+            dbTYPE = "MYSQL DB";
+            try {
+                driver = "com.mysql.jdbc.Driver";
+                source_jdbcUrl = "jdbc:mysql://" + host.getText() + ":" + port.getText() + "/" + db.getText() +
+                        "?useServerPrepStmts=false&rewriteBatchedStatements=true";
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        } else{
+            source_username = sourceUsername.getText();
+            source_password = sourcePassword.getText();
+            dbTYPE = "SQLSERVER";
+            try {
+                driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+                source_jdbcUrl = "jdbc:sqlserver://" + sourceHost.getText() + ";databaseName=" + sourceDb.getText();
+                //Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            } catch (Exception ex) {
+                logToConsole("Error: "+ex.getMessage()+"\n");
+                ex.printStackTrace();
+            }
+        }
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName(driver);
+        }catch (Exception exc){
+            logToConsole("\n Error Registering DB Driver "+exc.getMessage()+"..");
+        }
+        try (Connection conn = DriverManager.getConnection(source_jdbcUrl, source_username, source_password);) {
+//            if(actionComboBox.getSelectionModel().getSelectedItem() == "Create" ||
+//                    actionComboBox.getSelectionModel().getSelectedItem() == "Delete" ||
+//                    actionComboBox.getSelectionModel().getSelectedItem() == "Update"){
+                conn.setAutoCommit(false);
+                try (Statement smt = conn.createStatement();) {
+                    //execute batch
+
+                    smt.execute(sql);
+                    conn.commit();
+                    logToConsole("Query Executed Successfully!\n");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    rollbackTransaction(conn, e);
+                }
+            //}
+//            else {
+//                conn.setAutoCommit(false);
+//                try (Statement stmt = conn.createStatement();) {
+//                    //execute batch
+//                    stmt.executeBatch();
+//                    conn.commit();
+//                    logToConsole("Query Executed Successfully!\n");
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                    rollbackTransaction(conn, e);
+//                }
+//            }
+        } catch (SQLException e) {
+            logToConsole("Error: SQL STATE: " +e.getSQLState()+"... MESSAGE: "+e.getMessage()+"\n");
+            e.printStackTrace();
+        }
     }
 }

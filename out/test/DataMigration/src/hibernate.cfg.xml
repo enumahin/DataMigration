@@ -34,7 +34,7 @@
 
         <!--<property name="hibernate.current_session_context_class">thread</property>-->
   
-       	<mapping class="org.ccfng.datamigration.User" />
+       	<mapping class="org.ccfng.datamigration.Usersss" />
         <mapping class="org.ccfng.datamigration.encounter.Encounter" />
         <mapping class="org.ccfng.datamigration.patient.Patient" />
         <mapping class="org.ccfng.datamigration.personname.PersonName" />
@@ -46,7 +46,7 @@
         <mapping class="org.ccfng.datamigration.personattribute.PersonAttribute" />
         <mapping class="org.ccfng.datamigration.visit.Visit" />
 
-        <!-- <mapping resource="bean/User.hbm.xml" /> -->
+        <!-- <mapping resource="bean/Usersss.hbm.xml" /> -->
           
     </session-factory>
 </hibernate-configuration>

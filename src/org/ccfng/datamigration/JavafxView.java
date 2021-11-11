@@ -4,7 +4,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-import org.ccfng.datamigration.User;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
@@ -64,21 +63,21 @@ public class JavafxView extends Application {
 		Configuration cfg = new Configuration().configure("hibernate.cfg.xml");
 		SessionFactory sf = cfg.buildSessionFactory();
 					
-		User user = new User();
+		Usersss usersss = new Usersss();
 		
 		savebtn = new Button("Save");
-		savebtn.setTooltip(new Tooltip("Save the User Details"));
+		savebtn.setTooltip(new Tooltip("Save the Usersss Details"));
 		savebtn.setFont(Font.font("SanSerif", 15));
 		savebtn.setOnAction(e ->{
-			user.setFirstName(fName.getText());
-			user.setLastName(lName.getText());
-			user.setEmail(email.getText());
-			user.setDate(date.getEditor().getText());
-			user.setMobileNo(mobileNo.getText());
+			usersss.setFirstName(fName.getText());
+			usersss.setLastName(lName.getText());
+			usersss.setEmail(email.getText());
+			usersss.setDate(date.getEditor().getText());
+			usersss.setMobileNo(mobileNo.getText());
 			
 			Session session = sf.openSession();
 			session.beginTransaction();
-			session.save(user);
+			session.save(usersss);
 			session.getTransaction().commit();
 			session.close();
 			

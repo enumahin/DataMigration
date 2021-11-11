@@ -25,9 +25,9 @@ public class Visit
     private UUID Uuid;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "Visit_id_seq_gen")
-    @SequenceGenerator(name = "Visit_id_seq_gen", sequenceName = "Visit_id_seq", allocationSize = 800)
-    @XmlElement(name = "Visit_id")
+//    @GeneratedValue(strategy = GenerationType.AUTO, generator = "Visit_id_seq_gen")
+//    @SequenceGenerator(name = "Visit_id_seq_gen", sequenceName = "Visit_id_seq", allocationSize = 800)
+//    @XmlElement(name = "Visit_id")
     private Integer Visit_id;
 
     @XmlElement(name = "Visit_type_id")
